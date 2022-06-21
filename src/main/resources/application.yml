@@ -1,0 +1,17 @@
+spring:
+  redis:
+    host: redis_dev
+    port: 6379
+    password:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/coretime
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
