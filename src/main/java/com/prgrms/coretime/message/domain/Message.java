@@ -1,0 +1,55 @@
+package com.prgrms.coretime.message.domain;
+
+import com.prgrms.coretime.user.domain.User;
+import java.util.Objects;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "message")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+public class Message {
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
+
+  @ManyToOne
+  @JoinColumn(name = "message_room_id", referencedColumnName = "id")
+  private MessageRoom messageRoom;
+
+  @ManyToOne
+  @JoinColumn(name = "writer_id", referencedColumnName = "id")
+  private User writer;
+
+  @Column(name = "content", nullable = false)
+  @Lob
+  private String content;
+
+  public void setMessageRoom(MessageRoom messageRoom) {
+    if (Objects.nonNull(this.messageRoom)) {
+      messageRoom.getMessages().remove(this);
+    }
+    this.messageRoom = messageRoom;
+    messageRoom.getMessages().add(this);
+  }
+
+  public void setWriter(User writer) {
+    if (Objects.nonNull(this.writer)) {
+      writer.getMessageWriters().remove(this);
+    }
+    this.writer = writer;
+    writer.getMessageWriters().add(this);
+  }
+
+}
