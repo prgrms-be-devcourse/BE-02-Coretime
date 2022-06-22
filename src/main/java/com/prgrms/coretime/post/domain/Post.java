@@ -51,7 +51,7 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post")
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "created_form")
+    @OneToMany(mappedBy = "createdFrom")
     private List<MessageRoom> messageRooms = new ArrayList<>();
 
     public void addComment(Comment comment) {

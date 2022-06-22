@@ -27,11 +27,11 @@ public class Message extends BaseEntity {
   private Long id;
 
   @ManyToOne
-  @JoinColumn(name = "message_room_id", referencedColumnName = "id")
+  @JoinColumn(name = "message_room_id", referencedColumnName = "message_room_id")
   private MessageRoom messageRoom;
 
   @ManyToOne
-  @JoinColumn(name = "writer_id", referencedColumnName = "id")
+  @JoinColumn(name = "writer_id", referencedColumnName = "user_id")
   private User writer;
 
   @Column(name = "content", nullable = false, length = 300)

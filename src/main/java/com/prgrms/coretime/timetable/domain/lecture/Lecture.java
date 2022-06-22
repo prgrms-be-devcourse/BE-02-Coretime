@@ -49,7 +49,6 @@ public class Lecture extends BaseEntity {
   @OneToMany(mappedBy = "lecture")
   private List<Enrollment> enrollments = new ArrayList<>();
 
-  @Builder
   public Lecture(String name, String professor, String classroom) {
     this.name = name;
     this.professor = professor;

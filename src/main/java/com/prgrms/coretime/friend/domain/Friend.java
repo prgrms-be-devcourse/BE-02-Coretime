@@ -27,7 +27,7 @@ public class Friend extends BaseEntity {
   @ManyToOne
   @JoinColumnOrFormula(column =
   @JoinColumn(name = "follower_id",
-      referencedColumnName = "id")
+      referencedColumnName = "user_id")
   )
   private User followerUser;
 
@@ -35,7 +35,7 @@ public class Friend extends BaseEntity {
   @ManyToOne
   @JoinColumnOrFormula(column =
   @JoinColumn(name = "followee_id",
-      referencedColumnName = "id")
+      referencedColumnName = "user_id")
   )
   private User followeeUser;
 
