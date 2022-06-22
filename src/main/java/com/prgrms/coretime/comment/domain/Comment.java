@@ -105,11 +105,33 @@ public class Comment extends BaseEntity {
 
   /**
    * TODO : 대댓글 연관관계 설정 1:N 양방향
-   * */
+   */
+
+  public Long getId() {
+    return id;
+  }
+
+  public Comment getParent() {
+    return parent;
+  }
+
+  public Integer getAnonymousSeq() {
+    return anonymousSeq;
+  }
+
+  public Boolean getAnonymous() {
+    return isAnonymous;
+  }
+
+  public String getContent() {
+    return content;
+  }
 
   /**
    * TODO : USER 1:N 양방향 필요하면!
    */
+
+  // getter
 
   // private setter
   private void setAnonymousSeq(Integer anonymousSeq) {
