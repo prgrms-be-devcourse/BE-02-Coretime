@@ -1,21 +1,28 @@
 package com.prgrms.coretime.school.domain;
 
+import com.prgrms.coretime.common.entity.BaseEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 @Entity
-public class School {
-  @Id
-  @Column(name = "user_id")
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private long schoolId;
+@Table(name = "school")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class School extends BaseEntity {
 
-  @Column(name = "name")
+  @Id
+  @Column(name = "school_id")
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
+
+  @Column(name = "name", nullable = false, length = 30)
   private String name;
 
-  @Column(name = "name")
+  @Column(name = "email", nullable = false, length = 300)
   private String email;
 }

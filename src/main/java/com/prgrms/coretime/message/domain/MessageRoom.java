@@ -1,9 +1,12 @@
 package com.prgrms.coretime.message.domain;
 
+import com.prgrms.coretime.common.entity.BaseEntity;
+import com.prgrms.coretime.post.domain.Post;
 import com.prgrms.coretime.user.domain.User;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -20,23 +23,27 @@ import lombok.NoArgsConstructor;
 @Table(name = "message_room")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class MessageRoom {
+public class MessageRoom extends BaseEntity {
+
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(name = "message_room_id")
   private Long id;
 
   @ManyToOne
-  @JoinColumn(name = "initial_sender_id", referencedColumnName = "id")
+  @JoinColumn(name = "initial_sender_id", referencedColumnName = "user_id")
   private User initialSender;
 
   @ManyToOne
-  @JoinColumn(name = "initial_receiver_id", referencedColumnName = "id")
+  @JoinColumn(name = "initial_receiver_id", referencedColumnName = "user_id")
   private User initialReceiver;
 
-  // TODO: Post로 수정
-  // private User createdFrom;
+  @ManyToOne
+  @JoinColumn(name = "created_from", referencedColumnName = "post_id")
+  private Post createdFrom;
 
-  private boolean isBlocked;
+  @Column(name = "is_blocked", nullable = false)
+  private Boolean isBlocked;
 
   @OneToMany(mappedBy = "messageRoom")
   private List<Message> messages = new ArrayList<>();

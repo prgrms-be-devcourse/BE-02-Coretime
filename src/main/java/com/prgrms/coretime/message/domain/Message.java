@@ -1,5 +1,6 @@
 package com.prgrms.coretime.message.domain;
 
+import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.user.domain.User;
 import java.util.Objects;
 import javax.persistence.Column;
@@ -8,7 +9,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
@@ -19,9 +19,11 @@ import lombok.NoArgsConstructor;
 @Table(name = "message")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Message {
+public class Message extends BaseEntity {
+
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(name = "message_id")
   private Long id;
 
   @ManyToOne
@@ -32,8 +34,7 @@ public class Message {
   @JoinColumn(name = "writer_id", referencedColumnName = "id")
   private User writer;
 
-  @Column(name = "content", nullable = false)
-  @Lob
+  @Column(name = "content", nullable = false, length = 300)
   private String content;
 
   public void setMessageRoom(MessageRoom messageRoom) {

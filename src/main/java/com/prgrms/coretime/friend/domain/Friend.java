@@ -1,5 +1,6 @@
 package com.prgrms.coretime.friend.domain;
 
+import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.user.domain.User;
 import java.util.Objects;
 import javax.persistence.EmbeddedId;
@@ -17,7 +18,7 @@ import org.hibernate.annotations.JoinColumnOrFormula;
 @Table(name = "friend")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Friend {
+public class Friend extends BaseEntity {
 
   @EmbeddedId
   private FriendId friendId;
@@ -29,7 +30,6 @@ public class Friend {
       referencedColumnName = "id")
   )
   private User followerUser;
-
 
   @MapsId("followeeId")
   @ManyToOne

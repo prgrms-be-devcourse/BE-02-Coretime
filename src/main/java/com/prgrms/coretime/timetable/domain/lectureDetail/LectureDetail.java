@@ -2,27 +2,31 @@ package com.prgrms.coretime.timetable.domain.lectureDetail;
 
 import static javax.persistence.FetchType.LAZY;
 
+import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.timetable.domain.lecture.Lecture;
 import java.time.LocalTime;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "lecture_detail")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class LectureDetail {
+public class LectureDetail extends BaseEntity {
+
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "lecture_detail_id")
   private Long id;
 
@@ -32,7 +36,7 @@ public class LectureDetail {
   @Column(name = "end_time", nullable = false)
   private LocalTime endTime;
 
-  @Column(nullable = false)
+  @Column(name = "day", nullable = false)
   private Day day;
 
   @ManyToOne(fetch = LAZY)
@@ -40,8 +44,7 @@ public class LectureDetail {
   private Lecture lecture;
 
   @Builder
-  public LectureDetail(LocalTime startTime, LocalTime endTime,
-      Day day) {
+  public LectureDetail(LocalTime startTime, LocalTime endTime, Day day) {
     this.startTime = startTime;
     this.endTime = endTime;
     this.day = day;

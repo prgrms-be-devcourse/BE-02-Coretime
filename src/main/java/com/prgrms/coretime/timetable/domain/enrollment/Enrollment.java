@@ -2,6 +2,7 @@ package com.prgrms.coretime.timetable.domain.enrollment;
 
 import static javax.persistence.FetchType.LAZY;
 
+import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.timetable.domain.TimeTable;
 import com.prgrms.coretime.timetable.domain.lecture.Lecture;
 import javax.persistence.EmbeddedId;
@@ -9,19 +10,21 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Enrollment {
+public class Enrollment extends BaseEntity {
+
   @EmbeddedId
   private EnrollmentId enrollmentId;
 
   @MapsId("lectureId")
   @ManyToOne(fetch = LAZY)
-  @JoinColumn(name="lecture_id", referencedColumnName = "lecture_id")
+  @JoinColumn(name = "lecture_id", referencedColumnName = "lecture_id")
   private Lecture lecture;
 
   @MapsId("timeTableId")
@@ -33,7 +36,7 @@ public class Enrollment {
     this.enrollmentId = enrollmentId;
   }
 
-  public void addLecture(Lecture lecture) {
+  public void setLecture(Lecture lecture) {
     this.lecture = lecture;
   }
 
