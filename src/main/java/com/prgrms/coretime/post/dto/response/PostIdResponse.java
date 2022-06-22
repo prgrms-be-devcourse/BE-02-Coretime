@@ -1,5 +1,4 @@
 package com.prgrms.coretime.post.dto.response;
 
-public class Tmp {
-
+public record PostIdResponse(Long postId) {
 }
