@@ -3,7 +3,10 @@ package com.prgrms.coretime.post.domain;
 import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.message.domain.MessageRoom;
+import com.prgrms.coretime.post.dto.request.PostUpdateRequest;
 import com.prgrms.coretime.user.domain.User;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
@@ -15,6 +18,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -54,8 +58,28 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "createdFrom")
     private List<MessageRoom> messageRooms = new ArrayList<>();
 
+    @Builder
+    public Post(
+            String title,
+            String content,
+            Boolean isAnonymous,
+            Board board,
+            User user
+    ) {
+        this.title = title;
+        this.content = content;
+        this.isAnonymous = isAnonymous;
+        this.board = board;
+        this.user = user;
+    }
+
     public void addComment(Comment comment) {
         comment.setPost(this);
+    }
+
+    public void updatePost(PostUpdateRequest request) {
+        this.title = request.getTitle();
+        this.content = request.getContent();
     }
 
 }
