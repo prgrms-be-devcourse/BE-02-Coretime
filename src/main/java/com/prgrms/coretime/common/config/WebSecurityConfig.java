@@ -13,36 +13,36 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final JwtConfigure jwtConfigure;
+  private final JwtConfigure jwtConfigure;
 
-    public WebSecurityConfig(JwtConfigure jwtConfigure) {
-        this.jwtConfigure = jwtConfigure;
-    }
+  public WebSecurityConfig(JwtConfigure jwtConfigure) {
+    this.jwtConfigure = jwtConfigure;
+  }
 
-    @Bean
-    public Jwt jwt() {
-        return new Jwt(
-            jwtConfigure.getIssuer(),
-            jwtConfigure.getClientSecret(),
-            jwtConfigure.getExpirySeconds()
-        );
-    }
+  @Bean
+  public Jwt jwt() {
+    return new Jwt(
+        jwtConfigure.getIssuer(),
+        jwtConfigure.getClientSecret(),
+        jwtConfigure.getExpirySeconds()
+    );
+  }
 
-    @Override
-    public void configure(WebSecurity web) {
-        web.ignoring().antMatchers("/assets/**", "/h2-console/**");
-    }
+  @Override
+  public void configure(WebSecurity web) {
+    web.ignoring().antMatchers("/assets/**", "/h2-console/**");
+  }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-                .cors()
-                .and()
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeRequests()
-                .antMatchers("/swagger*/**").permitAll()
-                .antMatchers("/api/v1/**").permitAll();
-    }
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http
+        .cors()
+        .and()
+        .csrf().disable()
+        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .and()
+        .authorizeRequests()
+        .antMatchers("/swagger*/**").permitAll()
+        .antMatchers("/api/v1/**").permitAll();
+  }
 }
