@@ -47,6 +47,7 @@ public final class Jwt {
       builder.withExpiresAt(new Date(now.getTime() + expirySeconds * 1_000L));
     }
     builder.withClaim("userId", claims.userId);
+    builder.withClaim("nickname", claims.nickname);
     return  builder.sign(algorithm);
   }
 
@@ -57,6 +58,7 @@ public final class Jwt {
   static public class Claims {
 
     Long userId;
+    String nickname;
     Date iat; // 발행 시각
     Date exp; // 만료 시각
 
@@ -67,13 +69,18 @@ public final class Jwt {
       if (!userId.isNull()) {
         this.userId = userId.asLong();
       }
+      Claim nickname = decodedJWT.getClaim("nickname");
+      if (!nickname.isNull()) {
+        this.nickname = nickname.asString();
+      }
       this.iat = decodedJWT.getIssuedAt();
       this.exp = decodedJWT.getExpiresAt();
     }
 
-    public static Claims from(Long userId) {
+    public static Claims from(Long userId, String nickname) {
       Claims claims = new Claims();
       claims.userId = userId;
+      claims.nickname = nickname;
       return claims;
     }
   }
