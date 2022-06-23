@@ -1,7 +1,6 @@
 package com.prgrms.coretime.timetable.controller;
 
 import static com.prgrms.coretime.timetable.domain.Semester.SECOND;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -42,7 +41,11 @@ class TimetableControllerTest {
     @MethodSource("timetableCreatRequestParameter")
     @DisplayName("request dto의 validation이 잘 되는지 테스트")
     void testTimetableCreateRequestValidation(String name, Integer year, Semester semester) throws Exception {
-      TimetableCreateRequest timetableCreateRequest = new TimetableCreateRequest(name, year, semester);
+      TimetableCreateRequest timetableCreateRequest = TimetableCreateRequest.builder()
+          .name(name)
+          .year(year)
+          .semester(semester)
+          .build();
 
       mockMvc.perform(post("/api/v1/timetables")
               .contentType(MediaType.APPLICATION_JSON)
@@ -61,7 +64,11 @@ class TimetableControllerTest {
     @Test
     @DisplayName("요청을 정상적으로 처리한경우 status가 201인지 확인하는 테스트")
     void testTimetableCreate() throws Exception {
-      TimetableCreateRequest timetableCreateRequest = new TimetableCreateRequest("시간표", 2022, SECOND);
+      TimetableCreateRequest timetableCreateRequest = TimetableCreateRequest.builder()
+          .name("시간표1")
+          .year(2022)
+          .semester(SECOND)
+          .build();
 
       mockMvc.perform(post("/api/v1/timetables")
               .contentType(MediaType.APPLICATION_JSON)
