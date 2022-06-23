@@ -18,6 +18,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+import java.util.Optional;
+
 @Service
 public class PostService {
     private final PostRepository postRepository;
@@ -29,8 +32,13 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostSimpleResponse> getPostsByBoard(Long boardId, Pageable pageable) {
-        Page<Post> posts = postRepository.findPostsByBoardId(boardId, pageable);
+    public Page<PostSimpleResponse> getPostsByBoard(Long boardId, String keyword, Pageable pageable) {
+        Page<Post> posts;
+        if (Objects.isNull(keyword)) {
+            posts = postRepository.findPostsByBoardId(boardId, pageable);
+        } else {
+            posts = postRepository.searchPostsAtBoard(keyword, boardId, pageable);
+        }
         return posts.map(PostSimpleResponse::new);
     }
 
@@ -55,12 +63,12 @@ public class PostService {
         Board board = boardRepository.findById(boardId).orElseThrow(
                 () -> new IllegalArgumentException("해당 ID의 게시판이 존재하지 않습니다.")
         );
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("해당 ID의 유저가 존재하지 않습니다.")
-        );
+//        User user = userRepository.findById(userId).orElseThrow(
+//                () -> new IllegalArgumentException("해당 ID의 유저가 존재하지 않습니다.")
+//        );
         Post post = Post.builder()
                 .board(board)
-                .user(user)
+//                .user(user)
                 .title(request.getTitle())
                 .content(request.getContent())
                 .isAnonymous(request.getIsAnonymous())

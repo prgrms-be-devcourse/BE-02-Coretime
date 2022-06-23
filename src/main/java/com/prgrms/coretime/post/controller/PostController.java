@@ -1,6 +1,5 @@
 package com.prgrms.coretime.post.controller;
 
-import com.prgrms.coretime.post.dto.request.PostCreateRequest;
 import com.prgrms.coretime.post.dto.request.PostUpdateRequest;
 import com.prgrms.coretime.post.dto.response.PostIdResponse;
 import com.prgrms.coretime.post.dto.response.PostResponse;
@@ -10,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/v1/posts")
@@ -21,27 +21,27 @@ public class PostController {
         this.postService = postService;
     }
 
-    @GetMapping("/hot")
-    public Page<PostSimpleResponse> showHotPosts(
-            @RequestParam @PageableDefault(
-                    sort = {"created_at"},
-                    direction = Sort.Direction.DESC
-            ) Pageable pageable
-    ) {
-    }
-
-    @GetMapping("/best")
-    public Page<PostSimpleResponse> showBestPosts(
-            @RequestParam @PageableDefault(
-                    sort = {"created_at"},
-                    direction = Sort.Direction.DESC
-            ) Pageable pageable
-    ) {
-    }
+//    @GetMapping("/hot")
+//    public Page<PostSimpleResponse> showHotPosts(
+//            @RequestParam(required = false) @PageableDefault(
+//                    sort = {"created_at"},
+//                    direction = Sort.Direction.DESC
+//            ) Pageable pageable
+//    ) {
+//    }
+//
+//    @GetMapping("/best")
+//    public Page<PostSimpleResponse> showBestPosts(
+//            @RequestParam(required = false) @PageableDefault(
+//                    sort = {"created_at"},
+//                    direction = Sort.Direction.DESC
+//            ) Pageable pageable
+//    ) {
+//    }
 
     @GetMapping("/my")
     public Page<PostSimpleResponse> showMyPosts(
-            @RequestParam @PageableDefault(
+            @RequestParam(required = false) @PageableDefault(
                     sort = {"created_at"},
                     direction = Sort.Direction.DESC
             ) Pageable pageable,
@@ -50,14 +50,14 @@ public class PostController {
         return postService.getPostsByUser(userId, pageable);
     }
 
-    @GetMapping("/mycomment")
-    public Page<PostSimpleResponse> showMyCommentedPosts(
-            @RequestParam @PageableDefault(
-                    sort = {"created_at"},
-                    direction = Sort.Direction.DESC
-            ) Pageable pageable
-    ) {
-    }
+//    @GetMapping("/mycomment")
+//    public Page<PostSimpleResponse> showMyCommentedPosts(
+//            @RequestParam(required = false) @PageableDefault(
+//                    sort = {"created_at"},
+//                    direction = Sort.Direction.DESC
+//            ) Pageable pageable
+//    ) {
+//    }
 
     @GetMapping("/{postId}")
     public PostResponse showPost(
@@ -69,7 +69,7 @@ public class PostController {
     @PatchMapping("/{postId}")
     public PostIdResponse updatePost(
             @PathVariable(name = "postId") Long postId,
-            @RequestBody PostUpdateRequest request
+            @RequestBody @Validated PostUpdateRequest request
     ) {
         return postService.updatePost(postId, request);
     }
@@ -83,8 +83,8 @@ public class PostController {
 
     @GetMapping()
     public Page<PostSimpleResponse> searchPosts(
-            @RequestParam String keyword,
-            @RequestParam @PageableDefault(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) @PageableDefault(
                     sort = {"created_at"},
                     direction = Sort.Direction.DESC
             ) Pageable pageable
