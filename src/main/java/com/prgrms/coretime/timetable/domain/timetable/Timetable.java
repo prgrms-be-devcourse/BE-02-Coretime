@@ -1,9 +1,12 @@
-package com.prgrms.coretime.timetable.domain;
+package com.prgrms.coretime.timetable.domain.timetable;
 
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.LAZY;
+import static org.springframework.util.Assert.*;
+import static org.springframework.util.Assert.hasText;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
+import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
 import com.prgrms.coretime.user.domain.User;
 import java.util.ArrayList;
@@ -23,12 +26,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.Assert;
 
 @Entity
 @Table(name = "timetable")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class TimeTable extends BaseEntity {
+public class Timetable extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -43,7 +47,7 @@ public class TimeTable extends BaseEntity {
   private Semester semester;
 
   @Column(name = "year", nullable = false)
-  private int year;
+  private Integer year;
 
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "user_id", referencedColumnName = "user_id")
@@ -53,7 +57,8 @@ public class TimeTable extends BaseEntity {
   private List<Enrollment> enrollments = new ArrayList<>();
 
   @Builder
-  public TimeTable(String name, Semester semester, int year) {
+  public Timetable(String name, Semester semester, Integer year) {
+    validateTimetableField(name, semester, year);
     this.name = name;
     this.semester = semester;
     this.year = year;
@@ -64,5 +69,16 @@ public class TimeTable extends BaseEntity {
       //
     }
     this.user = user;
+  }
+
+  private void validateTimetableField(String name, Semester semester, Integer year) {
+    hasText(name, "name cannot be null blank");
+    if(1 > name.length() || name.length() > 10) {
+      throw new IllegalArgumentException("1 <= name <= 10");
+    }
+
+    notNull(semester, "semester cannot be null");
+
+    notNull(year, "year cannot be null");
   }
 }

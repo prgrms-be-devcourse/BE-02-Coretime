@@ -3,7 +3,7 @@ package com.prgrms.coretime.timetable.domain.enrollment;
 import static javax.persistence.FetchType.LAZY;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
-import com.prgrms.coretime.timetable.domain.TimeTable;
+import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.timetable.domain.lecture.Lecture;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
@@ -30,7 +30,7 @@ public class Enrollment extends BaseEntity {
   @MapsId("timeTableId")
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name="timetable_id", referencedColumnName = "timetable_id")
-  private TimeTable timeTable;
+  private Timetable timeTable;
 
   public Enrollment(EnrollmentId enrollmentId) {
     this.enrollmentId = enrollmentId;
