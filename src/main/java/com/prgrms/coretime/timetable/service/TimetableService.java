@@ -6,9 +6,11 @@ import com.prgrms.coretime.timetable.domain.repository.TimetableRepository;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
 import com.prgrms.coretime.user.domain.User;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
 @RequiredArgsConstructor
@@ -19,15 +21,15 @@ public class TimetableService {
   private final TemporaryUserRepository userRepository;
 
   @Transactional
-  public void createTimetable(TimetableCreateRequest timetableCreateRequest) {
+  public void createTimetable(@RequestBody @Valid TimetableCreateRequest timetableCreateRequest) {
     // TODO : 사용자 ID 가져오는 로직 추가
     Long userId = 1L;
     User user  = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException());
 
     Timetable newTimetable = Timetable.builder()
         .name(timetableCreateRequest.getName())
-        .semester(timetableCreateRequest.getSemester())
         .year(timetableCreateRequest.getYear())
+        .semester(timetableCreateRequest.getSemester())
         .build();
     newTimetable.setUser(user);
 
