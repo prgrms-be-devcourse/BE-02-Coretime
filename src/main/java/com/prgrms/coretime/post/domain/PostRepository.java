@@ -1,6 +1,7 @@
 package com.prgrms.coretime.post.domain;
 
 import com.prgrms.coretime.comment.domain.Comment;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,7 +22,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findPostsByUserId(@Param("userId") Long userId, Pageable pageable);
 
     @Query("select p from Post p join fetch p.board join fetch p.user where p.id = :postId")
-    Post findPostById(@Param("postId") Long postId);
+    Optional<Post> findPostById(@Param("postId") Long postId);
 
     @Query(value = "select c from Comment c join fetch c.user where c.post.id = :postId",
             countQuery = "select c from Comment c where c.post.id = :postId")
@@ -34,4 +35,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query(value = "select p from Post p join fetch p.board join fetch p.user where p.board.id = :boardId and (p.title like :keyword or p.content like :keyword)",
             countQuery = "select p from Post p where p.board.id = :boardId and (p.title like :keyword or p.content like :keyword)")
     Page<Post> searchPostsAtBoard(@Param("keyword") String keyword, @Param("boardId") Long boardId, Pageable pageable);
+
+
 }

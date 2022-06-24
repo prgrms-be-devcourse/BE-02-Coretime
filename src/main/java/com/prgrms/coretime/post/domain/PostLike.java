@@ -31,4 +31,9 @@ public class PostLike {
             referencedColumnName = "user_id")
     )
     private User user;
+
+    public PostLike(Post post, User user) {
+        this.post = post;
+        this.user = user;
+    }
 }
