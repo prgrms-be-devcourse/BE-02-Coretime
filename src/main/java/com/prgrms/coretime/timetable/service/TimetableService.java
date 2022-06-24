@@ -27,9 +27,8 @@ public class TimetableService {
     Long userId = 1L;
     User user  = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다!"));
 
-    // TODO : 동일한 이름이 있는지 확인하는 로직 필요
-    long duplicateUserCount = timetableRepository.countDuplicateTimetableName(timetableCreateRequest.getName().trim(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester());
-    if(duplicateUserCount != 0) {
+    long duplicateNameCount = timetableRepository.countDuplicateTimetableName(timetableCreateRequest.getName().trim(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester());
+    if(duplicateNameCount != 0) {
       throw new IllegalArgumentException("이미 사용중인 이름입니다.");
     }
 
