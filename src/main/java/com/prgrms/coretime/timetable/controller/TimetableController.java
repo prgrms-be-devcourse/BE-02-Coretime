@@ -1,18 +1,25 @@
 package com.prgrms.coretime.timetable.controller;
 
 import com.prgrms.coretime.common.ApiResponse;
+import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
+import com.prgrms.coretime.timetable.dto.response.TimetableResponse;
 import com.prgrms.coretime.timetable.service.TimetableService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import java.net.URI;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Api(tags = {"timetables"})
@@ -34,10 +41,12 @@ public class TimetableController {
         .body(apiResponse);
   }
 
-
+  @ApiOperation(value = "시간표 목록 조회", notes = "연도와 학기에 따른 시간표 목록을 조회합니다.")
   @GetMapping
-  public ResponseEntity<ApiResponse> getTimetable() {
-    ApiResponse apiResponse = new ApiResponse("????");
+  public ResponseEntity<ApiResponse> getTimetables(@RequestParam Integer year, @RequestParam Semester semester) {
+    TimetableResponse timetableResponse = timetableService.getTimetables(year, semester);
+
+    ApiResponse apiResponse = new ApiResponse("시간표 목록 조회 완료", timetableResponse);
 
     return ResponseEntity
         .ok()
