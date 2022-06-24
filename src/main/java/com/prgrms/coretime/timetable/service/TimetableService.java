@@ -7,6 +7,7 @@ import com.prgrms.coretime.timetable.domain.repository.TemporaryUserRepository;
 import com.prgrms.coretime.timetable.domain.repository.TimetableRepository;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
+import com.prgrms.coretime.timetable.dto.response.TimetableInfo;
 import com.prgrms.coretime.timetable.dto.response.TimetableResponse;
 import com.prgrms.coretime.user.domain.User;
 import java.util.List;
@@ -48,10 +49,12 @@ public class TimetableService {
   }
 
   @Transactional(readOnly = true)
-  public List<TimetableResponse> getTimetables(Integer year, Semester semester) {
-    return timetableRepository.getTimetables(year, semester).stream()
-        .map(timetable -> new TimetableResponse(timetable.getId(), timetable.getName()))
+  public TimetableResponse getTimetables(Integer year, Semester semester) {
+    List<TimetableInfo> timetables = timetableRepository.getTimetables(year, semester).stream()
+        .map(timetable -> new TimetableInfo(timetable.getId(), timetable.getName()))
         .collect(Collectors.toList());
+
+    return new TimetableResponse(timetables);
   }
 
   // 상세 조회

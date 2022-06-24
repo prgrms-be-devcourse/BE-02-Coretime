@@ -1,16 +1,16 @@
 package com.prgrms.coretime.timetable.dto.response;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
 public class TimetableResponse {
-  private Long timetableId;
-  private String name;
+  private List<TimetableInfo> timetables;
 
-  public TimetableResponse(Long timetableId, String name) {
-    this.timetableId = timetableId;
-    this.name = name;
+  public TimetableResponse(
+      List<TimetableInfo> timetables) {
+    this.timetables = timetables;
   }
 }
