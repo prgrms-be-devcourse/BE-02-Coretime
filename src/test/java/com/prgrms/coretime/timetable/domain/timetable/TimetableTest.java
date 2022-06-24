@@ -26,7 +26,7 @@ class TimetableTest {
               .build()
         );
 
-        assertThat(exception.getMessage()).isEqualTo("1 <= name <= 10");
+        assertThat(exception.getMessage()).isEqualTo("name의 길이는 1 ~ 10 입니다.");
       }
 
       @Test
@@ -40,7 +40,7 @@ class TimetableTest {
                 .build()
         );
 
-        assertThat(exception.getMessage()).isEqualTo("name cannot be null blank");
+        assertThat(exception.getMessage()).isEqualTo("name은 null이거나 빈칸일 수 없습니다.");
       }
 
       @Test
@@ -54,7 +54,7 @@ class TimetableTest {
                 .build()
         );
 
-        assertThat(exception.getMessage()).isEqualTo("name cannot be null blank");
+        assertThat(exception.getMessage()).isEqualTo("name은 null이거나 빈칸일 수 없습니다.");
       }
     }
 
@@ -72,7 +72,7 @@ class TimetableTest {
                 .build()
         );
 
-        assertThat(exception.getMessage()).isEqualTo("semester cannot be null");
+        assertThat(exception.getMessage()).isEqualTo("semester는 null일 수 없습니다.");
       }
     }
 
@@ -90,7 +90,7 @@ class TimetableTest {
                 .build()
         );
 
-        assertThat(exception.getMessage()).isEqualTo("year cannot be null");
+        assertThat(exception.getMessage()).isEqualTo("year는 null일 수 없습니다.");
       }
     }
   }

@@ -28,9 +28,13 @@ public class TimetableService {
     User user  = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다!"));
 
     // TODO : 동일한 이름이 있는지 확인하는 로직 필요
+    long duplicateUserCount = timetableRepository.countDuplicateTimetableName(timetableCreateRequest.getName().trim(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester());
+    if(duplicateUserCount != 0) {
+      throw new IllegalArgumentException("이미 사용중인 이름입니다.");
+    }
 
     Timetable newTimetable = Timetable.builder()
-        .name(timetableCreateRequest.getName())
+        .name(timetableCreateRequest.getName().trim())
         .year(timetableCreateRequest.getYear())
         .semester(timetableCreateRequest.getSemester())
         .build();
