@@ -5,6 +5,7 @@ import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
 import com.prgrms.coretime.timetable.service.TimetableService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import java.net.URI;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,12 +25,12 @@ public class TimetableController {
   @ApiOperation(value = "시간표 생성", notes = "시간표를 생성합니다.")
   @PostMapping
   public ResponseEntity<ApiResponse> createTimetable(@RequestBody @Valid TimetableCreateRequest timetableCreateRequest) {
-    timetableService.createTimetable(timetableCreateRequest);
+    Long createTimetableId = timetableService.createTimetable(timetableCreateRequest);
 
     ApiResponse apiResponse = new ApiResponse("시간표 생성 완료");
 
     return ResponseEntity
-        .created(null)
+        .created(URI.create("/timetables/" + createTimetableId))
         .body(apiResponse);
   }
 
