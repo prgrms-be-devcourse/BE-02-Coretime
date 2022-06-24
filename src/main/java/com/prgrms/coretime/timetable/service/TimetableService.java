@@ -1,6 +1,7 @@
 
 package com.prgrms.coretime.timetable.service;
 
+import com.prgrms.coretime.common.error.NotFoundException;
 import com.prgrms.coretime.timetable.domain.repository.TemporaryUserRepository;
 import com.prgrms.coretime.timetable.domain.repository.TimetableRepository;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
@@ -24,7 +25,7 @@ public class TimetableService {
   public void createTimetable(@RequestBody @Valid TimetableCreateRequest timetableCreateRequest) {
     // TODO : 사용자 ID 가져오는 로직 추가
     Long userId = 1L;
-    User user  = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException());
+    User user  = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다!"));
 
     Timetable newTimetable = Timetable.builder()
         .name(timetableCreateRequest.getName())
