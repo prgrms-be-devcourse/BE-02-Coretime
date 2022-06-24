@@ -5,7 +5,6 @@ import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
 import com.prgrms.coretime.timetable.service.TimetableService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponses;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +26,7 @@ public class TimetableController {
   public ResponseEntity<ApiResponse> createTimetable(@RequestBody @Valid TimetableCreateRequest timetableCreateRequest) {
     timetableService.createTimetable(timetableCreateRequest);
 
-    ApiResponse apiResponse = new ApiResponse("시간표 생성 완료", null);
+    ApiResponse apiResponse = new ApiResponse("시간표 생성 완료");
 
     return ResponseEntity
         .created(null)
@@ -37,10 +36,10 @@ public class TimetableController {
 
   @GetMapping
   public ResponseEntity<ApiResponse> getTimetable() {
-    ApiResponse apiResponse = new ApiResponse("????", null);
+    ApiResponse apiResponse = new ApiResponse("????");
 
     return ResponseEntity
-        .created(null)
+        .ok()
         .body(apiResponse);
   }
 }
