@@ -2,11 +2,15 @@
 package com.prgrms.coretime.timetable.service;
 
 import com.prgrms.coretime.common.error.NotFoundException;
+import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.repository.TemporaryUserRepository;
 import com.prgrms.coretime.timetable.domain.repository.TimetableRepository;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
+import com.prgrms.coretime.timetable.dto.response.TimetableResponse;
 import com.prgrms.coretime.user.domain.User;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -43,7 +47,14 @@ public class TimetableService {
     return createdTimetable.getId();
   }
 
-  // 조회
+  @Transactional(readOnly = true)
+  public List<TimetableResponse> getTimetables(Integer year, Semester semester) {
+    return timetableRepository.getTimetables(year, semester).stream()
+        .map(timetable -> new TimetableResponse(timetable.getId(), timetable.getName()))
+        .collect(Collectors.toList());
+  }
+
+  // 상세 조회
 
   // 이름 수정
 
