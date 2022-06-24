@@ -4,8 +4,10 @@ import static com.prgrms.coretime.timetable.domain.timetable.QTimetable.timetabl
 import static org.springframework.util.StringUtils.hasText;
 
 import com.prgrms.coretime.timetable.domain.Semester;
+import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -14,7 +16,6 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
 
   @Override
   public long countDuplicateTimetableName(String name, Integer year, Semester semester) {
-
     return queryFactory
         .select(timetable.count())
         .from(timetable)
@@ -24,6 +25,18 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
             nameEq(name)
         )
         .fetchOne();
+  }
+
+  @Override
+  public List<Timetable> getTimetables(Integer year, Semester semester) {
+    return queryFactory
+        .selectFrom(timetable)
+        .where(
+            yearEq(year),
+            semesterEq(semester)
+        )
+        .orderBy(timetable.name.asc())
+        .fetch();
   }
 
   private BooleanExpression yearEq(Integer year) {
