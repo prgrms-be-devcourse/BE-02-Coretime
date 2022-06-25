@@ -72,17 +72,20 @@ public class Timetable extends BaseEntity {
   }
 
   public void updateName(String name) {
+    validateTimetableName(name);
     this.name = name;
   }
 
   private void validateTimetableField(String name, Semester semester, Integer year) {
+    validateTimetableName(name);
+    notNull(semester, "semester는 null일 수 없습니다.");
+    notNull(year, "year는 null일 수 없습니다.");
+  }
+
+  private void validateTimetableName(String name) {
     hasText(name, "name은 null이거나 빈칸일 수 없습니다.");
     if(1 > name.length() || name.length() > 10) {
       throw new IllegalArgumentException("name의 길이는 1 ~ 10 입니다.");
     }
-
-    notNull(semester, "semester는 null일 수 없습니다.");
-
-    notNull(year, "year는 null일 수 없습니다.");
   }
 }
