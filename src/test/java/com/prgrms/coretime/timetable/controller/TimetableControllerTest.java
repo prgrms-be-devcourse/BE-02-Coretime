@@ -1,12 +1,14 @@
 package com.prgrms.coretime.timetable.controller;
 
 import static com.prgrms.coretime.timetable.domain.Semester.SECOND;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
+import com.prgrms.coretime.timetable.dto.request.TimetableUpdateRequest;
 import com.prgrms.coretime.timetable.service.TimetableService;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
@@ -38,7 +40,7 @@ class TimetableControllerTest {
   @DisplayName("시간표 생성 테스트")
   class TimetableCreateTest {
     @ParameterizedTest(name = "{index}")
-    @MethodSource("timetableCreatRequestParameter")
+    @MethodSource("timetableCreateRequestParameter")
     @DisplayName("request dto의 validation이 잘 되는지 테스트")
     void testTimetableCreateRequestValidation(String name, Integer year, Semester semester) throws Exception {
       TimetableCreateRequest timetableCreateRequest = TimetableCreateRequest.builder()
@@ -53,7 +55,7 @@ class TimetableControllerTest {
           .andExpect(status().isBadRequest());
     }
 
-    private static Stream<Arguments> timetableCreatRequestParameter() {
+    private static Stream<Arguments> timetableCreateRequestParameter() {
       return Stream.of(
           Arguments.of(null, 2022, SECOND),
           Arguments.of("시간표1", null, SECOND),
@@ -74,6 +76,32 @@ class TimetableControllerTest {
               .contentType(MediaType.APPLICATION_JSON)
               .content(objectMapper.writeValueAsString(timetableCreateRequest)))
           .andExpect(status().isCreated());
+    }
+  }
+
+  @Nested
+  @DisplayName("시간표 이름 수정 테스트")
+  class TimetableNameUpdateTest {
+    @Test
+    @DisplayName("request dto의 validation이 잘 되는지 테스트")
+    void testTimetableCreateRequestValidation() throws Exception {
+      TimetableUpdateRequest timetableUpdateRequest = new TimetableUpdateRequest(null);
+
+      mockMvc.perform(patch("/api/v1/timetables/1")
+              .contentType(MediaType.APPLICATION_JSON)
+              .content(objectMapper.writeValueAsString(timetableUpdateRequest)))
+          .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("요청을 정상적으로 처리한경우 status가 200인지 확인하는 테스트")
+    void testTimetableCreate() throws Exception {
+      TimetableUpdateRequest timetableUpdateRequest = new TimetableUpdateRequest("시간표 1");
+
+      mockMvc.perform(patch("/api/v1/timetables/1")
+              .contentType(MediaType.APPLICATION_JSON)
+              .content(objectMapper.writeValueAsString(timetableUpdateRequest)))
+          .andExpect(status().isOk());
     }
   }
 }

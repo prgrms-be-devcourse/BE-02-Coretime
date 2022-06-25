@@ -3,6 +3,7 @@ package com.prgrms.coretime.timetable.controller;
 import com.prgrms.coretime.common.ApiResponse;
 import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
+import com.prgrms.coretime.timetable.dto.request.TimetableUpdateRequest;
 import com.prgrms.coretime.timetable.dto.response.TimetableResponse;
 import com.prgrms.coretime.timetable.dto.response.TimetablesResponse;
 import com.prgrms.coretime.timetable.service.TimetableService;
@@ -13,6 +14,7 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -57,6 +59,18 @@ public class TimetableController {
     TimetableResponse timetableResponse = timetableService.getTimetable(timetableId);
 
     ApiResponse apiResponse = new ApiResponse("시간표 조회 완료", timetableResponse);
+
+    return ResponseEntity
+        .ok()
+        .body(apiResponse);
+  }
+
+  @ApiOperation(value = "시간표 이름 변경", notes = "시간표의 이름을 변경합니다.")
+  @PatchMapping("/{timetableId}")
+  public ResponseEntity<ApiResponse> updateTimetableName(@PathVariable Long timetableId, @RequestBody @Valid TimetableUpdateRequest timetableUpdateRequest) {
+    timetableService.updateTimetableName(timetableId, timetableUpdateRequest);
+
+    ApiResponse apiResponse = new ApiResponse("시간표 이름 수정 완료");
 
     return ResponseEntity
         .ok()

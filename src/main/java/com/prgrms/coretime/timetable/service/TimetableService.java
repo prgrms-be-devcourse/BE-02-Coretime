@@ -7,6 +7,7 @@ import com.prgrms.coretime.timetable.domain.repository.TemporaryUserRepository;
 import com.prgrms.coretime.timetable.domain.repository.TimetableRepository;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
+import com.prgrms.coretime.timetable.dto.request.TimetableUpdateRequest;
 import com.prgrms.coretime.timetable.dto.response.TimetableInfo;
 import com.prgrms.coretime.timetable.dto.response.TimetableResponse;
 import com.prgrms.coretime.timetable.dto.response.TimetablesResponse;
@@ -74,9 +75,9 @@ public class TimetableService {
   }
 
   @Transactional
-  public void updateTimetableName(Long timetableId, String newName) {
+  public void updateTimetableName(Long timetableId, TimetableUpdateRequest timetableUpdateRequest) {
     Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException("시간표를 찾을 수 업습니다."));
-    timetable.updateName(newName);
+    timetable.updateName(timetableUpdateRequest.getName().trim());
   }
 
   // 삭제
