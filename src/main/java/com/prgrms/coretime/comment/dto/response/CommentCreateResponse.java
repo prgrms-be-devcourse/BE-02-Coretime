@@ -3,12 +3,13 @@ package com.prgrms.coretime.comment.dto.response;
 import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.post.domain.Post;
 import com.prgrms.coretime.user.domain.User;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommentCreateResponse {
 
   private Long userId;
@@ -28,7 +29,7 @@ public class CommentCreateResponse {
   private String content;
 
   @Builder
-  public CommentCreateResponse(Long userId, Long postId, Long parentId,
+  private CommentCreateResponse(Long userId, Long postId, Long parentId,
       Long commentId, Integer seq, Boolean isPostAnonymous, Boolean isCommentAnonymous,
       String content) {
     this.userId = userId;
