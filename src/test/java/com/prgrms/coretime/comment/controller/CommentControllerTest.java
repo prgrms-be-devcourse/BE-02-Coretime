@@ -3,6 +3,7 @@ package com.prgrms.coretime.comment.controller;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,6 +48,14 @@ class CommentControllerTest {
       mockMvc.perform(delete(baseUrl + "{commentId}", id)
               .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("delete 요청인데 update로 요청할 경우")
+    public void incorrectMethod() throws Exception {
+      mockMvc.perform(post(baseUrl + "{commentId}", id)
+              .contentType(MediaType.APPLICATION_JSON))
+          .andExpect(status().isMethodNotAllowed());
     }
 
     @Test
