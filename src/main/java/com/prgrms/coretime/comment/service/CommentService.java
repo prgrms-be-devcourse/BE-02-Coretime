@@ -24,7 +24,7 @@ public class CommentService {
     User user = new User("example.com", "it is unsafeUser"); // 이부분이 로그인 받아온 user가 되어야함.
     Post post = getPost(commentCreateRequest.getPostId());
     Comment parent = commentCreateRequest.getParentId() == null ?
-        null : getParentComment(commentCreateRequest.getParentId());
+        null : getComment(commentCreateRequest.getParentId());
 
     Comment comment = Comment.builder()
         .user(user)
@@ -39,6 +39,11 @@ public class CommentService {
     return CommentCreateResponse.of(user, post, comment);
   }
 
+  public Void deleteComment(Long commentId) {
+    Comment comment = getComment(commentId);
+    comment.updateDelete();
+    return null;
+  }
 
   /**
    * TODO : Exception Message 관리 어떻게 할 것인지
@@ -48,7 +53,7 @@ public class CommentService {
         .orElseThrow(NotFoundException::new);
   }
 
-  private Comment getParentComment(Long commentId) {
+  private Comment getComment(Long commentId) {
     return commentRepository.findById(commentId)
         .orElseThrow(NotFoundException::new);
   }
