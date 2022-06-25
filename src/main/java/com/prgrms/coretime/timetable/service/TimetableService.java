@@ -80,5 +80,13 @@ public class TimetableService {
     timetable.updateName(timetableUpdateRequest.getName().trim());
   }
 
-  // 삭제
+  @Transactional
+  public void deleteTimetable(Long timetableId) {
+    Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException("시간표를 찾을 수 업습니다."));
+
+    // TODO : enrollment에서 삭제(timetableId에 해당하는 항목 삭제)
+    // TODO : CUSTOM 강의 삭제
+
+    timetableRepository.delete(timetable);
+  }
 }

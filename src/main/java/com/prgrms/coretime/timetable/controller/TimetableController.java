@@ -13,6 +13,7 @@ import java.net.URI;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -53,7 +54,7 @@ public class TimetableController {
         .body(apiResponse);
   }
 
-  @ApiOperation(value = "시간표 조회", notes = "전달된 timetableId에 따라 시간표를 전달한다.")
+  @ApiOperation(value = "시간표 조회", notes = "전달된 timetableId에 따라 시간표를 전달합니다.")
   @GetMapping("/{timetableId}")
   public ResponseEntity<ApiResponse<TimetableResponse>> getTimetable(@PathVariable Long timetableId) {
     TimetableResponse timetableResponse = timetableService.getTimetable(timetableId);
@@ -71,6 +72,18 @@ public class TimetableController {
     timetableService.updateTimetableName(timetableId, timetableUpdateRequest);
 
     ApiResponse apiResponse = new ApiResponse("시간표 이름 수정 완료");
+
+    return ResponseEntity
+        .ok()
+        .body(apiResponse);
+  }
+
+  @ApiOperation(value = "시간표 삭제", notes = "전달된 timetableId에 따라 시간표를 삭제합니다.")
+  @DeleteMapping("/{timetableId}")
+  public ResponseEntity<ApiResponse> deleteTimetable(@PathVariable Long timetableId) {
+    timetableService.deleteTimetable(timetableId);
+
+    ApiResponse apiResponse = new ApiResponse("시간표 삭제 완료");
 
     return ResponseEntity
         .ok()
