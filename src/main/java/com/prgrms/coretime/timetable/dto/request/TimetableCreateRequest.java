@@ -2,7 +2,6 @@ package com.prgrms.coretime.timetable.dto.request;
 
 import com.prgrms.coretime.timetable.domain.Semester;
 import io.swagger.annotations.ApiModelProperty;
-import io.swagger.annotations.ApiParam;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
