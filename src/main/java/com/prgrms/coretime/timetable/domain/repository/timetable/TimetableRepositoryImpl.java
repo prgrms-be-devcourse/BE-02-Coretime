@@ -1,4 +1,4 @@
-package com.prgrms.coretime.timetable.domain.repository;
+package com.prgrms.coretime.timetable.domain.repository.timetable;
 
 import static com.prgrms.coretime.timetable.domain.timetable.QTimetable.timetable;
 import static org.springframework.util.StringUtils.hasText;

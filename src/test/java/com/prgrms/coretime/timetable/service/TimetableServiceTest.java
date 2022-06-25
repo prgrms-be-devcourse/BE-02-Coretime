@@ -7,9 +7,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.prgrms.coretime.common.error.NotFoundException;
-import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.repository.TemporaryUserRepository;
-import com.prgrms.coretime.timetable.domain.repository.TimetableRepository;
+import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
 import com.prgrms.coretime.user.domain.LocalUser;

@@ -1,4 +1,4 @@
-package com.prgrms.coretime.timetable.domain.repository;
+package com.prgrms.coretime.timetable.domain.repository.timetable;
 
 import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
