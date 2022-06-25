@@ -6,11 +6,10 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class TimetableResponse {
+public class TimetablesResponse {
   private List<TimetableInfo> timetables;
 
-  public TimetableResponse(
-      List<TimetableInfo> timetables) {
+  public TimetablesResponse(List<TimetableInfo> timetables) {
     this.timetables = timetables;
   }
 }
