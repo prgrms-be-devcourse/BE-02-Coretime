@@ -70,7 +70,7 @@ public class Comment extends BaseEntity {
     validateIsAnonymous(isAnonymous);
     validateContent(content);
 
-    this.post = post;
+    setPost(post);
     this.user = user;
     this.parent = parent;
     this.isAnonymous = isAnonymous;
@@ -93,6 +93,10 @@ public class Comment extends BaseEntity {
         .build();
   }
 
+  /**
+   * TODO : 양방향 캡슐화 고민 해볼 것.
+   */
+
   // Post - Comment 양방향 연관관계 메서드
   public void setPost(Post post) {
     if (Objects.nonNull(this.post)) {
@@ -103,16 +107,35 @@ public class Comment extends BaseEntity {
     post.getComments().add(this);
   }
 
+  // Parent - Child 댓글 대댓글 양방향.
+  public void setParent(Comment parent) {
+    if (Objects.nonNull((this.parent))) {
+      this.parent.getChildren().remove(this);
+    }
+
+    this.parent = parent;
+    parent.getChildren().add(this);
+  }
+
+  public void addComment(Comment child) {
+    child.setParent(this);
+  }
+
   /**
-   * TODO : 대댓글 연관관계 설정 1:N 양방향
+   * TODO : USER 1:N 양방향 필요하면!
    */
 
+  // Getter
   public Long getId() {
     return id;
   }
 
   public Comment getParent() {
     return parent;
+  }
+
+  public List<Comment> getChildren() {
+    return children;
   }
 
   public Integer getAnonymousSeq() {
@@ -127,13 +150,8 @@ public class Comment extends BaseEntity {
     return content;
   }
 
-  /**
-   * TODO : USER 1:N 양방향 필요하면!
-   */
 
-  // getter
-
-  // private setter
+  // Private Setter
   private void setAnonymousSeq(Integer anonymousSeq) {
     this.anonymousSeq = anonymousSeq;
   }
