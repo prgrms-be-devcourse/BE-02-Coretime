@@ -8,6 +8,7 @@ import com.prgrms.coretime.timetable.domain.repository.TimetableRepository;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
 import com.prgrms.coretime.timetable.dto.response.TimetableInfo;
+import com.prgrms.coretime.timetable.dto.response.TimetableResponse;
 import com.prgrms.coretime.timetable.dto.response.TimetablesResponse;
 import com.prgrms.coretime.user.domain.User;
 import java.util.List;
@@ -58,8 +59,18 @@ public class TimetableService {
   }
 
   @Transactional(readOnly = true)
-  public void getTimetable(Long timetableId) {
+  public TimetableResponse getTimetable(Long timetableId) {
+    Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException("시간표를 찾을 수 업습니다."));
 
+    // TODO : lecture와 lecture DETAIL에 대한 정보 조회와 조회한 값 DTO에 전달
+    // TODO : 추가된 내용에 따른 테스트 코드 작성
+
+    return TimetableResponse.builder()
+        .timetableId(timetable.getId())
+        .name(timetable.getName())
+        .year(timetable.getYear())
+        .semester(timetable.getSemester())
+        .build();
   }
 
   // 이름 수정
