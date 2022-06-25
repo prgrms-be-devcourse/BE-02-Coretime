@@ -15,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -58,6 +59,20 @@ public class Post extends BaseEntity {
     comment.setPost(this);
   }
 
+  @Builder
+  public Post(
+      String title,
+      String content,
+      Boolean isAnonymous,
+      Board board,
+      User user
+  ) {
+    this.title = title;
+    this.content = content;
+    this.isAnonymous = isAnonymous;
+    this.board = board;
+    this.user = user;
+  }
 
   /**
    * Author : 정경일 CreatedAt : 2022.06.22. 22:32 이유 : Comment 생성시 시퀀스번호를 받아오고 증가해야하는 연산 필요해서 메서드 정의
