@@ -73,7 +73,11 @@ public class TimetableService {
         .build();
   }
 
-  // 이름 수정
+  @Transactional
+  public void updateTimetableName(Long timetableId, String newName) {
+    Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException("시간표를 찾을 수 업습니다."));
+    timetable.updateName(newName);
+  }
 
   // 삭제
 }

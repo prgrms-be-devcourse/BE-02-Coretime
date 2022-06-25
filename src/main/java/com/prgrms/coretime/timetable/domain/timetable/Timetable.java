@@ -71,6 +71,10 @@ public class Timetable extends BaseEntity {
     this.user = user;
   }
 
+  public void updateName(String name) {
+    this.name = name;
+  }
+
   private void validateTimetableField(String name, Semester semester, Integer year) {
     hasText(name, "name은 null이거나 빈칸일 수 없습니다.");
     if(1 > name.length() || name.length() > 10) {
