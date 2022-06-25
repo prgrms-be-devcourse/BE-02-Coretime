@@ -63,15 +63,11 @@ public class Post extends BaseEntity {
   public Post(
       String title,
       String content,
-      Boolean isAnonymous,
-      Board board,
-      User user
+      Boolean isAnonymous
   ) {
     this.title = title;
     this.content = content;
     this.isAnonymous = isAnonymous;
-    this.board = board;
-    this.user = user;
   }
 
   /**

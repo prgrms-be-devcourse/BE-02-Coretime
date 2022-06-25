@@ -6,7 +6,6 @@ import static javax.persistence.GenerationType.AUTO;
 import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.post.domain.Post;
 import com.prgrms.coretime.user.domain.User;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -64,33 +63,20 @@ public class Comment extends BaseEntity {
 
   //TODO: 생성자 처리 어떻게 할 건지, RequestDto 말고 여기서 Dto 받아서 생성할 건지 고민
   @Builder
-  private Comment(Post post, User user, Comment parent, Boolean isAnonymous, String content) {
+  public Comment(User user, Post post, Comment parent, Boolean isAnonymous, String content) {
     validatePost(post);
     validateUser(user);
     validateIsAnonymous(isAnonymous);
     validateContent(content);
 
-    setPost(post);
-    this.user = user;
-    this.parent = parent;
+    setPost(post); // 양방향
+    this.user = user; // 단방향
+    setParent(parent); // 양방향
     this.isAnonymous = isAnonymous;
     if (this.isAnonymous) {
       setAnonymousSeq(this.post.getNextAnonymousSeq());
     }
     this.content = content;
-  }
-
-
-  @Builder
-  public static Comment create(User user, Post post, Comment parent, Boolean isAnonymous,
-      String content) {
-    return Comment.builder()
-        .user(user)
-        .post(post)
-        .parent(parent)
-        .isAnonymous(isAnonymous)
-        .content(content)
-        .build();
   }
 
   /**
@@ -111,6 +97,9 @@ public class Comment extends BaseEntity {
   public void setParent(Comment parent) {
     if (Objects.nonNull((this.parent))) {
       this.parent.getChildren().remove(this);
+    } else {
+      //생성시 parent가 null 진행 종료
+      return;
     }
 
     this.parent = parent;
@@ -179,7 +168,6 @@ public class Comment extends BaseEntity {
    */
   private void validateContent(String content) {
     Assert.hasText(content, "댓글은 필수입니다.");
-    Assert.isTrue(content.getBytes(StandardCharsets.UTF_8).length > 0 && content.getBytes(
-        StandardCharsets.UTF_8).length <= 300, "댓글은 300바이트 이내로 작성되어야 합니다");
+    Assert.isTrue(content.length() > 0 && content.length() <= 300, "댓글은 300자 이내로 작성되어야 합니다");
   }
 }
