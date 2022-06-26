@@ -48,6 +48,7 @@ public final class Jwt {
     }
     builder.withClaim("userId", claims.userId);
     builder.withClaim("nickname", claims.nickname);
+    builder.withArrayClaim("roles", claims.roles);
     return  builder.sign(algorithm);
   }
 
@@ -59,6 +60,7 @@ public final class Jwt {
 
     Long userId;
     String nickname;
+    String[] roles;
     Date iat; // 발행 시각
     Date exp; // 만료 시각
 
@@ -73,14 +75,19 @@ public final class Jwt {
       if (!nickname.isNull()) {
         this.nickname = nickname.asString();
       }
+      Claim roles = decodedJWT.getClaim("roles");
+      if (!roles.isNull()) {
+        this.roles = roles.asArray(String.class);
+      }
       this.iat = decodedJWT.getIssuedAt();
       this.exp = decodedJWT.getExpiresAt();
     }
 
-    public static Claims from(Long userId, String nickname) {
+    public static Claims from(Long userId, String nickname, String[] roles) {
       Claims claims = new Claims();
       claims.userId = userId;
       claims.nickname = nickname;
+      claims.roles = roles;
       return claims;
     }
   }
