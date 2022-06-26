@@ -1,5 +1,6 @@
 package com.prgrms.coretime.timetable.domain.lecture;
 
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import lombok.AccessLevel;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "custom_lecture")
+@DiscriminatorValue("CUSTOM")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class CustomLecture extends Lecture {

@@ -81,7 +81,8 @@ class LectureControllerTest {
     @ParameterizedTest(name = "{0} ~ {1}")
     @MethodSource("lectureDetailRequestParameter")
     @DisplayName("OfficialLectureRequest 필드 validation 테스트")
-    void testLectureDetailRequestValidation(String startTime, String endTime) throws Exception{
+    void
+    testLectureDetailRequestValidation(String startTime, String endTime) throws Exception{
       LectureDetailRequest lectureDetailRequest = LectureDetailRequest.builder()
           .day(MON)
           .startTime(startTime)
