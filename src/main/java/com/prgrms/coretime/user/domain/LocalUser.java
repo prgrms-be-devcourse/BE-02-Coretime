@@ -1,5 +1,6 @@
 package com.prgrms.coretime.user.domain;
 
+import com.prgrms.coretime.common.error.exception.AuthErrorException;
 import com.prgrms.coretime.school.domain.School;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
@@ -9,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @DiscriminatorValue("LOCAL")
@@ -24,4 +26,8 @@ public class LocalUser extends User {
     this.password = password;
   }
 
+  public void checkPassword(PasswordEncoder passwordEncoder, String credentials) {
+    if (!passwordEncoder.matches(credentials, password))
+      throw new AuthErrorException("Bad credential");
+  }
 }

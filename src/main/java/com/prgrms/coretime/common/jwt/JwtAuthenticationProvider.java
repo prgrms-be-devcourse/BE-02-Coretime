@@ -2,12 +2,17 @@ package com.prgrms.coretime.common.jwt;
 
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.service.UserService;
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
@@ -23,7 +28,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
     JwtAuthenticationToken jwtAuthentication = (JwtAuthenticationToken) authentication;
-    return null;
+    return processUserAuthentication(String.valueOf(jwtAuthentication.getPrincipal()), jwtAuthentication.getCredentials());
   }
 
   @Override
@@ -33,12 +38,24 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
   private Authentication processUserAuthentication(String principal, String credentials) {
     try{
-//      User user =
+      User user = userService.login(principal, credentials);
+      // TODO : 확장성 고려할 것
+      List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("USER"));
+      String token = getToken(user.getId(), user.getNickname(), authorities);
+      JwtAuthenticationToken authenticated = new JwtAuthenticationToken(new JwtPrincipal(token, user.getNickname(), user.getId()), null, authorities);
+      authenticated.setDetails(user);
+      return authenticated;
     } catch (IllegalArgumentException e) {
       throw new BadCredentialsException(e.getMessage());
     } catch (DataAccessException e) {
       throw new AuthenticationServiceException(e.getMessage(), e);
     }
-    return null;
+  }
+
+  private String getToken(Long userId, String nickname, List<GrantedAuthority> authorities) {
+    String[] roles = authorities.stream()
+        .map(GrantedAuthority::getAuthority)
+        .toArray(String[]::new);
+    return jwt.sign(Jwt.Claims.from(userId, nickname, roles));
   }
 }

@@ -1,6 +1,5 @@
 package com.prgrms.coretime.common.jwt;
 
-import java.util.MissingFormatArgumentException;
 import org.springframework.util.Assert;
 
 public class JwtPrincipal {

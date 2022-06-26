@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "jwt")
 @Getter
 @Setter
-public class JwtConfigure {
+public class JwtConfig {
 
   private String header;
 

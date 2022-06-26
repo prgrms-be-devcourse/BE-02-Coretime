@@ -1,8 +1,14 @@
 package com.prgrms.coretime.common.config;
 
 import com.prgrms.coretime.common.jwt.Jwt;
+import com.prgrms.coretime.common.jwt.JwtAuthenticationFilter;
+import com.prgrms.coretime.common.jwt.JwtAuthenticationProvider;
+import com.prgrms.coretime.user.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,24 +21,45 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-  private final JwtConfigure jwtConfigure;
+  private final JwtConfig jwtConfig;
 
-  public WebSecurityConfig(JwtConfigure jwtConfigure) {
-    this.jwtConfigure = jwtConfigure;
+  public WebSecurityConfig(JwtConfig jwtConfig) {
+    this.jwtConfig = jwtConfig;
   }
 
   @Bean
   public Jwt jwt() {
     return new Jwt(
-        jwtConfigure.getIssuer(),
-        jwtConfigure.getClientSecret(),
-        jwtConfigure.getExpirySeconds()
+        jwtConfig.getIssuer(),
+        jwtConfig.getClientSecret(),
+        jwtConfig.getExpirySeconds()
     );
   }
 
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  public JwtAuthenticationProvider jwtAuthenticationProvider(UserService userService, Jwt jwt) {
+    return new JwtAuthenticationProvider(jwt, userService);
+  }
+
+  @Bean
+  @Override
+  public AuthenticationManager authenticationManager() throws Exception {
+    return super.authenticationManagerBean();
+  }
+
+  @Autowired
+  public void configureAuthentication(AuthenticationManagerBuilder builder, JwtAuthenticationProvider authenticationProvider) {
+    builder.authenticationProvider(authenticationProvider);
+  }
+
+  public JwtAuthenticationFilter jwtAuthenticationFilter() {
+    Jwt jwt = getApplicationContext().getBean(Jwt.class);
+    return new JwtAuthenticationFilter(jwtConfig.getHeader(), jwt);
   }
 
   @Override

@@ -1,4 +1,4 @@
-package com.prgrms.coretime.common.error;
+package com.prgrms.coretime.common.error.exception;
 
 public class NotFoundException extends RuntimeException{
   public NotFoundException() {

@@ -27,13 +27,13 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
   }
 
   @Override
-  public Object getCredentials() {
-    return principal;
+  public String getCredentials() {
+    return credentials;
   }
 
   @Override
   public Object getPrincipal() {
-    return credentials;
+    return principal;
   }
 
   public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {

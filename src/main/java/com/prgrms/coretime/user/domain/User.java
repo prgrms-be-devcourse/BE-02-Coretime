@@ -56,7 +56,6 @@ public class User extends BaseEntity {
   private String name;
 
   public User (School school, String email, String profileImage, String nickname, String name) {
-    this.id = id;
     this.school = school;
     this.email = email;
     this.profileImage = profileImage;

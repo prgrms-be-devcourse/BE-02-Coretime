@@ -1,6 +1,6 @@
 package com.prgrms.coretime.user.domain.repository;
 
-import com.prgrms.coretime.common.error.NotFoundException;
+import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.school.domain.respository.SchoolRepository;
 import com.prgrms.coretime.user.domain.LocalUser;
@@ -31,18 +31,16 @@ class UserRepositoryTest {
     String localTestEmail = "local@ajou.ac.kr";
     String oauthTestEmail = "oauth@ajou.ac.kr";
     User user1 = LocalUser.builder()
-        .nickname("로컬유저")
+        .nickname("local유저")
         .profileImage("예시 링크")
         .email(localTestEmail)
-        .nickname("빈푸")
         .name("김승은로컬")
         .school(testSchool)
         .password("test1234!")
         .build();
     User user2 = OAuthUser.builder()
-        .nickname("oauthuser")
+        .nickname("oauth유저")
         .profileImage("예시 링크")
-        .nickname("자바빈")
         .email(oauthTestEmail)
         .name("김승은oauth")
         .school(testSchool)
@@ -55,9 +53,11 @@ class UserRepositoryTest {
     userRepository.save(user2);
 
     User localResult = userRepository.findByEmail(localTestEmail).orElseThrow(() -> new NotFoundException("local user를 찾을 수 없습니다."));
-    User oauthResult = userRepository.findByEmail(oauthTestEmail).orElseThrow(() -> new NotFoundException("local user를 찾을 수 없습니다."));
+    User oauthResult = userRepository.findByEmail(oauthTestEmail).orElseThrow(() -> new NotFoundException("oauth user를 찾을 수 없습니다."));
 
     assertThat(localResult).isInstanceOf(LocalUser.class);
     assertThat(oauthResult).isInstanceOf(OAuthUser.class);
+    assertThat(localResult.getNickname()).isEqualTo("local유저");
+    assertThat(oauthResult.getNickname()).isEqualTo("oauth유저");
   }
 }
