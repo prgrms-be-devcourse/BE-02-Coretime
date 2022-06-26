@@ -20,8 +20,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -40,31 +43,24 @@ public class User extends BaseEntity {
   @JoinColumn(name = "school_id")
   private School school;
 
-  @Column(name = "email")
+  @Column(name = "email", unique = true)
   private String email;
 
   @Column(name = "profile_image")
   private String profileImage;
 
-  @Column(name = "nickname")
+  @Column(name = "nickname", unique = true)
   private String nickname;
 
   @Column(name = "name")
   private String name;
 
-  @OneToMany(mappedBy = "followerUser")
-  private List<Friend> followers = new ArrayList<>();
-
-  @OneToMany(mappedBy = "followeeUser")
-  private List<Friend> followees = new ArrayList<>();
-
-  @OneToMany(mappedBy = "writer")
-  private List<Message> messageWriters = new ArrayList<>();
-
-  @OneToMany(mappedBy = "initialSender")
-  private List<MessageRoom> messageRoomInitialSenders = new ArrayList<>();
-
-  @OneToMany(mappedBy = "initialReceiver")
-  private List<MessageRoom> messageRoomInitialReceivers = new ArrayList<>();
-
+  public User (School school, String email, String profileImage, String nickname, String name) {
+    this.id = id;
+    this.school = school;
+    this.email = email;
+    this.profileImage = profileImage;
+    this.nickname = nickname;
+    this.name = name;
+  }
 }

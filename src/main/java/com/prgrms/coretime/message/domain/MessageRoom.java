@@ -48,7 +48,7 @@ public class MessageRoom extends BaseEntity {
   @OneToMany(mappedBy = "messageRoom")
   private List<Message> messages = new ArrayList<>();
 
-  public void setInitialSender(User initialSender) {
+  /*public void setInitialSender(User initialSender) {
     if (Objects.nonNull(this.initialSender)) {
       initialSender.getMessageRoomInitialSenders().remove(this);
     }
@@ -63,6 +63,6 @@ public class MessageRoom extends BaseEntity {
     }
     this.initialReceiver = initialReceiver;
     initialReceiver.getMessageRoomInitialReceivers().add(this);
-  }
+  }*/
 
 }

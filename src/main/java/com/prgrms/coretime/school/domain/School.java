@@ -25,4 +25,10 @@ public class School extends BaseEntity {
 
   @Column(name = "email", nullable = false, length = 300)
   private String email;
+
+  public School(Long id, String name, String email) {
+    this.id = id;
+    this.name = name;
+    this.email = email;
+  }
 }
