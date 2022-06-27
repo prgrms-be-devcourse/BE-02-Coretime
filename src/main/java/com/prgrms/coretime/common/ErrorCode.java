@@ -15,12 +15,13 @@ public enum ErrorCode {
    */
 
   //Internal Server Error
-  INTERNAL_SERVER_ERROR(500, "code01", "서버에 문제가 생겼습니다."),
+  INTERNAL_SERVER_ERROR(500, "server01", "서버에 문제가 생겼습니다."),
 
   // 400 Client Error
-  METHOD_NOT_ALLOWED(405, "code02", "적절하지 않은 HTTP 메소드입니다."),
-  INVALID_TYPE_VALUE(400, "code03", "요청 값의 타입이 잘못되었습니다."),
-  INVALID_INPUT_VALUE(400, "code04", "적절하지 않은 요청값입니다.");
+  METHOD_NOT_ALLOWED(405, "client01", "적절하지 않은 HTTP 메소드입니다."),
+  INVALID_TYPE_VALUE(400, "client02", "요청 값의 타입이 잘못되었습니다."),
+  INVALID_INPUT_VALUE(400, "client03", "적절하지 않은 요청값입니다."),
+  NOT_FOUND(404, "client04", "해당 리소스를 찾을 수 없습니다.");
 
   private final int status;
   private final String code;
