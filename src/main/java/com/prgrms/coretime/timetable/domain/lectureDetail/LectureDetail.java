@@ -56,7 +56,7 @@ public class LectureDetail extends BaseEntity {
     this.day = day;
   }
 
-  public void addUser(Lecture lecture) {
+  public void addLecture(Lecture lecture) {
     if(Objects.nonNull(this.lecture)) {
       this.lecture.getLectureDetails().remove(this.lecture);
     }
@@ -81,7 +81,7 @@ public class LectureDetail extends BaseEntity {
   }
 
   private void validateDay(Day day) {
-    notNull(endTime, "day는 null일 수 없습니다.");
+    notNull(day, "day는 null일 수 없습니다.");
   }
 
   private void validateTimeFormat(LocalTime time) {
