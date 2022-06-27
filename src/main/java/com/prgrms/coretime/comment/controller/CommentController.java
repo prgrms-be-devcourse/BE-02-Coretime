@@ -25,13 +25,13 @@ public class CommentController {
   /**
    * TODO : 추후 현재 로그인 중인 User 포함해서 API 수정
    */
-  @PostMapping
+  @PostMapping()
   public ResponseEntity<ApiResponse<CommentCreateResponse>> createComment(
       // 현재 로그인한 User 필요
       @RequestBody CommentCreateRequest commentCreateRequest) throws URISyntaxException {
 
     CommentCreateResponse data = commentService.createComment(commentCreateRequest);
-    URI location = new URI("/api/v1/posts{postId}");
+    URI location = new URI("/api/v1/posts/" + commentCreateRequest.getPostId());
     return ResponseEntity.created(location).body(new ApiResponse("댓글 생성 성공", data));
   }
 

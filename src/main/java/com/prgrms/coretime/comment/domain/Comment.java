@@ -19,9 +19,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.Assert;
 
+@Getter
 @Entity
 @Table(name = "comment")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -74,7 +76,7 @@ public class Comment extends BaseEntity {
     setParent(parent); // 양방향
     this.isAnonymous = isAnonymous;
     if (this.isAnonymous) {
-      setAnonymousSeq(this.post.getNextAnonymousSeq());
+      setAnonymousSeq(this.post.getAnonymousSeqAndAdd());
     }
     this.isDelete = false;
     this.content = content;
