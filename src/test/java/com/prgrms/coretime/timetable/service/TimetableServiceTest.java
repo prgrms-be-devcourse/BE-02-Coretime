@@ -1,11 +1,13 @@
 package com.prgrms.coretime.timetable.service;
 
+import static com.prgrms.coretime.common.ErrorCode.NOT_FOUND;
 import static com.prgrms.coretime.timetable.domain.Semester.SECOND;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.error.NotFoundException;
 import com.prgrms.coretime.timetable.domain.repository.TemporaryUserRepository;
 import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
@@ -56,7 +58,7 @@ class TimetableServiceTest {
     @Test
     @DisplayName("사용자가 존재하지 않는 경우 시간표 생성 테스트")
     void testCreateTimetableNotFoundException() {
-      when(userRepository.findById(any())).thenThrow(new NotFoundException());
+      when(userRepository.findById(any())).thenThrow(new NotFoundException(NOT_FOUND));
 
       try {
         timetableService.createTimetable(timetableCreateRequest);

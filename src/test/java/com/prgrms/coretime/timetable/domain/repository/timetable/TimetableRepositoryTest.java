@@ -1,10 +1,9 @@
-package com.prgrms.coretime.timetable.domain.repository;
+package com.prgrms.coretime.timetable.domain.repository.timetable;
 
 import static com.prgrms.coretime.timetable.domain.Semester.FIRST;
 import static com.prgrms.coretime.timetable.domain.Semester.SECOND;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
