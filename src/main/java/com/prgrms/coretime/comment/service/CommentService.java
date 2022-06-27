@@ -4,9 +4,10 @@ import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.comment.domain.repository.CommentRepository;
 import com.prgrms.coretime.comment.dto.request.CommentCreateRequest;
 import com.prgrms.coretime.comment.dto.response.CommentCreateResponse;
+import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.error.NotFoundException;
 import com.prgrms.coretime.post.domain.Post;
-import com.prgrms.coretime.post.domain.repository.PostRepository;
+import com.prgrms.coretime.post.domain.PostRepository;
 import com.prgrms.coretime.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -50,11 +51,11 @@ public class CommentService {
    */
   private Post getPost(Long postId) {
     return postRepository.findById(postId)
-        .orElseThrow(NotFoundException::new);
+        .orElseThrow(() -> new NotFoundException(ErrorCode.INVALID_INPUT_VALUE));
   }
 
   private Comment getComment(Long commentId) {
     return commentRepository.findById(commentId)
-        .orElseThrow(NotFoundException::new);
+        .orElseThrow(() -> new NotFoundException(ErrorCode.INVALID_INPUT_VALUE));
   }
 }
