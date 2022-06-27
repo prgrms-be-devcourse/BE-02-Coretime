@@ -23,19 +23,19 @@ import lombok.NoArgsConstructor;
 @Table(name = "board")
 public class Board extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "board_id")
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(name = "board_id")
+  private Long id;
 
-    @Column(name = "name", nullable = false, length = 10)
-    private String name;
+  @Column(name = "name", nullable = false, length = 10)
+  private String name;
 
-    @Column(name = "category", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private BoardType category;
+  @Column(name = "category", nullable = false)
+  @Enumerated(EnumType.STRING)
+  private BoardType category;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "school_id")
-    private School school;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "school_id")
+  private School school;
 }
