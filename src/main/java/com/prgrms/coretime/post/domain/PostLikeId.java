@@ -13,6 +13,7 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @Getter
 public class PostLikeId implements Serializable {
-    private Long postId;
-    private Long userId;
+
+  private Long postId;
+  private Long userId;
 }

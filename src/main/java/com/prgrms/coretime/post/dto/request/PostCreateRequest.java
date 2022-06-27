@@ -9,9 +9,10 @@ import javax.validation.constraints.NotNull;
 @Getter
 @NoArgsConstructor
 public class PostCreateRequest {
-    @NotBlank
-    private String title;
-    private String content;
-    @NotNull
-    private Boolean isAnonymous;
+
+  @NotBlank
+  private String title;
+  private String content;
+  @NotNull
+  private Boolean isAnonymous;
 }

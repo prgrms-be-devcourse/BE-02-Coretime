@@ -17,56 +17,57 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/boards")
 @RestController
 public class BoardController {
-    private final PostService postService;
 
-    public BoardController(PostService postService) {
-        this.postService = postService;
-    }
+  private final PostService postService;
 
-    @GetMapping("/{boardId}/posts")
-    public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showPostsByBoard(
-            @PathVariable(name = "boardId") Long boardId,
-            @RequestParam(required = false) @PageableDefault(
-                    sort = {"created_at"},
-                    direction = Sort.Direction.DESC
-            ) Pageable pageable
-    ) {
-        return ResponseEntity.ok(
-            new ApiResponse<>(
-                "게시판별 게시글 목록",
-                postService.getPostsByBoard(boardId, pageable)
-            )
-        );
-    }
+  public BoardController(PostService postService) {
+    this.postService = postService;
+  }
 
-    @GetMapping("/{boardId}/posts/search")
-    public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> searchPostsAtBoard(
-        @PathVariable(name = "boardId") Long boardId,
-        @RequestParam String keyword,
-        @RequestParam(required = false) @PageableDefault(
-            sort = {"created_at"},
-            direction = Sort.Direction.DESC
-        ) Pageable pageable
-    ) {
-        return ResponseEntity.ok(
-            new ApiResponse<>(
-                "게시판별 게시글 목록/검색",
-                postService.searchPostsAtBoard(boardId, keyword, pageable)
-            )
-        );
-    }
+  @GetMapping("/{boardId}/posts")
+  public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showPostsByBoard(
+      @PathVariable(name = "boardId") Long boardId,
+      @RequestParam(required = false) @PageableDefault(
+          sort = {"created_at"},
+          direction = Sort.Direction.DESC
+      ) Pageable pageable
+  ) {
+    return ResponseEntity.ok(
+        new ApiResponse<>(
+            "게시판별 게시글 목록",
+            postService.getPostsByBoard(boardId, pageable)
+        )
+    );
+  }
 
-    @PostMapping("/{boardId}/posts")
-    public ResponseEntity<ApiResponse<PostIdResponse>> createPost(
-            @PathVariable(name = "boardId") Long boardId,
-            Long userId,
-            @RequestBody @Validated PostCreateRequest request
-    ) {
-        return ResponseEntity.created(URI.create("")).body(
-            new ApiResponse<>(
-                "게시글 생성",
-                postService.createPost(boardId, userId, request)
-            )
-        );
-    }
+  @GetMapping("/{boardId}/posts/search")
+  public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> searchPostsAtBoard(
+      @PathVariable(name = "boardId") Long boardId,
+      @RequestParam String keyword,
+      @RequestParam(required = false) @PageableDefault(
+          sort = {"created_at"},
+          direction = Sort.Direction.DESC
+      ) Pageable pageable
+  ) {
+    return ResponseEntity.ok(
+        new ApiResponse<>(
+            "게시판별 게시글 목록/검색",
+            postService.searchPostsAtBoard(boardId, keyword, pageable)
+        )
+    );
+  }
+
+  @PostMapping("/{boardId}/posts")
+  public ResponseEntity<ApiResponse<PostIdResponse>> createPost(
+      @PathVariable(name = "boardId") Long boardId,
+      Long userId,
+      @RequestBody @Validated PostCreateRequest request
+  ) {
+    return ResponseEntity.created(URI.create("")).body(
+        new ApiResponse<>(
+            "게시글 생성",
+            postService.createPost(boardId, userId, request)
+        )
+    );
+  }
 }

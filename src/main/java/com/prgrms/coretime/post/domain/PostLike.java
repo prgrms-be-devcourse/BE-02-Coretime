@@ -13,27 +13,28 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class PostLike {
-    @EmbeddedId
-    private PostLikeId postLikeId;
 
-    @MapsId("postId")
-    @ManyToOne
-    @JoinColumnOrFormula(column =
-    @JoinColumn(name = "post_id",
-            referencedColumnName = "post_id")
-    )
-    private Post post;
+  @EmbeddedId
+  private PostLikeId postLikeId;
 
-    @MapsId("userId")
-    @ManyToOne
-    @JoinColumnOrFormula(column =
-    @JoinColumn(name = "user_id",
-            referencedColumnName = "user_id")
-    )
-    private User user;
+  @MapsId("postId")
+  @ManyToOne
+  @JoinColumnOrFormula(column =
+  @JoinColumn(name = "post_id",
+      referencedColumnName = "post_id")
+  )
+  private Post post;
 
-    public PostLike(Post post, User user) {
-        this.post = post;
-        this.user = user;
-    }
+  @MapsId("userId")
+  @ManyToOne
+  @JoinColumnOrFormula(column =
+  @JoinColumn(name = "user_id",
+      referencedColumnName = "user_id")
+  )
+  private User user;
+
+  public PostLike(Post post, User user) {
+    this.post = post;
+    this.user = user;
+  }
 }

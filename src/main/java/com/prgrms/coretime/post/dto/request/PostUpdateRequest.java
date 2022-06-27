@@ -8,7 +8,8 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @NoArgsConstructor
 public class PostUpdateRequest {
-    @NotBlank
-    private String title;
-    private String content;
+
+  @NotBlank
+  private String title;
+  private String content;
 }

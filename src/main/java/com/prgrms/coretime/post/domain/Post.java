@@ -27,79 +27,79 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Post extends BaseEntity {
 
-    @Id
-    @GeneratedValue
-    @Column(name = "post_id")
-    private Long id;
+  @Id
+  @GeneratedValue
+  @Column(name = "post_id")
+  private Long id;
 
-    @Column(name = "title", nullable = false, length = 50)
-    private String title;
+  @Column(name = "title", nullable = false, length = 50)
+  private String title;
 
-    @Column(name = "content", length = 65535)
-    private String content;
+  @Column(name = "content", length = 65535)
+  private String content;
 
-    @Column(name = "next_anonymous_seq", nullable = false)
-    private Integer nextAnonymousSeq = 1;
+  @Column(name = "next_anonymous_seq", nullable = false)
+  private Integer nextAnonymousSeq = 1;
 
-    @Column(name = "is_anonymous", nullable = false)
-    private Boolean isAnonymous = true;
+  @Column(name = "is_anonymous", nullable = false)
+  private Boolean isAnonymous = true;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id", referencedColumnName = "board_id")
-    private Board board;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "board_id", referencedColumnName = "board_id")
+  private Board board;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-    private User user;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+  private User user;
 
-    @OneToMany(mappedBy = "post")
-    private List<Comment> comments = new ArrayList<>();
+  @OneToMany(mappedBy = "post")
+  private List<Comment> comments = new ArrayList<>();
 
-    private Integer commentCount = 0;
-    private Integer likeCount = 0;
+  private Integer commentCount = 0;
+  private Integer likeCount = 0;
 
-    @OneToMany(mappedBy = "createdFrom")
-    private List<MessageRoom> messageRooms = new ArrayList<>();
+  @OneToMany(mappedBy = "createdFrom")
+  private List<MessageRoom> messageRooms = new ArrayList<>();
 
-    @Builder
-    public Post(
-            String title,
-            String content,
-            Boolean isAnonymous,
-            Board board,
-            User user
-    ) {
-        this.title = title;
-        this.content = content;
-        this.isAnonymous = isAnonymous;
-        this.board = board;
-        this.user = user;
-    }
+  @Builder
+  public Post(
+      String title,
+      String content,
+      Boolean isAnonymous,
+      Board board,
+      User user
+  ) {
+    this.title = title;
+    this.content = content;
+    this.isAnonymous = isAnonymous;
+    this.board = board;
+    this.user = user;
+  }
 
-    public void addComment(Comment comment) {
-        comment.setPost(this);
-        this.commentCount += 1;
-    }
+  public void addComment(Comment comment) {
+    comment.setPost(this);
+    this.commentCount += 1;
+  }
 
-    public void removeComment() {
-        this.commentCount -= 1;
-    }
+  public void removeComment() {
+    this.commentCount -= 1;
+  }
 
-    public void likePost() {
-        this.likeCount += 1;
-    }
+  public void likePost() {
+    this.likeCount += 1;
+  }
 
-    public void unlikePost() {
-        this.likeCount -= 1;
-    }
+  public void unlikePost() {
+    this.likeCount -= 1;
+  }
 
-    public void updatePost(PostUpdateRequest request) {
-        this.title = request.getTitle();
-        this.content = request.getContent();
-    }
+  public void updatePost(PostUpdateRequest request) {
+    this.title = request.getTitle();
+    this.content = request.getContent();
+  }
 
-    public void addAnonymousSeq() {
-        nextAnonymousSeq++;
-    }
+  public void addAnonymousSeq() {
+    nextAnonymousSeq++;
+  }
 
 }
