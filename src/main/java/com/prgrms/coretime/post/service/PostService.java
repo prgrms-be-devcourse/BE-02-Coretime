@@ -7,6 +7,7 @@ import com.prgrms.coretime.post.domain.Post;
 import com.prgrms.coretime.post.domain.PostLike;
 import com.prgrms.coretime.post.domain.PostLikeRepository;
 import com.prgrms.coretime.post.domain.PostRepository;
+import com.prgrms.coretime.post.domain.TempUserRepository;
 import com.prgrms.coretime.post.dto.request.PostCreateRequest;
 import com.prgrms.coretime.post.dto.request.PostUpdateRequest;
 import com.prgrms.coretime.post.dto.response.PostIdResponse;
@@ -28,22 +29,20 @@ public class PostService {
     private final PostRepository postRepository;
     private final BoardRepository boardRepository;
     private final PostLikeRepository postLikeRepository;
+    private final TempUserRepository userRepository;
 
     public PostService(PostRepository postRepository, BoardRepository boardRepository,
-        PostLikeRepository postLikeRepository) {
+        PostLikeRepository postLikeRepository,
+        TempUserRepository userRepository) {
         this.postRepository = postRepository;
         this.boardRepository = boardRepository;
         this.postLikeRepository = postLikeRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional(readOnly = true)
-    public Page<PostSimpleResponse> getPostsByBoard(Long boardId, String keyword, Pageable pageable) {
-        Page<Post> posts;
-        if (Objects.isNull(keyword)) {
-            posts = postRepository.findPostsByBoardId(boardId, pageable);
-        } else {
-            posts = postRepository.searchPostsAtBoard(keyword, boardId, pageable);
-        }
+    public Page<PostSimpleResponse> getPostsByBoard(Long boardId, Pageable pageable) {
+        Page<Post> posts = postRepository.findPostsByBoardId(boardId, pageable);
         return posts.map(PostSimpleResponse::new);
     }
 
@@ -64,10 +63,10 @@ public class PostService {
     @Transactional
     public PostIdResponse createPost(Long boardId, Long userId, PostCreateRequest request) {
         Board board = findBoard(boardId);
-//        User user = findUser(userId)
+        User user = findUser(userId);
         Post post = Post.builder()
                 .board(board)
-//                .user(user)
+                .user(user)
                 .title(request.getTitle())
                 .content(request.getContent())
                 .isAnonymous(request.getIsAnonymous())

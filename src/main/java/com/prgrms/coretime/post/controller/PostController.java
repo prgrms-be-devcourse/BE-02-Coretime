@@ -1,5 +1,6 @@
 package com.prgrms.coretime.post.controller;
 
+import com.prgrms.coretime.common.ApiResponse;
 import com.prgrms.coretime.post.dto.request.PostUpdateRequest;
 import com.prgrms.coretime.post.dto.response.PostIdResponse;
 import com.prgrms.coretime.post.dto.response.PostResponse;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +25,7 @@ public class PostController {
   }
 
 //    @GetMapping("/hot")
-//    public Page<PostSimpleResponse> showHotPosts(
+//    public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showHotPosts(
 //            @RequestParam(required = false) @PageableDefault(
 //                    sort = {"created_at"},
 //                    direction = Sort.Direction.DESC
@@ -32,7 +34,7 @@ public class PostController {
 //    }
 //
 //    @GetMapping("/best")
-//    public Page<PostSimpleResponse> showBestPosts(
+//    public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showBestPosts(
 //            @RequestParam(required = false) @PageableDefault(
 //                    sort = {"created_at"},
 //                    direction = Sort.Direction.DESC
@@ -41,18 +43,23 @@ public class PostController {
 //    }
 
   @GetMapping("/my")
-  public Page<PostSimpleResponse> showMyPosts(
+  public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showMyPosts(
       @RequestParam(required = false) @PageableDefault(
           sort = {"created_at"},
           direction = Sort.Direction.DESC
       ) Pageable pageable,
       Long userId
   ) {
-    return postService.getPostsByUser(userId, pageable);
+    return ResponseEntity.ok(
+        new ApiResponse<>(
+            "내 게시글 목록",
+            postService.getPostsByUser(userId, pageable)
+        )
+    );
   }
 
 //    @GetMapping("/mycomment")
-//    public Page<PostSimpleResponse> showMyCommentedPosts(
+//    public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showMyCommentedPosts(
 //            @RequestParam(required = false) @PageableDefault(
 //                    sort = {"created_at"},
 //                    direction = Sort.Direction.DESC
@@ -61,18 +68,28 @@ public class PostController {
 //    }
 
   @GetMapping("/{postId}")
-  public PostResponse showPost(
+  public ResponseEntity<ApiResponse<PostResponse>> showPost(
       @PathVariable(name = "postId") Long postId
   ) {
-    return postService.getPost(postId);
+    return ResponseEntity.ok(
+        new ApiResponse<>(
+            "게시글 상세",
+            postService.getPost(postId)
+        )
+    );
   }
 
   @PatchMapping("/{postId}")
-  public PostIdResponse updatePost(
+  public ResponseEntity<ApiResponse<PostIdResponse>> updatePost(
       @PathVariable(name = "postId") Long postId,
       @RequestBody @Validated PostUpdateRequest request
   ) {
-    return postService.updatePost(postId, request);
+    return ResponseEntity.ok(
+        new ApiResponse<>(
+            "게시글 수정",
+            postService.updatePost(postId, request)
+        )
+    );
   }
 
   @DeleteMapping("/{postId}")
@@ -83,14 +100,19 @@ public class PostController {
   }
 
   @GetMapping()
-  public Page<PostSimpleResponse> searchPosts(
-      @RequestParam(required = false) String keyword,
+  public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> searchPosts(
+      @RequestParam String keyword,
       @RequestParam(required = false) @PageableDefault(
           sort = {"created_at"},
           direction = Sort.Direction.DESC
       ) Pageable pageable
   ) {
-    return postService.searchPosts(keyword, pageable);
+    return ResponseEntity.ok(
+        new ApiResponse<>(
+            "게시글 검색",
+            postService.searchPosts(keyword, pageable)
+        )
+    );
   }
 
   @PostMapping("/{postId}/like")
