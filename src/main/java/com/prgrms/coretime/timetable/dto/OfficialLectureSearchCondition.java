@@ -7,9 +7,7 @@ import com.prgrms.coretime.timetable.dto.request.OfficialLectureSearchRequest;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Getter
 public class OfficialLectureSearchCondition {
   private Integer openYear;
@@ -30,12 +28,15 @@ public class OfficialLectureSearchCondition {
     this.credits = credits;
   }
 
-  public static OfficialLectureSearchCondition of(OfficialLectureSearchRequest officialLectureSearchRequest) {
+  public static OfficialLectureSearchCondition createOfficialLectureSearchCondition(OfficialLectureSearchRequest officialLectureSearchRequest) {
+    // TODO : credit에 대한 validation 로직(?)
+
     return OfficialLectureSearchCondition.builder()
         .openYear(officialLectureSearchRequest.getYear())
         .semester(officialLectureSearchRequest.getSemester())
         .grades(officialLectureSearchRequest.getGrades())
         .lectureTypes(officialLectureSearchRequest.getLectureTypes())
+        .credits(officialLectureSearchRequest.getCredits())
         .build();
   }
 }

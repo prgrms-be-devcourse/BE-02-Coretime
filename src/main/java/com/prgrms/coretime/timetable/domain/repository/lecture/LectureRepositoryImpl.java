@@ -67,6 +67,18 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
       builder.and(gradeBuilder);
     }
 
+    if(officialLectureSearchCondition.getCredits() != null) {
+      BooleanBuilder creditBuilder = new BooleanBuilder();
+      for(Double credit : officialLectureSearchCondition.getCredits()) {
+        if(credit >= 4.0) {
+          creditBuilder.or(creditGoe(credit));
+        }else{
+          creditBuilder.or(creditEq(credit));
+        }
+      }
+      builder.and(creditBuilder);
+    }
+
     return builder;
   }
 
@@ -85,4 +97,13 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
   private BooleanExpression gradeEq(Grade grade) {
     return grade == null ? null : officialLecture.grade.eq(grade);
   }
+
+  private BooleanExpression creditEq(Double credit) {
+    return credit == null ? null : officialLecture.credit.eq(credit);
+  }
+
+  private BooleanExpression creditGoe(Double credit) {
+    return credit == null ? null : officialLecture.credit.goe(credit);
+  }
 }
+

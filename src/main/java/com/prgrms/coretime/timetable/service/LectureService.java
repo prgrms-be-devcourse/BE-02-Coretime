@@ -1,5 +1,7 @@
 package com.prgrms.coretime.timetable.service;
 
+import static com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition.*;
+
 import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.domain.repository.lecture.LectureRepository;
 import com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition;
@@ -20,10 +22,10 @@ public class LectureService {
   private final LectureRepository lectureRepository;
 
   @Transactional(readOnly = true)
-  public Page<OfficialLectureInfo> getOfficialLectures(OfficialLectureSearchRequest officialLectureSearchRequests, Pageable pageable) {
+  public Page<OfficialLectureInfo> getOfficialLectures(OfficialLectureSearchRequest officialLectureSearchRequest, Pageable pageable) {
     // TODO : 학교 정보가 필요
 
-    OfficialLectureSearchCondition officialLectureSearchCondition = OfficialLectureSearchCondition.of(officialLectureSearchRequests);
+    OfficialLectureSearchCondition officialLectureSearchCondition = createOfficialLectureSearchCondition(officialLectureSearchRequest);
 
     Page<OfficialLecture> officialLecturesPagingResult = lectureRepository.findOfficialLectures(officialLectureSearchCondition, pageable);
 

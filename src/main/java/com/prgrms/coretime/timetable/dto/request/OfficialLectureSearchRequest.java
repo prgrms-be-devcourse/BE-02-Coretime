@@ -23,14 +23,21 @@ public class OfficialLectureSearchRequest {
   @NotEmpty
   private List<Grade> grades;
 
+  @NotEmpty
+  private List<Double> credits;
+
+  // TODO : 학교에 대한 필터링
+  // TODO : time은 가장 마지막에 구현
+
   @Builder
   public OfficialLectureSearchRequest(Integer year,
       Semester semester,
       List<LectureType> lectureTypes,
-      List<Grade> grades) {
+      List<Grade> grades, List<Double> credits) {
     this.year = year;
     this.semester = semester;
     this.lectureTypes = lectureTypes;
     this.grades = grades;
+    this.credits = credits;
   }
 }
