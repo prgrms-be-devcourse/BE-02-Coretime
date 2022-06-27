@@ -28,6 +28,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   )
   Page<Post> findPostsByUserId(@Param("userId") Long userId, Pageable pageable);
 
+  @Query(
+      value = "select p from Post p join fetch p.board join fetch p.user where p.id in "
+          + "(select distinct c.post.id from Comment c where c.user.id = :userId)",
+      countQuery = "select p from Post p where p.id in "
+          + "(select distinct c.post.id from Comment c where c.user.id = :userId)"
+  )
+  Page<Post> findPostsThatUserCommentedAt(@Param("userId") Long userId, Pageable pageable);
+
   @Query("select p from Post p join fetch p.board join fetch p.user where p.id = :postId")
   Optional<Post> findPostById(@Param("postId") Long postId);
 
@@ -43,6 +51,4 @@ public interface PostRepository extends JpaRepository<Post, Long> {
       countQuery = "select p from Post p where p.board.id = :boardId and (p.title like :keyword or p.content like :keyword)")
   Page<Post> searchPostsAtBoard(@Param("keyword") String keyword, @Param("boardId") Long boardId,
       Pageable pageable);
-
-
 }

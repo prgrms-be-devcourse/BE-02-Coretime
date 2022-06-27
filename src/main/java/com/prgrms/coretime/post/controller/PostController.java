@@ -70,14 +70,21 @@ public class PostController {
     );
   }
 
-//    @GetMapping("/mycomment")
-//    public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showMyCommentedPosts(
-//            @RequestParam(required = false) @PageableDefault(
-//                    sort = {"created_at"},
-//                    direction = Sort.Direction.DESC
-//            ) Pageable pageable
-//    ) {
-//    }
+  @GetMapping("/mycomment")
+  public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showMyCommentedPosts(
+      @RequestParam(required = false) @PageableDefault(
+          sort = {"created_at"},
+          direction = Sort.Direction.DESC
+      ) Pageable pageable,
+      Long userId
+  ) {
+    return ResponseEntity.ok(
+        new ApiResponse<>(
+            "내 게시글 목록",
+            postService.getPostsThatUserCommentedAt(userId, pageable)
+        )
+    );
+  }
 
   @GetMapping("/{postId}")
   public ResponseEntity<ApiResponse<PostResponse>> showPost(

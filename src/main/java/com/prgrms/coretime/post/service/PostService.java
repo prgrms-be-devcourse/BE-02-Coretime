@@ -67,6 +67,12 @@ public class PostService {
     return posts.map(PostSimpleResponse::new);
   }
 
+    @Transactional(readOnly = true)
+    public Page<PostSimpleResponse> getPostsThatUserCommentedAt(Long userId, Pageable pageable) {
+        Page<Post> posts = postRepository.findPostsThatUserCommentedAt(userId, pageable);
+        return posts.map(PostSimpleResponse::new);
+    }
+
   @Transactional(readOnly = true)
   public PostResponse getPost(Long postId) {
     Post post = findPost(postId);
