@@ -76,7 +76,7 @@ public class Comment extends BaseEntity {
     setParent(parent); // 양방향
     this.isAnonymous = isAnonymous;
     if (this.isAnonymous) {
-      setAnonymousSeq(this.post.getNextAnonymousSeq());
+      setAnonymousSeq(this.post.getAnonymousSeqAndAdd());
     }
     this.content = content;
   }
