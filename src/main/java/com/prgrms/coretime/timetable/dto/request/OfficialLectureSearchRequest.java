@@ -1,9 +1,12 @@
 package com.prgrms.coretime.timetable.dto.request;
 
 import com.prgrms.coretime.timetable.domain.Semester;
+import com.prgrms.coretime.timetable.domain.lecture.Grade;
 import com.prgrms.coretime.timetable.domain.lecture.LectureType;
 import java.util.List;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
@@ -14,13 +17,20 @@ public class OfficialLectureSearchRequest {
   @NotNull
   private Semester semester;
 
+  @NotEmpty
   private List<LectureType> lectureTypes;
 
+  @NotEmpty
+  private List<Grade> grades;
+
+  @Builder
   public OfficialLectureSearchRequest(Integer year,
       Semester semester,
-      List<LectureType> lectureTypes) {
+      List<LectureType> lectureTypes,
+      List<Grade> grades) {
     this.year = year;
     this.semester = semester;
     this.lectureTypes = lectureTypes;
+    this.grades = grades;
   }
 }

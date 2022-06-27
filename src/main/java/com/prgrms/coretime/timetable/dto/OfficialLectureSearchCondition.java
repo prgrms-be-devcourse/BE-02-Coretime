@@ -18,6 +18,7 @@ public class OfficialLectureSearchCondition {
   private List<LectureType> lectureTypes;
   private List<Double> credits;
 
+  // TODO : 학교에 대한 필터링
   // TODO : time은 가장 마지막에 구현
 
   @Builder
@@ -33,6 +34,7 @@ public class OfficialLectureSearchCondition {
     return OfficialLectureSearchCondition.builder()
         .openYear(officialLectureSearchRequest.getYear())
         .semester(officialLectureSearchRequest.getSemester())
+        .grades(officialLectureSearchRequest.getGrades())
         .lectureTypes(officialLectureSearchRequest.getLectureTypes())
         .build();
   }

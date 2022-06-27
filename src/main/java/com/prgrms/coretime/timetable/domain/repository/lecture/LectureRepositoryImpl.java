@@ -3,6 +3,7 @@ package com.prgrms.coretime.timetable.domain.repository.lecture;
 import static com.prgrms.coretime.timetable.domain.lecture.QOfficialLecture.officialLecture;
 
 import com.prgrms.coretime.timetable.domain.Semester;
+import com.prgrms.coretime.timetable.domain.lecture.Grade;
 import com.prgrms.coretime.timetable.domain.lecture.LectureType;
 import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition;
@@ -37,7 +38,9 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
     JPAQuery<Long> countQuery = queryFactory
         .select(officialLecture.count())
         .from(officialLecture)
-        .where(searchCondition(officialLectureSearchCondition));
+        .where(
+            searchCondition(officialLectureSearchCondition)
+        );
 
     return PageableExecutionUtils.getPage(officialLectures, pageable, countQuery::fetchOne);
   }
@@ -48,11 +51,20 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
     builder.and(semesterEq(officialLectureSearchCondition.getSemester()));
 
     if(officialLectureSearchCondition.getLectureTypes() != null) {
-      BooleanBuilder builder2 = new BooleanBuilder();
+      BooleanBuilder lectureTypeBuilder = new BooleanBuilder();
       for(LectureType lectureType : officialLectureSearchCondition.getLectureTypes()) {
-        builder2.or(lectureTypeEq(lectureType));
+        lectureTypeBuilder.or(lectureTypeEq(lectureType));
       }
-      builder.and(builder2);
+      builder.and(lectureTypeBuilder);
+    }
+
+    if(officialLectureSearchCondition.getGrades() != null) {
+      BooleanBuilder gradeBuilder = new BooleanBuilder();
+      gradeBuilder.or(gradeEq(Grade.ETC));
+      for(Grade grade : officialLectureSearchCondition.getGrades()) {
+        gradeBuilder.or(gradeEq(grade));
+      }
+      builder.and(gradeBuilder);
     }
 
     return builder;
@@ -68,5 +80,9 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
 
   private BooleanExpression lectureTypeEq(LectureType lectureType) {
     return lectureType == null ? null : officialLecture.lectureType.eq(lectureType);
+  }
+
+  private BooleanExpression gradeEq(Grade grade) {
+    return grade == null ? null : officialLecture.grade.eq(grade);
   }
 }

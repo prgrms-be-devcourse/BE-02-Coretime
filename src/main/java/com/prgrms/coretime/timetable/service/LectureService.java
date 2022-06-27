@@ -21,6 +21,8 @@ public class LectureService {
 
   @Transactional(readOnly = true)
   public Page<OfficialLectureInfo> getOfficialLectures(OfficialLectureSearchRequest officialLectureSearchRequests, Pageable pageable) {
+    // TODO : 학교 정보가 필요
+
     OfficialLectureSearchCondition officialLectureSearchCondition = OfficialLectureSearchCondition.of(officialLectureSearchRequests);
 
     Page<OfficialLecture> officialLecturesPagingResult = lectureRepository.findOfficialLectures(officialLectureSearchCondition, pageable);
