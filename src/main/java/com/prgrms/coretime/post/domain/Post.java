@@ -55,6 +55,9 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post")
     private List<Comment> comments = new ArrayList<>();
 
+    private Integer commentCount = 0;
+    private Integer likeCount = 0;
+
     @OneToMany(mappedBy = "createdFrom")
     private List<MessageRoom> messageRooms = new ArrayList<>();
 
@@ -75,6 +78,19 @@ public class Post extends BaseEntity {
 
     public void addComment(Comment comment) {
         comment.setPost(this);
+        this.commentCount += 1;
+    }
+
+    public void removeComment() {
+        this.commentCount -= 1;
+    }
+
+    public void likePost() {
+        this.likeCount += 1;
+    }
+
+    public void unlikePost() {
+        this.likeCount -= 1;
     }
 
     public void updatePost(PostUpdateRequest request) {

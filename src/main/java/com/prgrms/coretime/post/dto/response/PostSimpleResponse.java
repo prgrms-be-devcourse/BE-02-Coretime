@@ -6,15 +6,19 @@ import lombok.Builder;
 @Builder
 public record PostSimpleResponse(Long postId, BoardSimpleResponse board,
                                  UserSimpleResponse user, String title,
-                                 String content, Boolean isAnonymous) {
-    public PostSimpleResponse(Post entity) {
-        this(
-                entity.getId(),
-                new BoardSimpleResponse(entity.getBoard()),
-                new UserSimpleResponse(entity.getUser()),
-                entity.getTitle(),
-                entity.getContent(),
-                entity.getIsAnonymous()
-        );
-    }
+                                 String content, Boolean isAnonymous,
+                                 Integer commentCount, Integer likeCount) {
+
+  public PostSimpleResponse(Post entity) {
+    this(
+        entity.getId(),
+        new BoardSimpleResponse(entity.getBoard()),
+        new UserSimpleResponse(entity.getUser()),
+        entity.getTitle(),
+        entity.getContent(),
+        entity.getIsAnonymous(),
+        entity.getCommentCount(),
+        entity.getLikeCount()
+    );
+  }
 }

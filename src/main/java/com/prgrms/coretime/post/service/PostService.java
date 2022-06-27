@@ -105,6 +105,7 @@ public class PostService {
         Post post = findPost(postId);
         User user = findUser(userId);
         postLikeRepository.save(new PostLike(post, user));
+        post.likePost();
     }
 
     @Transactional
@@ -113,7 +114,10 @@ public class PostService {
         if (postLike.isEmpty()) {
             throw new IllegalArgumentException("해당 좋아요가 존재하지 않습니다.");
         }
+        Post post = findPost(postId);
+        User user = findUser(userId);
         postLikeRepository.deleteByUserIdAndPostId(userId, postId);
+        post.unlikePost();
     }
 
     private Board findBoard(Long boardId) {
