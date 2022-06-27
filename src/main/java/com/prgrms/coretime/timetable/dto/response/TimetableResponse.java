@@ -13,14 +13,12 @@ public class TimetableResponse {
   private String name;
   private int year;
   private Semester semester;
-  private List<LectureDetail> lectureDetails;
 
   @Builder
-  public TimetableResponse(Long timetableId, String name, int year, Semester semester, List<LectureDetail> lectureDetails) {
+  public TimetableResponse(Long timetableId, String name, int year, Semester semester) {
     this.timetableId = timetableId;
     this.name = name;
     this.year = year;
     this.semester = semester;
-    this.lectureDetails = lectureDetails;
   }
 }
