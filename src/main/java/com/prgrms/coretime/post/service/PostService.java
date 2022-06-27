@@ -30,6 +30,8 @@ public class PostService {
     private final BoardRepository boardRepository;
     private final PostLikeRepository postLikeRepository;
     private final TempUserRepository userRepository;
+    private final Integer HOT_COUNT = 10;
+    private final Integer BEST_COUNT = 100;
 
     public PostService(PostRepository postRepository, BoardRepository boardRepository,
         PostLikeRepository postLikeRepository,
@@ -43,6 +45,18 @@ public class PostService {
     @Transactional(readOnly = true)
     public Page<PostSimpleResponse> getPostsByBoard(Long boardId, Pageable pageable) {
         Page<Post> posts = postRepository.findPostsByBoardId(boardId, pageable);
+        return posts.map(PostSimpleResponse::new);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PostSimpleResponse> getHotPosts(Pageable pageable) {
+        Page<Post> posts = postRepository.findPostsByLikeCount(HOT_COUNT, pageable);
+        return posts.map(PostSimpleResponse::new);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PostSimpleResponse> getBestPosts(Pageable pageable) {
+        Page<Post> posts = postRepository.findPostsByLikeCount(BEST_COUNT, pageable);
         return posts.map(PostSimpleResponse::new);
     }
 

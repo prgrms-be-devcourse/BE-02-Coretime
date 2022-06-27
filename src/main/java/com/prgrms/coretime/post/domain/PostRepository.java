@@ -16,6 +16,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findPostsByBoardId(@Param("boardId") Long boardId, Pageable pageable);
 
     @Query(
+        value = "select p from Post p join fetch p.board join fetch p.user where p.likeCount >= :likeCount",
+        countQuery = "select p from Post p where p.likeCount >= :likeCount"
+    )
+    Page<Post> findPostsByLikeCount(@Param("likeCount") Integer likeCount, Pageable pageable);
+
+    @Query(
             value = "select p from Post p join fetch p.board join fetch p.user where p.user.id = :userId",
             countQuery = "select p from Post p where p.user.id = :userId"
     )

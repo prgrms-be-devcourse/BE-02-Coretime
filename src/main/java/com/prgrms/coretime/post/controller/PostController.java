@@ -24,23 +24,35 @@ public class PostController {
     this.postService = postService;
   }
 
-//    @GetMapping("/hot")
-//    public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showHotPosts(
-//            @RequestParam(required = false) @PageableDefault(
-//                    sort = {"created_at"},
-//                    direction = Sort.Direction.DESC
-//            ) Pageable pageable
-//    ) {
-//    }
-//
-//    @GetMapping("/best")
-//    public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showBestPosts(
-//            @RequestParam(required = false) @PageableDefault(
-//                    sort = {"created_at"},
-//                    direction = Sort.Direction.DESC
-//            ) Pageable pageable
-//    ) {
-//    }
+  @GetMapping("/hot")
+  public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showHotPosts(
+      @RequestParam(required = false) @PageableDefault(
+          sort = {"created_at"},
+          direction = Sort.Direction.DESC
+      ) Pageable pageable
+  ) {
+    return ResponseEntity.ok(
+        new ApiResponse<>(
+            "Hot 게시글 목록",
+            postService.getHotPosts(pageable)
+        )
+    );
+  }
+
+  @GetMapping("/best")
+  public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showBestPosts(
+      @RequestParam(required = false) @PageableDefault(
+          sort = {"created_at"},
+          direction = Sort.Direction.DESC
+      ) Pageable pageable
+  ) {
+    return ResponseEntity.ok(
+        new ApiResponse<>(
+            "Best 게시글 목록",
+            postService.getBestPosts(pageable)
+        )
+    );
+  }
 
   @GetMapping("/my")
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showMyPosts(
