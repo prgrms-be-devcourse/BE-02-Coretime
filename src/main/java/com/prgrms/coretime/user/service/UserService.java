@@ -24,7 +24,8 @@ public class UserService {
     this.userRepository = userRepository;
   }
 
-  // TODO : oauth 고려
+  // TODO : oauth 고려, register 부분도
+  @Transactional
   public User login(String principal, String credentials) {
     Assert.hasText(principal, "principal이 누락되었습니다.");
     Assert.hasText(credentials, "credentials이 누락되었습니다.");
@@ -40,6 +41,12 @@ public class UserService {
     Assert.hasText(email, "email이 누락되었습니다.");
     return userRepository.findByEmail(email)
         .orElseThrow(() -> new NotFoundException("유저가 존재하지 않습니다."));
+  }
+
+  @Transactional
+  // TODO : 임시 회원가입 구현. 인증 구현해야 함.
+  public User register() {
+    return null;
   }
 
 }

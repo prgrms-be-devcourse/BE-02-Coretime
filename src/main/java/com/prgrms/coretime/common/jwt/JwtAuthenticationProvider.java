@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.util.Assert;
 
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
@@ -33,7 +34,8 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
   @Override
   public boolean supports(Class<?> authentication) {
-    return false;
+    Assert.isAssignable(authentication, JwtAuthenticationToken.class);
+    return true;
   }
 
   private Authentication processUserAuthentication(String principal, String credentials) {

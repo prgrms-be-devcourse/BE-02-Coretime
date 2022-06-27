@@ -6,6 +6,8 @@ build/
 
 application-dev.yml
 application-test.yml
+data.sql
+import.sql
 
 ### STS ###
 .apt_generated

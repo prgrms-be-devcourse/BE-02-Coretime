@@ -62,4 +62,9 @@ public class User extends BaseEntity {
     this.nickname = nickname;
     this.name = name;
   }
+
+  // TODO : test 용
+  public void setId(Long id) {
+    this.id = id;
+  }
 }

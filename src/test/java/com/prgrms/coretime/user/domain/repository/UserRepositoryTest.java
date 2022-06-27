@@ -9,12 +9,14 @@ import com.prgrms.coretime.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.*;
 
-@SpringBootTest
+@DataJpaTest
 @ActiveProfiles({"test"})
 class UserRepositoryTest {
 
@@ -27,7 +29,7 @@ class UserRepositoryTest {
   @Test
   @DisplayName("UserRepository를 통해 LocalUser와 OAuthUser instance를 가져올 수 있다.")
   void testFindByEmail() throws Throwable {
-    School testSchool = new School(1L, "아주대학교", "ajou.ac.kr");
+    School testSchool = new School("아주대학교", "ajou.ac.kr");
     String localTestEmail = "local@ajou.ac.kr";
     String oauthTestEmail = "oauth@ajou.ac.kr";
     User user1 = LocalUser.builder()
