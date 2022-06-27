@@ -6,7 +6,6 @@ import com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition;
 import com.prgrms.coretime.timetable.dto.request.OfficialLectureSearchRequest;
 import com.prgrms.coretime.timetable.dto.response.LectureDetailInfo;
 import com.prgrms.coretime.timetable.dto.response.OfficialLectureInfo;
-import com.prgrms.coretime.timetable.dto.response.OfficialLecturesResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -21,34 +20,30 @@ public class LectureService {
   private final LectureRepository lectureRepository;
 
   @Transactional(readOnly = true)
-  public OfficialLecturesResponse getOfficialLectures(OfficialLectureSearchRequest officialLectureSearchRequests, Pageable pageable) {
+  public Page<OfficialLectureInfo> getOfficialLectures(OfficialLectureSearchRequest officialLectureSearchRequests, Pageable pageable) {
     OfficialLectureSearchCondition officialLectureSearchCondition = OfficialLectureSearchCondition.of(officialLectureSearchRequests);
 
     Page<OfficialLecture> officialLecturesPagingResult = lectureRepository.findOfficialLectures(officialLectureSearchCondition, pageable);
 
-    List<OfficialLectureInfo> content = officialLecturesPagingResult.getContent().stream().map(officialLecture -> {
-       List<LectureDetailInfo> lectureDetails = officialLecture.getLectureDetails().stream()
-           .map(lectureDetail ->
-               LectureDetailInfo.builder()
-                   .day(lectureDetail.getDay())
-                   .startTime(lectureDetail.getStartTime())
-                   .endTime(lectureDetail.getEndTime())
-                   .build()
-           )
-           .collect(Collectors.toList());
+     return officialLecturesPagingResult.map(officialLecture -> {
+      List<LectureDetailInfo> lectureDetails = officialLecture.getLectureDetails().stream()
+          .map(lectureDetail ->
+              LectureDetailInfo.builder()
+                  .day(lectureDetail.getDay())
+                  .startTime(lectureDetail.getStartTime())
+                  .endTime(lectureDetail.getEndTime())
+                  .build()
+          )
+          .collect(Collectors.toList());
 
-       return OfficialLectureInfo.builder()
-           .lectureId(officialLecture.getId())
-           .name(officialLecture.getName())
-           .professor(officialLecture.getProfessor())
-           .credit(officialLecture.getCredit())
-           .lectureType(officialLecture.getLectureType())
-           .lectureDetails(lectureDetails)
-           .build();
-     })
-        .collect(Collectors.toList());
-
-
-    return new OfficialLecturesResponse(content, officialLecturesPagingResult.getPageable());
+      return OfficialLectureInfo.builder()
+          .lectureId(officialLecture.getId())
+          .name(officialLecture.getName())
+          .professor(officialLecture.getProfessor())
+          .credit(officialLecture.getCredit())
+          .lectureType(officialLecture.getLectureType())
+          .lectureDetails(lectureDetails)
+          .build();
+    });
   }
 }
