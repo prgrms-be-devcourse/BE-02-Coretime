@@ -3,6 +3,7 @@ package com.prgrms.coretime.timetable.domain.repository.lecture;
 import static com.prgrms.coretime.timetable.domain.lecture.QOfficialLecture.officialLecture;
 
 import com.prgrms.coretime.timetable.domain.Semester;
+import com.prgrms.coretime.timetable.domain.lecture.LectureType;
 import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition;
 import com.querydsl.core.BooleanBuilder;
@@ -46,6 +47,14 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
     builder.and(openYearEq(officialLectureSearchCondition.getOpenYear()));
     builder.and(semesterEq(officialLectureSearchCondition.getSemester()));
 
+    if(officialLectureSearchCondition.getLectureTypes() != null) {
+      BooleanBuilder builder2 = new BooleanBuilder();
+      for(LectureType lectureType : officialLectureSearchCondition.getLectureTypes()) {
+        builder2.or(lectureTypeEq(lectureType));
+      }
+      builder.and(builder2);
+    }
+
     return builder;
   }
 
@@ -55,5 +64,9 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
 
   private BooleanExpression semesterEq(Semester semester) {
     return semester == null ? null : officialLecture.semester.eq(semester);
+  }
+
+  private BooleanExpression lectureTypeEq(LectureType lectureType) {
+    return lectureType == null ? null : officialLecture.lectureType.eq(lectureType);
   }
 }

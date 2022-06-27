@@ -15,26 +15,25 @@ public class OfficialLectureSearchCondition {
   private Integer openYear;
   private Semester semester;
   private List<Grade> grades;
-  private LectureType lectureType;
+  private List<LectureType> lectureTypes;
   private List<Double> credits;
 
   // TODO : time은 가장 마지막에 구현
 
   @Builder
-  private OfficialLectureSearchCondition(Integer openYear, Semester semester, List<Grade> grades, LectureType lectureType, List<Double> credits) {
+  private OfficialLectureSearchCondition(Integer openYear, Semester semester, List<Grade> grades, List<LectureType> lectureTypes, List<Double> credits) {
     this.openYear = openYear;
     this.semester = semester;
     this.grades = grades;
-    this.lectureType = lectureType;
+    this.lectureTypes = lectureTypes;
     this.credits = credits;
   }
 
   public static OfficialLectureSearchCondition of(OfficialLectureSearchRequest officialLectureSearchRequest) {
-    log.info("{}", officialLectureSearchRequest.getYear());
-
     return OfficialLectureSearchCondition.builder()
         .openYear(officialLectureSearchRequest.getYear())
         .semester(officialLectureSearchRequest.getSemester())
+        .lectureTypes(officialLectureSearchRequest.getLectureTypes())
         .build();
   }
 }
