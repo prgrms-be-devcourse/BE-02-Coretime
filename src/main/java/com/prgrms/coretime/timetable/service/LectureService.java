@@ -2,6 +2,8 @@ package com.prgrms.coretime.timetable.service;
 
 import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.domain.repository.lecture.LectureRepository;
+import com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition;
+import com.prgrms.coretime.timetable.dto.request.OfficialLectureSearchRequest;
 import com.prgrms.coretime.timetable.dto.response.LectureDetailInfo;
 import com.prgrms.coretime.timetable.dto.response.OfficialLectureInfo;
 import com.prgrms.coretime.timetable.dto.response.OfficialLecturesResponse;
@@ -19,8 +21,10 @@ public class LectureService {
   private final LectureRepository lectureRepository;
 
   @Transactional(readOnly = true)
-  public OfficialLecturesResponse getOfficialLectures(Pageable pageable) {
-    Page<OfficialLecture> officialLecturesPagingResult = lectureRepository.findOfficialLectures(null, pageable);
+  public OfficialLecturesResponse getOfficialLectures(OfficialLectureSearchRequest officialLectureSearchRequests, Pageable pageable) {
+    OfficialLectureSearchCondition officialLectureSearchCondition = OfficialLectureSearchCondition.of(officialLectureSearchRequests);
+
+    Page<OfficialLecture> officialLecturesPagingResult = lectureRepository.findOfficialLectures(officialLectureSearchCondition, pageable);
 
     List<OfficialLectureInfo> content = officialLecturesPagingResult.getContent().stream().map(officialLecture -> {
        List<LectureDetailInfo> lectureDetails = officialLecture.getLectureDetails().stream()

@@ -2,8 +2,11 @@ package com.prgrms.coretime.timetable.domain.repository.lecture;
 
 import static com.prgrms.coretime.timetable.domain.lecture.QOfficialLecture.officialLecture;
 
+import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -19,22 +22,38 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public Page<OfficialLecture> findOfficialLectures(
-      OfficialLectureSearchCondition condition, Pageable pageable) {
-
-    log.info("{}", pageable.getOffset());
-    log.info("{}", pageable.getPageSize());
+  public Page<OfficialLecture> findOfficialLectures(OfficialLectureSearchCondition officialLectureSearchCondition, Pageable pageable) {
 
     List<OfficialLecture> officialLectures = queryFactory
         .selectFrom(officialLecture)
+        .where(
+            searchCondition(officialLectureSearchCondition)
+        )
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())
         .fetch();
 
     JPAQuery<Long> countQuery = queryFactory
         .select(officialLecture.count())
-        .from(officialLecture);
+        .from(officialLecture)
+        .where(searchCondition(officialLectureSearchCondition));
 
     return PageableExecutionUtils.getPage(officialLectures, pageable, countQuery::fetchOne);
+  }
+
+  private BooleanBuilder searchCondition(OfficialLectureSearchCondition officialLectureSearchCondition) {
+    BooleanBuilder builder = new BooleanBuilder();
+    builder.and(openYearEq(officialLectureSearchCondition.getOpenYear()));
+    builder.and(semesterEq(officialLectureSearchCondition.getSemester()));
+
+    return builder;
+  }
+
+  private BooleanExpression openYearEq(Integer openYear) {
+    return openYear == null ? null : officialLecture.openYear.eq(openYear);
+  }
+
+  private BooleanExpression semesterEq(Semester semester) {
+    return semester == null ? null : officialLecture.semester.eq(semester);
   }
 }
