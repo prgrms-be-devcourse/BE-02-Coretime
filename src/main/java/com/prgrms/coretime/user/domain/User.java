@@ -67,4 +67,8 @@ public class User extends BaseEntity {
   @OneToMany(mappedBy = "initialReceiver")
   private List<MessageRoom> messageRoomInitialReceivers = new ArrayList<>();
 
+  public User(String email, String name) {
+    this.email = email;
+    this.name = name;
+  }
 }
