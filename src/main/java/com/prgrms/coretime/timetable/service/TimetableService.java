@@ -1,6 +1,9 @@
 
 package com.prgrms.coretime.timetable.service;
 
+import static com.prgrms.coretime.common.ErrorCode.NOT_FOUND;
+
+import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.error.NotFoundException;
 import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.repository.TemporaryUserRepository;
@@ -32,7 +35,7 @@ public class TimetableService {
   public Long createTimetable(@RequestBody @Valid TimetableCreateRequest timetableCreateRequest) {
     // TODO : 사용자 ID 가져오는 로직 추가
     Long userId = 1L;
-    User user  = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다!"));
+    User user  = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
 
     long duplicateNameCount = timetableRepository.countDuplicateTimetableName(timetableCreateRequest.getName().trim(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester());
     if(duplicateNameCount != 0) {
@@ -61,7 +64,7 @@ public class TimetableService {
 
   @Transactional(readOnly = true)
   public TimetableResponse getTimetable(Long timetableId) {
-    Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException("시간표를 찾을 수 업습니다."));
+    Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
 
     // TODO : lecture와 lecture DETAIL에 대한 정보 조회와 조회한 값 DTO에 전달
     // TODO : 추가된 내용에 따른 테스트 코드 작성
@@ -76,13 +79,13 @@ public class TimetableService {
 
   @Transactional
   public void updateTimetableName(Long timetableId, TimetableUpdateRequest timetableUpdateRequest) {
-    Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException("시간표를 찾을 수 업습니다."));
+    Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
     timetable.updateName(timetableUpdateRequest.getName().trim());
   }
 
   @Transactional
   public void deleteTimetable(Long timetableId) {
-    Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException("시간표를 찾을 수 업습니다."));
+    Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
 
     // TODO : enrollment에서 삭제(timetableId에 해당하는 항목 삭제)
     // TODO : CUSTOM 강의 삭제
