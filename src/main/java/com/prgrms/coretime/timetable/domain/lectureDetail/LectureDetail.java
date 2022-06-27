@@ -1,5 +1,6 @@
 package com.prgrms.coretime.timetable.domain.lectureDetail;
 
+import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.LAZY;
 import static org.springframework.util.Assert.notNull;
 
@@ -9,6 +10,8 @@ import java.time.LocalTime;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -37,7 +40,8 @@ public class LectureDetail extends BaseEntity {
   @Column(name = "end_time", nullable = false)
   private LocalTime endTime;
 
-  @Column(name = "day", nullable = false)
+  @Enumerated(STRING)
+  @Column(name = "day", length = 3, nullable = false)
   private Day day;
 
   @ManyToOne(fetch = LAZY)
