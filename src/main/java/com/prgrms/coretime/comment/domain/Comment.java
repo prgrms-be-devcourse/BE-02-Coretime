@@ -78,6 +78,7 @@ public class Comment extends BaseEntity {
     if (this.isAnonymous) {
       setAnonymousSeq(this.post.getAnonymousSeqAndAdd());
     }
+    this.isDelete = false;
     this.content = content;
   }
 
@@ -141,6 +142,10 @@ public class Comment extends BaseEntity {
     return content;
   }
 
+  // Update field
+  public void updateDelete() {
+    this.isDelete = true;
+  }
 
   // Private Setter
   private void setAnonymousSeq(Integer anonymousSeq) {
@@ -148,7 +153,6 @@ public class Comment extends BaseEntity {
   }
 
   //Validation
-
   private void validatePost(Post post) {
     Assert.notNull(post, "게시글은 필수 입니다.");
   }
