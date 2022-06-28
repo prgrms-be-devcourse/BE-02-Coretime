@@ -46,6 +46,13 @@ public class UserController {
 
   @GetMapping("/principal")
   public ResponseEntity<ApiResponse<JwtPrincipal>> getPrincipalInfo(@AuthenticationPrincipal JwtPrincipal principal) {
+    /*
+    * principal.email
+    * principal.schoolId
+    * principal.userId
+    * principal.nickname
+    * principal.token
+    * */
     return ResponseEntity.ok(new ApiResponse<>("현재 로그인한 사용자입니다.", principal));
   }
 }
