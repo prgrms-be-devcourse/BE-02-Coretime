@@ -17,6 +17,10 @@ public class OfficialLectureSearchRequest {
   @NotNull
   private Semester semester;
 
+  private SearchType searchType;
+
+  private String searchWord;
+
   @NotEmpty
   private List<Grade> grades;
 
@@ -28,13 +32,15 @@ public class OfficialLectureSearchRequest {
 
   @Builder
   public OfficialLectureSearchRequest(Integer year,
-      Semester semester,
-      List<LectureType> lectureTypes,
-      List<Grade> grades, List<Double> credits) {
+      Semester semester, SearchType searchType, String searchWord,
+      List<Grade> grades,
+      List<LectureType> lectureTypes, List<Double> credits) {
     this.year = year;
     this.semester = semester;
-    this.lectureTypes = lectureTypes;
+    this.searchType = searchType;
+    this.searchWord = searchWord;
     this.grades = grades;
+    this.lectureTypes = lectureTypes;
     this.credits = credits;
   }
 }

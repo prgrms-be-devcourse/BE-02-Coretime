@@ -2,6 +2,7 @@ package com.prgrms.coretime.timetable.service;
 
 import static org.springframework.util.Assert.notEmpty;
 import static org.springframework.util.Assert.notNull;
+import static org.springframework.util.StringUtils.hasText;
 
 import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.lecture.Grade;
@@ -10,6 +11,7 @@ import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.domain.repository.lecture.LectureRepository;
 import com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition;
 import com.prgrms.coretime.timetable.dto.request.OfficialLectureSearchRequest;
+import com.prgrms.coretime.timetable.dto.request.SearchType;
 import com.prgrms.coretime.timetable.dto.response.LectureDetailInfo;
 import com.prgrms.coretime.timetable.dto.response.OfficialLectureInfo;
 import java.util.List;
@@ -32,9 +34,10 @@ public class LectureService {
   public Page<OfficialLectureInfo> getOfficialLectures(OfficialLectureSearchRequest officialLectureSearchRequest, Pageable pageable) {
     // TODO : 학교 정보가 필요
 
-    OfficialLectureSearchCondition officialLectureSearchCondition = createOfficialLectureSearchCondition(officialLectureSearchRequest);
-
-    Page<OfficialLecture> officialLecturesPagingResult = lectureRepository.findOfficialLectures(officialLectureSearchCondition, pageable);
+    Page<OfficialLecture> officialLecturesPagingResult = lectureRepository.findOfficialLectures(
+        createOfficialLectureSearchCondition(officialLectureSearchRequest),
+        pageable
+    );
 
      return officialLecturesPagingResult.map(officialLecture -> {
       List<LectureDetailInfo> lectureDetails = officialLecture.getLectureDetails().stream()
@@ -64,16 +67,19 @@ public class LectureService {
     // TODO : time은 가장 마지막에 구현
 
     // TODO : validation 로직
-
     validateYear(officialLectureSearchRequest.getYear());
     validateSemster(officialLectureSearchRequest.getSemester());
     validateGrades(officialLectureSearchRequest.getGrades());
     validateLectureTypes(officialLectureSearchRequest.getLectureTypes());
     validateCredits(officialLectureSearchRequest.getCredits());
+    validateSearch(officialLectureSearchRequest.getSearchType(), officialLectureSearchRequest.getSearchWord());
+
 
     return OfficialLectureSearchCondition.builder()
         .openYear(officialLectureSearchRequest.getYear())
         .semester(officialLectureSearchRequest.getSemester())
+        .searchType(officialLectureSearchRequest.getSearchType())
+        .searchWord(officialLectureSearchRequest.getSearchWord())
         .grades(officialLectureSearchRequest.getGrades())
         .lectureTypes(officialLectureSearchRequest.getLectureTypes())
         .credits(officialLectureSearchRequest.getCredits())
@@ -104,6 +110,20 @@ public class LectureService {
 
     if(!allowedCreditValues.containsAll(credits)) {
       throw new IllegalArgumentException("credit은 0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0 값만 허용합니다.");
+    }
+  }
+
+  private void validateSearch(SearchType searchType, String searchWord) {
+    if(searchType == null && hasText(searchWord)) {
+      throw new IllegalArgumentException("searchType이 null일 수 없습니다.");
+    }
+
+    if(searchType != null && !hasText(searchWord)) {
+      throw new IllegalArgumentException("searchWord가 null일 수 없습니다.");
+    }
+
+    if(searchType != null && hasText(searchWord) && searchWord.length() < 2) {
+      throw new IllegalArgumentException("searchWord는 2글자 이상이어야 합니다.");
     }
   }
 }

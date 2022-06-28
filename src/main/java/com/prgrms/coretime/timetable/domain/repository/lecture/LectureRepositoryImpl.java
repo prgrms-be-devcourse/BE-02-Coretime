@@ -7,6 +7,7 @@ import com.prgrms.coretime.timetable.domain.lecture.Grade;
 import com.prgrms.coretime.timetable.domain.lecture.LectureType;
 import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition;
+import com.prgrms.coretime.timetable.dto.request.SearchType;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -79,6 +80,27 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
       builder.and(creditBuilder);
     }
 
+    if(officialLectureSearchCondition.getSearchType() != null &&
+        officialLectureSearchCondition.getSearchWord() != null) {
+      SearchType searchType = officialLectureSearchCondition.getSearchType();
+      String searchWord = officialLectureSearchCondition.getSearchWord();
+
+      switch (searchType) {
+        case name:
+          builder.and(nameContains(searchWord));
+          break;
+        case professor:
+          builder.and(professorContains(searchWord));
+          break;
+        case code:
+          builder.and(codeContains(searchWord));
+          break;
+        default:
+          builder.and(classroomContains(searchWord));
+          break;
+      }
+    }
+
     return builder;
   }
 
@@ -105,5 +127,22 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
   private BooleanExpression creditGoe(Double credit) {
     return credit == null ? null : officialLecture.credit.goe(credit);
   }
+
+  private BooleanExpression nameContains(String name) {
+    return name == null ? null : officialLecture.name.contains(name);
+  }
+
+  private BooleanExpression professorContains(String professor) {
+    return professor == null ? null : officialLecture.professor.contains(professor);
+  }
+
+  private BooleanExpression codeContains(String code) {
+    return code == null ? null : officialLecture.code.contains(code);
+  }
+
+  private BooleanExpression classroomContains(String classroom) {
+    return classroom == null ? null : officialLecture.classroom.contains(classroom);
+  }
+
 }
 
