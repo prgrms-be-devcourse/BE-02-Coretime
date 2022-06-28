@@ -8,6 +8,7 @@ import com.prgrms.coretime.common.error.NotFoundException;
 import com.prgrms.coretime.friend.domain.Friend;
 import com.prgrms.coretime.friend.domain.FriendId;
 import com.prgrms.coretime.friend.domain.FriendRepository;
+import com.prgrms.coretime.friend.dto.request.FriendRequestRevokeRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestSendRequest;
 import com.prgrms.coretime.user.domain.TestUser;
 import com.prgrms.coretime.user.domain.UserRepository;
@@ -48,6 +49,29 @@ public class FriendService {
 
     Friend friend = new Friend(currentUser, targetUser);
     friendRepository.save(friend);
+  }
+
+  /**
+   * 친구 요청 취소
+   */
+  @Transactional
+  public void revokeFriendRequest(Long userId, FriendRequestRevokeRequest request) {
+    TestUser currentUser = userRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException());
+    TestUser targetUser = userRepository.findById(request.getFolloweeId())
+        .orElseThrow(() -> new NotFoundException());
+
+    FriendId currentUserSideFriendId = new FriendId(currentUser.getId(), targetUser.getId());
+    FriendId targetUserSideFriendId = new FriendId(targetUser.getId(), currentUser.getId());
+    if (!friendRepository.existsById(currentUserSideFriendId)) {
+      throw new NotFoundException();
+    }
+    if (friendRepository.existsById(currentUserSideFriendId)
+        && friendRepository.existsById(targetUserSideFriendId)) {
+      throw new FriendAlreadyExistsException(ErrorCode.FRIEND_ALREADY_EXISTS.getMessage());
+    }
+
+    friendRepository.deleteById(currentUserSideFriendId);
   }
 
 }

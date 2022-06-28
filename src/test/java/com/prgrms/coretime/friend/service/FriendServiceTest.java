@@ -1,12 +1,14 @@
 package com.prgrms.coretime.friend.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.prgrms.coretime.friend.domain.Friend;
 import com.prgrms.coretime.friend.domain.FriendRepository;
+import com.prgrms.coretime.friend.dto.request.FriendRequestRevokeRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestSendRequest;
 import com.prgrms.coretime.user.domain.TestUser;
 import com.prgrms.coretime.user.domain.UserRepository;
@@ -49,4 +51,20 @@ class FriendServiceTest {
     verify(friendRepository).save(any());
   }
 
+  @Test
+  @DisplayName("친구 요청 취소하기: 성공")
+  void revokeFriendRequestSuccessTest() {
+    FriendRequestRevokeRequest request = new FriendRequestRevokeRequest(1L);
+
+    doReturn(Optional.of(user1), Optional.of(user2)).when(userRepository).findById(any());
+
+    doReturn(true)
+        .doReturn(true)
+        .doReturn(false)
+        .when(friendRepository).existsById(any());
+
+    friendService.revokeFriendRequest(user1.getId(), request);
+
+    verify(friendRepository).deleteById(any());
+  }
 }
