@@ -1,6 +1,6 @@
 spring:
   redis:
-    host: redis_dev
+    host: localhost
     port: 6379
     password:
   datasource:
