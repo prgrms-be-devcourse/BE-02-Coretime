@@ -54,6 +54,7 @@ public class LectureService {
           .lectureId(officialLecture.getId())
           .name(officialLecture.getName())
           .professor(officialLecture.getProfessor())
+          .code(officialLecture.getCode())
           .credit(officialLecture.getCredit())
           .lectureType(officialLecture.getLectureType())
           .lectureDetails(lectureDetails)
@@ -66,14 +67,12 @@ public class LectureService {
     // TODO : 학교에 대한 필터링
     // TODO : time은 가장 마지막에 구현
 
-    // TODO : validation 로직
     validateYear(officialLectureSearchRequest.getYear());
     validateSemster(officialLectureSearchRequest.getSemester());
     validateGrades(officialLectureSearchRequest.getGrades());
     validateLectureTypes(officialLectureSearchRequest.getLectureTypes());
     validateCredits(officialLectureSearchRequest.getCredits());
     validateSearch(officialLectureSearchRequest.getSearchType(), officialLectureSearchRequest.getSearchWord());
-
 
     return OfficialLectureSearchCondition.builder()
         .openYear(officialLectureSearchRequest.getYear())

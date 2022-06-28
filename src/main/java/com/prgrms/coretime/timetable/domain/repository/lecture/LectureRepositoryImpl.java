@@ -9,6 +9,8 @@ import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition;
 import com.prgrms.coretime.timetable.dto.request.SearchType;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -17,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 
 @Slf4j
@@ -26,6 +29,7 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
 
   @Override
   public Page<OfficialLecture> findOfficialLectures(OfficialLectureSearchCondition officialLectureSearchCondition, Pageable pageable) {
+    // TODO : 정렬, ID(기본), name or code => 모두 asc
 
     List<OfficialLecture> officialLectures = queryFactory
         .selectFrom(officialLecture)
@@ -34,6 +38,9 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
         )
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())
+        .orderBy(
+            officialLectureSort(pageable)
+        )
         .fetch();
 
     JPAQuery<Long> countQuery = queryFactory
@@ -44,6 +51,23 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
         );
 
     return PageableExecutionUtils.getPage(officialLectures, pageable, countQuery::fetchOne);
+  }
+
+  private OrderSpecifier<?> officialLectureSort(Pageable pageable) {
+    if(!pageable.getSort().isEmpty()) {
+      for(Sort.Order order : pageable.getSort()) {
+        switch (order.getProperty()) {
+          case "name":
+            return new OrderSpecifier(Order.ASC, officialLecture.name);
+          case "code":
+            return new OrderSpecifier(Order.ASC, officialLecture.code);
+          default:
+            return new OrderSpecifier(Order.ASC, officialLecture.id);
+        }
+      }
+    }
+
+    return new OrderSpecifier(Order.ASC, officialLecture.id);
   }
 
   private BooleanBuilder searchCondition(OfficialLectureSearchCondition officialLectureSearchCondition) {
