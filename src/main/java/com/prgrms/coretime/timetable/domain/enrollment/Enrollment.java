@@ -40,4 +40,7 @@ public class Enrollment extends BaseEntity {
     this.lecture = lecture;
   }
 
+  public void setTimeTable(Timetable timetable) {
+    this.timeTable = timetable;
+  }
 }

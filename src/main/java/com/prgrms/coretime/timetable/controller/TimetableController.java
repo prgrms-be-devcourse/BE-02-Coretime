@@ -2,10 +2,12 @@ package com.prgrms.coretime.timetable.controller;
 
 import com.prgrms.coretime.common.ApiResponse;
 import com.prgrms.coretime.timetable.domain.Semester;
+import com.prgrms.coretime.timetable.dto.request.EnrollmentCreateRequest;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
 import com.prgrms.coretime.timetable.dto.request.TimetableUpdateRequest;
 import com.prgrms.coretime.timetable.dto.response.TimetableResponse;
 import com.prgrms.coretime.timetable.dto.response.TimetablesResponse;
+import com.prgrms.coretime.timetable.service.EnrollmentService;
 import com.prgrms.coretime.timetable.service.TimetableService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class TimetableController {
   private final TimetableService timetableService;
+  private final EnrollmentService enrollmentService;
 
   @ApiOperation(value = "시간표 생성", notes = "시간표를 생성합니다.")
   @PostMapping
@@ -84,6 +87,19 @@ public class TimetableController {
     timetableService.deleteTimetable(timetableId);
 
     ApiResponse apiResponse = new ApiResponse("시간표 삭제 완료");
+
+    return ResponseEntity
+        .ok()
+        .body(apiResponse);
+  }
+
+  @ApiOperation(value = "시간표에 official 강의 추가", notes = "시간표에 official 강의를 추가합니다.")
+  @PostMapping("/{timetableId}/enrollments")
+  public ResponseEntity<ApiResponse> addOfficialLectureToTimetable(@PathVariable Long timetableId, @RequestBody
+      EnrollmentCreateRequest enrollmentCreateRequest) {
+    enrollmentService.addOfficialLectureToTimetable(timetableId, enrollmentCreateRequest);
+
+    ApiResponse apiResponse = new ApiResponse("official 강의 시간표에 추가 완료");
 
     return ResponseEntity
         .ok()
