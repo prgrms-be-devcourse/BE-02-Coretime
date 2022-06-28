@@ -23,7 +23,7 @@ public class CommentLikeController {
       throws URISyntaxException {
     commentLikeService.createLike(commentId);
     URI location = new URI("/api/v1/posts");
-    return ResponseEntity.created(location).body(new ApiResponse<Void>("댓글 좋아요 생성"));
+    return ResponseEntity.created(location).body(new ApiResponse("댓글 좋아요 생성"));
   }
 
 }
