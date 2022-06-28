@@ -5,7 +5,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 
 import com.prgrms.coretime.user.domain.TestUser;
-import com.prgrms.coretime.user.domain.UserRepository;
+import com.prgrms.coretime.user.domain.TestUserRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,21 +24,21 @@ class FriendRepositoryTest {
   private FriendRepository friendRepository;
 
   @Autowired
-  private UserRepository userRepository;
+  private TestUserRepository testUserRepository;
 
   TestUser user1 = new TestUser("1111");
   TestUser user2 = new TestUser("2222");
 
   @BeforeEach
   void setUp() {
-    userRepository.save(user1);
-    userRepository.save(user2);
+    testUserRepository.save(user1);
+    testUserRepository.save(user2);
   }
 
   @AfterEach
   void tearDown() {
     friendRepository.deleteAllInBatch();
-    userRepository.deleteAllInBatch();
+    testUserRepository.deleteAllInBatch();
   }
 
   @Test
@@ -71,7 +71,7 @@ class FriendRepositoryTest {
   @DisplayName("친구 요청 조회")
   void findByFolloweeUserTest() {
     TestUser user3 = new TestUser("3333");
-    userRepository.save(user3);
+    testUserRepository.save(user3);
 
     friendRepository.save(new Friend(user1, user2));
     friendRepository.save(new Friend(user2, user1));
@@ -87,7 +87,7 @@ class FriendRepositoryTest {
   @DisplayName("친구 목록 조회")
   void findAllByFolloweeUser_IdWithPagingTest() {
     TestUser user3 = new TestUser("3333");
-    userRepository.save(user3);
+    testUserRepository.save(user3);
 
     friendRepository.save(new Friend(user1, user2));
     friendRepository.save(new Friend(user2, user1));
