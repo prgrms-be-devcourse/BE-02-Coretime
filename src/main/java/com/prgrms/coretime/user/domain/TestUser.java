@@ -1,40 +1,36 @@
-package com.prgrms.coretime.school.domain;
+package com.prgrms.coretime.user.domain;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "school")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "test_users")
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn
 @Getter
-public class School extends BaseEntity {
+public class TestUser extends BaseEntity {
 
   @Id
-  @Column(name = "school_id")
+  @Column(name = "user_id")
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
-  @Column(name = "name", nullable = false, length = 30, unique = true)
-  private String name;
+  @Column(name = "nickname")
+  private String nickname;
 
-  @Column(name = "email", nullable = false, length = 300, unique = true)
-  private String email;
-
-  public School(String name, String email) {
-    this.name = name;
-    this.email = email;
-  }
-
-  // TODO : test 용
-  public void setId(Long id) {
-    this.id = id;
+  public TestUser(String nickname) {
+    this.nickname = nickname;
   }
 }

@@ -1,10 +1,10 @@
 package com.prgrms.coretime.friend.domain;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
-import com.prgrms.coretime.user.domain.User;
-import java.util.Objects;
+import com.prgrms.coretime.user.domain.TestUser;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
@@ -24,34 +24,24 @@ public class Friend extends BaseEntity {
   private FriendId friendId;
 
   @MapsId("followerId")
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumnOrFormula(column =
   @JoinColumn(name = "follower_id",
       referencedColumnName = "user_id")
   )
-  private User followerUser;
+  private TestUser followerUser;
 
   @MapsId("followeeId")
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumnOrFormula(column =
   @JoinColumn(name = "followee_id",
       referencedColumnName = "user_id")
   )
-  private User followeeUser;
+  private TestUser followeeUser;
 
-  public void setFollowerUser(User followerUser) {
-    if (Objects.nonNull(this.followerUser)) {
-      followerUser.getFollowers().remove(this);
-    }
+  public Friend(TestUser followerUser, TestUser followeeUser) {
+    this.friendId = new FriendId(followerUser.getId(), followeeUser.getId());
     this.followerUser = followerUser;
-    followerUser.getFollowers().add(this);
-  }
-
-  public void setFolloweeUser(User followeeUser) {
-    if (Objects.nonNull(this.followeeUser)) {
-      followeeUser.getFollowees().remove(this);
-    }
     this.followeeUser = followeeUser;
-    followeeUser.getFollowees().add(this);
   }
 }
