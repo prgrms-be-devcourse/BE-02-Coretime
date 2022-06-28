@@ -17,15 +17,23 @@ public class CommentLikeService {
   private final CommentRepository commentRepository;
   private final CommentLikeRepository commentLikeRepository;
 
-  public Void createLike(Long id) {
+  public Void createLike(Long commentId) {
     /*
      * TODO user 추후 비즈니스 로직 작성, 아 나중에 다시 뜯어야하는데 아몰라!
      * 비동기 처리 고려
      * */
-    Comment comment = getComment(id);
+    Comment comment = getComment(commentId);
 
     return null;
   }
+
+  public Void deleteLike(Long commentId) {
+
+    Comment comment = getComment(commentId);
+
+    return null;
+  }
+
 
   private Comment getComment(Long commentId) {
     return commentRepository.findById(commentId)

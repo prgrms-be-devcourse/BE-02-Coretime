@@ -39,7 +39,7 @@ class CommentLikeControllerTest {
   @DisplayName("댓글 좋아요 생성(POST) API 실행 시")
   class Describe_createCommentLike {
 
-    Long id = 1L;
+    Long commentId = 1L;
 
     @Nested
     @DisplayName("Edge case 테스트 중에서 ")
@@ -49,26 +49,21 @@ class CommentLikeControllerTest {
       @DisplayName("유효하지 않은 Comment id를 받으면 실패")
       public void testIncorrectId() throws Exception {
 
-        when(commentLikeService.createLike(id)).thenThrow(IllegalArgumentException.class);
+        when(commentLikeService.createLike(commentId)).thenThrow(IllegalArgumentException.class);
 
-        mockMvc.perform(post(baseUrl + "{commentId}", id)
+        mockMvc.perform(post(baseUrl + "{commentId}", commentId)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest());
-
       }
 
       @Test
       @DisplayName("HTTP POST 아니면 실패")
       public void testNotAllowedHttpMethod() throws Exception {
-        mockMvc.perform(get(baseUrl + "{commentId}", id)
+        mockMvc.perform(get(baseUrl + "{commentId}", commentId)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isMethodNotAllowed());
 
-        mockMvc.perform(delete(baseUrl + "{commentId}", id)
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isMethodNotAllowed());
-
-        mockMvc.perform(put(baseUrl + "{commentId}", id)
+        mockMvc.perform(put(baseUrl + "{commentId}", commentId)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isMethodNotAllowed());
       }
@@ -82,9 +77,9 @@ class CommentLikeControllerTest {
       @Test
       @DisplayName("정상적인 요청을 받으면 통과")
       public void testCorrectHttpRequest() throws Exception {
-        doNothing().when(commentLikeService).createLike(id);
+        doNothing().when(commentLikeService).createLike(commentId);
 
-        mockMvc.perform(post(baseUrl + "{commentId}", id)
+        mockMvc.perform(post(baseUrl + "{commentId}", commentId)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isCreated());
       }
@@ -97,7 +92,7 @@ class CommentLikeControllerTest {
   @DisplayName("댓글 좋아요 삭제(Delete) API 실행 시")
   class Describe_deleteCommentLike {
 
-    Long id;
+    Long commentId = 1L;
 
     @Nested
     @DisplayName("Edge case 테스트 중에서 ")
@@ -105,14 +100,24 @@ class CommentLikeControllerTest {
 
       @Test
       @DisplayName("유효하지 않은 comment id를 받으면 실패")
-      public void test() {
+      public void test() throws Exception {
+        when(commentLikeService.deleteLike(commentId)).thenThrow(IllegalArgumentException.class);
 
+        mockMvc.perform(delete(baseUrl + "{commentId}", commentId)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
       }
 
       @Test
       @DisplayName("HTTP Delete 아니면 실패")
-      public void testHttpMethodNotAllowed() {
+      public void testHttpMethodNotAllowed() throws Exception {
+        mockMvc.perform(get(baseUrl + "{commentId}", commentId)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isMethodNotAllowed());
 
+        mockMvc.perform(put(baseUrl + "{commentId}", commentId)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isMethodNotAllowed());
       }
 
     }
@@ -123,8 +128,12 @@ class CommentLikeControllerTest {
 
       @Test
       @DisplayName("정상적인 요청을 받을 경우 삭제 수행!")
-      public void testCorrectHttpRequest() {
+      public void testCorrectHttpRequest() throws Exception {
+        doNothing().when(commentLikeService).createLike(commentId);
 
+        mockMvc.perform(delete(baseUrl + "{commentId}", commentId)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isCreated());
       }
 
     }
