@@ -56,7 +56,7 @@ public class LectureDetail extends BaseEntity {
     this.day = day;
   }
 
-  public void addLecture(Lecture lecture) {
+  public void setLecture(Lecture lecture) {
     if(Objects.nonNull(this.lecture)) {
       this.lecture.getLectureDetails().remove(this.lecture);
     }
@@ -68,6 +68,7 @@ public class LectureDetail extends BaseEntity {
     validateStartTime(startTime);
     validateEndTime(endTime);
     validateDay(day);
+    validateStartTimeEndTime(startTime, endTime);
   }
 
   private void validateStartTime(LocalTime startTime) {
@@ -82,6 +83,12 @@ public class LectureDetail extends BaseEntity {
 
   private void validateDay(Day day) {
     notNull(day, "day는 null일 수 없습니다.");
+  }
+
+  private void validateStartTimeEndTime(LocalTime startTime, LocalTime endTime) {
+    if(startTime.isAfter(endTime) || startTime.equals(endTime)) {
+      throw new IllegalArgumentException("startTime은 endTime 보다 빨라야합니다.");
+    }
   }
 
   private void validateTimeFormat(LocalTime time) {

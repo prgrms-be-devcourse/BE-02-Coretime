@@ -2,6 +2,8 @@ package com.prgrms.coretime.timetable.controller;
 
 import com.prgrms.coretime.common.ApiResponse;
 import com.prgrms.coretime.timetable.domain.Semester;
+import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
+import com.prgrms.coretime.timetable.dto.request.CustomLectureCreateRequest;
 import com.prgrms.coretime.timetable.dto.request.EnrollmentCreateRequest;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
 import com.prgrms.coretime.timetable.dto.request.TimetableUpdateRequest;
@@ -95,14 +97,28 @@ public class TimetableController {
 
   @ApiOperation(value = "시간표에 official 강의 추가", notes = "시간표에 official 강의를 추가합니다.")
   @PostMapping("/{timetableId}/enrollments")
-  public ResponseEntity<ApiResponse> addOfficialLectureToTimetable(@PathVariable Long timetableId, @RequestBody
+  public ResponseEntity<ApiResponse> addOfficialLectureToTimetable(@PathVariable Long timetableId, @RequestBody @Valid
       EnrollmentCreateRequest enrollmentCreateRequest) {
-    enrollmentService.addOfficialLectureToTimetable(timetableId, enrollmentCreateRequest);
+     Enrollment enrollment = enrollmentService.addOfficialLectureToTimetable(timetableId, enrollmentCreateRequest);
 
     ApiResponse apiResponse = new ApiResponse("official 강의 시간표에 추가 완료");
 
     return ResponseEntity
-        .ok()
+        .created(URI.create(String.format("/timetables/%s/enrollments/%s", timetableId, enrollment.getEnrollmentId().getLectureId())))
+        .body(apiResponse);
+  }
+
+  @ApiOperation(value = "시간표에 custom 강의 추가", notes = "시간표에 custom 강의를 추가합니다.")
+  @PostMapping("/{timetableId}/enrollments/custom-lectures")
+  public ResponseEntity<ApiResponse> addCustomLectureToTimetable(@PathVariable Long timetableId, @RequestBody @Valid
+      CustomLectureCreateRequest customLectureCreateRequest) {
+
+    Enrollment enrollment = enrollmentService.addCustomLectureToTimetable(timetableId, customLectureCreateRequest);
+
+    ApiResponse apiResponse = new ApiResponse("custom 강의 시간표에 추가 완료");
+
+    return ResponseEntity
+        .created(URI.create(String.format("/timetables/%s/enrollments/custom-lectures/%s", timetableId, enrollment.getEnrollmentId().getLectureId())))
         .body(apiResponse);
   }
 }
