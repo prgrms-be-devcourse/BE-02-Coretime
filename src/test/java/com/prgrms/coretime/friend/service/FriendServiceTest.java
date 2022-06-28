@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.prgrms.coretime.friend.domain.Friend;
 import com.prgrms.coretime.friend.domain.FriendRepository;
 import com.prgrms.coretime.friend.dto.request.FriendRequestAcceptRequest;
+import com.prgrms.coretime.friend.dto.request.FriendRequestRefuseRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRevokeRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestSendRequest;
 import com.prgrms.coretime.user.domain.TestUser;
@@ -84,6 +85,23 @@ class FriendServiceTest {
     friendService.acceptFriendRequest(user1.getId(), request);
 
     verify(friendRepository).save(any());
+  }
+
+  @Test
+  @DisplayName("친구 요청 거절하기: 성공")
+  void refuseFriendRequestSuccessTest() {
+    FriendRequestRefuseRequest request = new FriendRequestRefuseRequest(1L);
+
+    doReturn(Optional.of(user1), Optional.of(user2)).when(userRepository).findById(any());
+
+    doReturn(true)
+        .doReturn(true)
+        .doReturn(false)
+        .when(friendRepository).existsById(any());
+
+    friendService.refuseFriendRequest(user1.getId(), request);
+
+    verify(friendRepository).deleteById(any());
   }
 
 }
