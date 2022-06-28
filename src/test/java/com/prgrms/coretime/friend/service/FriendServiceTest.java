@@ -15,7 +15,7 @@ import com.prgrms.coretime.friend.dto.request.FriendRequestRefuseRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRevokeRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestSendRequest;
 import com.prgrms.coretime.user.domain.TestUser;
-import com.prgrms.coretime.user.domain.UserRepository;
+import com.prgrms.coretime.user.domain.TestUserRepository;
 import java.util.ArrayList;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -37,7 +37,7 @@ class FriendServiceTest {
   private FriendRepository friendRepository;
 
   @Mock
-  private UserRepository userRepository;
+  private TestUserRepository testUserRepository;
 
   private TestUser user1 = mock(TestUser.class);
   private TestUser user2 = mock(TestUser.class);
@@ -50,8 +50,8 @@ class FriendServiceTest {
   void sendFriendRequestSuccessTest() {
     FriendRequestSendRequest request = new FriendRequestSendRequest(1L);
 
-    when(userRepository.findById(any())).thenReturn(Optional.of(user1));
-    when(userRepository.findById(any())).thenReturn(Optional.of(user2));
+    when(testUserRepository.findById(any())).thenReturn(Optional.of(user1));
+    when(testUserRepository.findById(any())).thenReturn(Optional.of(user2));
     when(friendRepository.save(any())).thenReturn(friend1);
 
     friendService.sendFriendRequest(user1.getId(), request);
@@ -64,7 +64,7 @@ class FriendServiceTest {
   void revokeFriendRequestSuccessTest() {
     FriendRequestRevokeRequest request = new FriendRequestRevokeRequest(1L);
 
-    doReturn(Optional.of(user1), Optional.of(user2)).when(userRepository).findById(any());
+    doReturn(Optional.of(user1), Optional.of(user2)).when(testUserRepository).findById(any());
 
     doReturn(true)
         .doReturn(true)
@@ -81,7 +81,7 @@ class FriendServiceTest {
   void acceptFriendRequestSuccessTest() {
     FriendRequestAcceptRequest request = new FriendRequestAcceptRequest(1L);
 
-    doReturn(Optional.of(user1), Optional.of(user2)).when(userRepository).findById(any());
+    doReturn(Optional.of(user1), Optional.of(user2)).when(testUserRepository).findById(any());
 
     doReturn(true)
         .doReturn(true)
@@ -98,7 +98,7 @@ class FriendServiceTest {
   void refuseFriendRequestSuccessTest() {
     FriendRequestRefuseRequest request = new FriendRequestRefuseRequest(1L);
 
-    doReturn(Optional.of(user1), Optional.of(user2)).when(userRepository).findById(any());
+    doReturn(Optional.of(user1), Optional.of(user2)).when(testUserRepository).findById(any());
 
     doReturn(true)
         .doReturn(true)
@@ -113,7 +113,7 @@ class FriendServiceTest {
   @Test
   @DisplayName("친구 요청 받은 목록 조회하기: 성공")
   void getAllFriendRequestsSuccessTest() {
-    doReturn(true).when(userRepository).existsById(any());
+    doReturn(true).when(testUserRepository).existsById(any());
     doReturn(new PageImpl<>(new ArrayList<>())).when(friendRepository)
         .findByFolloweeUser_Id(any(), any());
 
@@ -125,7 +125,7 @@ class FriendServiceTest {
   @Test
   @DisplayName("친구 목록 조회하기: 성공")
   void getAllFriendsSuccessTest() {
-    doReturn(true).when(userRepository).existsById(any());
+    doReturn(true).when(testUserRepository).existsById(any());
     doReturn(new PageImpl<>(new ArrayList<>())).when(friendRepository)
         .findAllFriendWithPaging(any(), any());
 

@@ -16,7 +16,7 @@ import com.prgrms.coretime.friend.dto.request.FriendRequestSendRequest;
 import com.prgrms.coretime.friend.dto.response.FriendInfoResponse;
 import com.prgrms.coretime.friend.dto.response.FriendRequestInfoResponse;
 import com.prgrms.coretime.user.domain.TestUser;
-import com.prgrms.coretime.user.domain.UserRepository;
+import com.prgrms.coretime.user.domain.TestUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class FriendService {
 
   private final FriendRepository friendRepository;
-  private final UserRepository userRepository;
+  private final TestUserRepository testUserRepository;
 
   /**
    * 친구 요청 보내기
@@ -39,9 +39,9 @@ public class FriendService {
       throw new InvalidRequestException(ErrorCode.INVALID_FRIEND_REQUEST_TARGET);
     }
 
-    TestUser currentUser = userRepository.findById(userId)
+    TestUser currentUser = testUserRepository.findById(userId)
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
-    TestUser targetUser = userRepository.findById(request.getFolloweeId())
+    TestUser targetUser = testUserRepository.findById(request.getFolloweeId())
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
     FriendId currentUserSideFriendId = new FriendId(currentUser.getId(), targetUser.getId());
@@ -63,9 +63,9 @@ public class FriendService {
    */
   @Transactional
   public void revokeFriendRequest(Long userId, FriendRequestRevokeRequest request) {
-    TestUser currentUser = userRepository.findById(userId)
+    TestUser currentUser = testUserRepository.findById(userId)
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
-    TestUser targetUser = userRepository.findById(request.getFolloweeId())
+    TestUser targetUser = testUserRepository.findById(request.getFolloweeId())
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
     FriendId currentUserSideFriendId = new FriendId(currentUser.getId(), targetUser.getId());
@@ -86,9 +86,9 @@ public class FriendService {
    */
   @Transactional
   public void acceptFriendRequest(Long userId, FriendRequestAcceptRequest request) {
-    TestUser currentUser = userRepository.findById(userId)
+    TestUser currentUser = testUserRepository.findById(userId)
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
-    TestUser targetUser = userRepository.findById(request.getFollowerId())
+    TestUser targetUser = testUserRepository.findById(request.getFollowerId())
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
     FriendId currentUserSideFriendId = new FriendId(currentUser.getId(), targetUser.getId());
@@ -110,9 +110,9 @@ public class FriendService {
    */
   @Transactional
   public void refuseFriendRequest(Long userId, FriendRequestRefuseRequest request) {
-    TestUser currentUser = userRepository.findById(userId)
+    TestUser currentUser = testUserRepository.findById(userId)
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
-    TestUser targetUser = userRepository.findById(request.getFollowerId())
+    TestUser targetUser = testUserRepository.findById(request.getFollowerId())
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
     FriendId currentUserSideFriendId = new FriendId(currentUser.getId(), targetUser.getId());
@@ -133,7 +133,7 @@ public class FriendService {
    */
   @Transactional(readOnly = true)
   public Page<FriendRequestInfoResponse> getAllFriendRequests(Long userId, Pageable pageable) {
-    if (!userRepository.existsById(userId)) {
+    if (!testUserRepository.existsById(userId)) {
       throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
     }
 
@@ -146,7 +146,7 @@ public class FriendService {
    */
   @Transactional(readOnly = true)
   public Page<FriendInfoResponse> getAllFriends(Long userId, Pageable pageable) {
-    if (!userRepository.existsById(userId)) {
+    if (!testUserRepository.existsById(userId)) {
       throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
     }
 
