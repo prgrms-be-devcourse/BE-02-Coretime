@@ -1,6 +1,9 @@
 package com.prgrms.coretime.common.error;
 
 
+import com.prgrms.coretime.common.error.exception.DuplicateFriendRequestException;
+import com.prgrms.coretime.common.error.exception.FriendAlreadyExistsException;
+import com.prgrms.coretime.common.error.exception.InvalidRequestException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.ErrorResponse;
@@ -99,29 +102,25 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
 
-  /**
-   * TODO: 수정 필요
-   */
-
   @ExceptionHandler(FriendAlreadyExistsException.class)
-  public ResponseEntity<String> handleFriendExistsException(FriendAlreadyExistsException e) {
-    return ResponseEntity
-        .status(HttpStatus.NOT_FOUND)
-        .body("FriendAlreadyExistsException");
+  public ResponseEntity<ErrorResponse> handleFriendExistsException(FriendAlreadyExistsException e) {
+    log.warn(e.getMessage(), e);
+    ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
+    return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
 
   @ExceptionHandler(DuplicateFriendRequestException.class)
-  public ResponseEntity<String> handleDuplicateFriendRequestException(DuplicateFriendRequestException e) {
-    return ResponseEntity
-        .status(HttpStatus.NOT_FOUND)
-        .body("FriendAlreadyExistsException");
+  public ResponseEntity<ErrorResponse> handleDuplicateFriendRequestException(DuplicateFriendRequestException e) {
+    log.warn(e.getMessage(), e);
+    ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
+    return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
 
   @ExceptionHandler(InvalidRequestException.class)
-  public ResponseEntity<String> handleInvalidRequestException(InvalidRequestException e) {
-    return ResponseEntity
-        .status(HttpStatus.NOT_FOUND)
-        .body("InvalidRequestException");
+  public ResponseEntity<ErrorResponse> handleInvalidRequestException(InvalidRequestException e) {
+    log.warn(e.getMessage(), e);
+    ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
+    return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
 
 }

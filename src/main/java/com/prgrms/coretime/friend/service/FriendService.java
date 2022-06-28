@@ -1,10 +1,10 @@
 package com.prgrms.coretime.friend.service;
 
-import com.prgrms.coretime.common.error.DuplicateFriendRequestException;
-import com.prgrms.coretime.common.error.ErrorCode;
-import com.prgrms.coretime.common.error.FriendAlreadyExistsException;
-import com.prgrms.coretime.common.error.InvalidRequestException;
-import com.prgrms.coretime.common.error.NotFoundException;
+import com.prgrms.coretime.common.ErrorCode;
+import com.prgrms.coretime.common.error.exception.DuplicateFriendRequestException;
+import com.prgrms.coretime.common.error.exception.FriendAlreadyExistsException;
+import com.prgrms.coretime.common.error.exception.InvalidRequestException;
+import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.friend.domain.Friend;
 import com.prgrms.coretime.friend.domain.FriendId;
 import com.prgrms.coretime.friend.domain.FriendRepository;
@@ -36,22 +36,22 @@ public class FriendService {
   @Transactional
   public void sendFriendRequest(Long userId, FriendRequestSendRequest request) {
     if (userId == request.getFolloweeId()) {
-      throw new InvalidRequestException(ErrorCode.INVALID_FRIEND_REQUEST_TARGET.getMessage());
+      throw new InvalidRequestException(ErrorCode.INVALID_FRIEND_REQUEST_TARGET);
     }
 
     TestUser currentUser = userRepository.findById(userId)
-        .orElseThrow(() -> new NotFoundException());
+        .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
     TestUser targetUser = userRepository.findById(request.getFolloweeId())
-        .orElseThrow(() -> new NotFoundException());
+        .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
     FriendId currentUserSideFriendId = new FriendId(currentUser.getId(), targetUser.getId());
     FriendId targetUserSideFriendId = new FriendId(targetUser.getId(), currentUser.getId());
     if (friendRepository.existsById(currentUserSideFriendId)
         && friendRepository.existsById(targetUserSideFriendId)) {
-      throw new FriendAlreadyExistsException(ErrorCode.FRIEND_ALREADY_EXISTS.getMessage());
+      throw new FriendAlreadyExistsException(ErrorCode.FRIEND_ALREADY_EXISTS);
     }
     if (friendRepository.existsById(currentUserSideFriendId)) {
-      throw new DuplicateFriendRequestException(ErrorCode.DUPLICATE_FRIEND_REQUEST.getMessage());
+      throw new DuplicateFriendRequestException(ErrorCode.DUPLICATE_FRIEND_REQUEST);
     }
 
     Friend friend = new Friend(currentUser, targetUser);
@@ -64,18 +64,18 @@ public class FriendService {
   @Transactional
   public void revokeFriendRequest(Long userId, FriendRequestRevokeRequest request) {
     TestUser currentUser = userRepository.findById(userId)
-        .orElseThrow(() -> new NotFoundException());
+        .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
     TestUser targetUser = userRepository.findById(request.getFolloweeId())
-        .orElseThrow(() -> new NotFoundException());
+        .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
     FriendId currentUserSideFriendId = new FriendId(currentUser.getId(), targetUser.getId());
     FriendId targetUserSideFriendId = new FriendId(targetUser.getId(), currentUser.getId());
     if (!friendRepository.existsById(currentUserSideFriendId)) {
-      throw new NotFoundException();
+      throw new NotFoundException(ErrorCode.FRIEND_NOT_FOUND);
     }
     if (friendRepository.existsById(currentUserSideFriendId)
         && friendRepository.existsById(targetUserSideFriendId)) {
-      throw new FriendAlreadyExistsException(ErrorCode.FRIEND_ALREADY_EXISTS.getMessage());
+      throw new FriendAlreadyExistsException(ErrorCode.FRIEND_ALREADY_EXISTS);
     }
 
     friendRepository.deleteById(currentUserSideFriendId);
@@ -87,18 +87,18 @@ public class FriendService {
   @Transactional
   public void acceptFriendRequest(Long userId, FriendRequestAcceptRequest request) {
     TestUser currentUser = userRepository.findById(userId)
-        .orElseThrow(() -> new NotFoundException());
+        .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
     TestUser targetUser = userRepository.findById(request.getFollowerId())
-        .orElseThrow(() -> new NotFoundException());
+        .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
     FriendId currentUserSideFriendId = new FriendId(currentUser.getId(), targetUser.getId());
     FriendId targetUserSideFriendId = new FriendId(targetUser.getId(), currentUser.getId());
     if (!friendRepository.existsById(targetUserSideFriendId)) {
-      throw new NotFoundException();
+      throw new NotFoundException(ErrorCode.FRIEND_NOT_FOUND);
     }
     if (friendRepository.existsById(currentUserSideFriendId)
         && friendRepository.existsById(targetUserSideFriendId)) {
-      throw new FriendAlreadyExistsException(ErrorCode.FRIEND_ALREADY_EXISTS.getMessage());
+      throw new FriendAlreadyExistsException(ErrorCode.FRIEND_ALREADY_EXISTS);
     }
 
     Friend friend = new Friend(currentUser, targetUser);
@@ -111,18 +111,18 @@ public class FriendService {
   @Transactional
   public void refuseFriendRequest(Long userId, FriendRequestRefuseRequest request) {
     TestUser currentUser = userRepository.findById(userId)
-        .orElseThrow(() -> new NotFoundException());
+        .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
     TestUser targetUser = userRepository.findById(request.getFollowerId())
-        .orElseThrow(() -> new NotFoundException());
+        .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
     FriendId currentUserSideFriendId = new FriendId(currentUser.getId(), targetUser.getId());
     FriendId targetUserSideFriendId = new FriendId(targetUser.getId(), currentUser.getId());
     if (!friendRepository.existsById(targetUserSideFriendId)) {
-      throw new NotFoundException();
+      throw new NotFoundException(ErrorCode.FRIEND_NOT_FOUND);
     }
     if (friendRepository.existsById(currentUserSideFriendId)
         && friendRepository.existsById(targetUserSideFriendId)) {
-      throw new FriendAlreadyExistsException(ErrorCode.FRIEND_ALREADY_EXISTS.getMessage());
+      throw new FriendAlreadyExistsException(ErrorCode.FRIEND_ALREADY_EXISTS);
     }
 
     friendRepository.deleteById(targetUserSideFriendId);
@@ -134,7 +134,7 @@ public class FriendService {
   @Transactional(readOnly = true)
   public Page<FriendRequestInfoResponse> getAllFriendRequests(Long userId, Pageable pageable) {
     if (!userRepository.existsById(userId)) {
-      throw new NotFoundException();
+      throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
     }
 
     Page<Friend> friendRequests = friendRepository.findByFolloweeUser_Id(userId, pageable);
@@ -147,7 +147,7 @@ public class FriendService {
   @Transactional(readOnly = true)
   public Page<FriendInfoResponse> getAllFriends(Long userId, Pageable pageable) {
     if (!userRepository.existsById(userId)) {
-      throw new NotFoundException();
+      throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
     }
 
     Page<Friend> friends = friendRepository.findAllFriendWithPaging(userId, pageable);
@@ -166,7 +166,7 @@ public class FriendService {
       friendRepository.deleteById(currentUserSideFriendId);
       friendRepository.deleteById(targetUserSideFriendId);
     } else {
-      throw new NotFoundException();
+      throw new NotFoundException(ErrorCode.FRIEND_NOT_FOUND);
     }
   }
 }
