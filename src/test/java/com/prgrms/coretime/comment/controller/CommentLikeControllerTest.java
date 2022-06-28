@@ -36,7 +36,7 @@ class CommentLikeControllerTest {
   String baseUrl = "/api/v1/comments/";
 
   @Nested
-  @DisplayName("댓글 좋아요 API 실행 시")
+  @DisplayName("댓글 좋아요 생성(POST) API 실행 시")
   class Describe_createCommentLike {
 
     Long id = 1L;
@@ -91,6 +91,43 @@ class CommentLikeControllerTest {
 
     }
 
+  }
+
+  @Nested
+  @DisplayName("댓글 좋아요 삭제(Delete) API 실행 시")
+  class Describe_deleteCommentLike {
+
+    Long id;
+
+    @Nested
+    @DisplayName("Edge case 테스트 중에서 ")
+    class Describe_EdgeCase {
+
+      @Test
+      @DisplayName("유효하지 않은 comment id를 받으면 실패")
+      public void test() {
+
+      }
+
+      @Test
+      @DisplayName("HTTP Delete 아니면 실패")
+      public void testHttpMethodNotAllowed() {
+
+      }
+
+    }
+
+    @Nested
+    @DisplayName("Happy Path 테스트 중에서 ")
+    class Describe_HappyPath {
+
+      @Test
+      @DisplayName("정상적인 요청을 받을 경우 삭제 수행!")
+      public void testCorrectHttpRequest() {
+
+      }
+
+    }
   }
 
 }
