@@ -1,11 +1,15 @@
 package com.prgrms.coretime.timetable.domain.repository.lecture;
 
+import static com.prgrms.coretime.school.domain.QSchool.school;
 import static com.prgrms.coretime.timetable.domain.lecture.QOfficialLecture.officialLecture;
+import static com.prgrms.coretime.timetable.domain.lectureDetail.QLectureDetail.lectureDetail;
 
+import com.prgrms.coretime.school.domain.QSchool;
 import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.lecture.Grade;
 import com.prgrms.coretime.timetable.domain.lecture.LectureType;
 import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
+import com.prgrms.coretime.timetable.domain.lecture.QOfficialLecture;
 import com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition;
 import com.prgrms.coretime.timetable.dto.request.SearchType;
 import com.querydsl.core.BooleanBuilder;
@@ -15,6 +19,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -51,6 +56,20 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
         );
 
     return PageableExecutionUtils.getPage(officialLectures, pageable, countQuery::fetchOne);
+  }
+
+  @Override
+  public Optional<OfficialLecture> findOfficialLectureById(Long id) {
+    return Optional.ofNullable(queryFactory
+        .select(officialLecture)
+        .distinct()
+        .from(officialLecture)
+        .join(officialLecture.school, school)
+        .fetchJoin()
+        .join(officialLecture.lectureDetails)
+        .fetchJoin()
+        .where(idEq(id))
+        .fetchOne());
   }
 
   private OrderSpecifier<?> officialLectureSort(Pageable pageable) {
@@ -126,6 +145,10 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
     }
 
     return builder;
+  }
+
+  private BooleanExpression idEq(Long id) {
+    return id == null ? null : officialLecture.id.eq(id);
   }
 
   private BooleanExpression openYearEq(Integer openYear) {
