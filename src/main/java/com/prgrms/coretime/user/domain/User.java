@@ -20,11 +20,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -60,6 +57,11 @@ public class User extends BaseEntity {
     this.email = email;
     this.profileImage = profileImage;
     this.nickname = nickname;
+    this.name = name;
+  }
+
+  public User(String email, String name) {
+    this.email = email;
     this.name = name;
   }
 

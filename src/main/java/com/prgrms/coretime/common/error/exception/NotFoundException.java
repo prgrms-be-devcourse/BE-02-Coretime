@@ -1,11 +1,15 @@
 package com.prgrms.coretime.common.error.exception;
 
-public class NotFoundException extends RuntimeException{
-  public NotFoundException() {
-    super();
-  }
+import com.prgrms.coretime.common.ErrorCode;
+import lombok.Getter;
 
-  public NotFoundException(String message) {
-    super(message);
+@Getter
+public class NotFoundException extends RuntimeException {
+
+  private final ErrorCode errorCode;
+
+  public NotFoundException(ErrorCode errorCode) {
+    super(errorCode.getMessage());
+    this.errorCode = errorCode;
   }
 }
