@@ -1,6 +1,7 @@
 package com.prgrms.coretime.friend.controller;
 
 import com.prgrms.coretime.common.ApiResponse;
+import com.prgrms.coretime.friend.dto.request.FriendRequestAcceptRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRevokeRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestSendRequest;
 import com.prgrms.coretime.friend.service.FriendService;
@@ -38,6 +39,15 @@ public class FriendController {
 
     friendService.revokeFriendRequest(userId, request);
     return ResponseEntity.ok().body(new ApiResponse<>("친구 요청 취소가 완료되었습니다."));
+  }
+
+  @ApiOperation(value = "친구 요청 수락하기", notes = "받은 친구 요청을 수락하는 요청입니다.")
+  @PostMapping("/requests/accept")
+  public ResponseEntity<ApiResponse> acceptFriendRequest(@RequestParam final Long userId,
+      @Valid @RequestBody final FriendRequestAcceptRequest request) {
+
+    friendService.acceptFriendRequest(userId, request);
+    return ResponseEntity.ok().body(new ApiResponse<>("친구 요청 수락이 완료되었습니다."));
   }
 
 }
