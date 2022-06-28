@@ -1,6 +1,7 @@
 package com.prgrms.coretime.common.error;
 
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
@@ -30,5 +31,37 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
     return ResponseEntity.badRequest().body("");
+  }
+
+  /**
+   * TODO: 수정 필요
+   */
+
+  @ExceptionHandler(FriendAlreadyExistsException.class)
+  public ResponseEntity<String> handleFriendExistsException(FriendAlreadyExistsException e) {
+    return ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body("FriendAlreadyExistsException");
+  }
+
+  @ExceptionHandler(DuplicateFriendRequestException.class)
+  public ResponseEntity<String> handleDuplicateFriendRequestException(DuplicateFriendRequestException e) {
+    return ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body("FriendAlreadyExistsException");
+  }
+
+  @ExceptionHandler(InvalidRequestException.class)
+  public ResponseEntity<String> handleInvalidRequestException(InvalidRequestException e) {
+    return ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body("InvalidRequestException");
+  }
+
+  @ExceptionHandler(NotFoundException.class)
+  public ResponseEntity<String> handleNotFoundException(NotFoundException e) {
+    return ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body("NotFoundException");
   }
 }
