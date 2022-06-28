@@ -83,4 +83,24 @@ class FriendRepositoryTest {
     assertThat(friendPage.getNumberOfElements(), is(1));
   }
 
+  @Test
+  @DisplayName("친구 목록 조회")
+  void findAllByFolloweeUser_IdWithPagingTest() {
+    TestUser user3 = new TestUser("3333");
+    userRepository.save(user3);
+
+    friendRepository.save(new Friend(user1, user2));
+    friendRepository.save(new Friend(user2, user1));
+    friendRepository.save(new Friend(user1, user3));
+    friendRepository.save(new Friend(user3, user1));
+    friendRepository.save(new Friend(user2, user3));
+    Pageable pageable = PageRequest.of(0, 20);
+
+    Page<Friend> friendPage1 = friendRepository.findAllFriendWithPaging(user1.getId(), pageable);
+    Page<Friend> friendPage2 = friendRepository.findAllFriendWithPaging(user2.getId(), pageable);
+
+    assertThat(friendPage1.getNumberOfElements(), is(2));
+    assertThat(friendPage2.getNumberOfElements(), is(1));
+  }
+
 }

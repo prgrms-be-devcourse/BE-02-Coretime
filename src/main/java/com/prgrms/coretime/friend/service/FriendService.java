@@ -8,7 +8,6 @@ import com.prgrms.coretime.common.error.NotFoundException;
 import com.prgrms.coretime.friend.domain.Friend;
 import com.prgrms.coretime.friend.domain.FriendId;
 import com.prgrms.coretime.friend.domain.FriendRepository;
-import com.prgrms.coretime.friend.dto.request.FriendDeleteRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestAcceptRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRefuseRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRevokeRequest;
@@ -139,6 +138,19 @@ public class FriendService {
 
     Page<Friend> friendRequests = friendRepository.findByFolloweeUser_Id(userId, pageable);
     return friendRequests.map(FriendRequestInfoResponse::new);
+  }
+
+  /**
+   * 친구 목록 조회
+   */
+  @Transactional(readOnly = true)
+  public Page<FriendInfoResponse> getAllFriends(Long userId, Pageable pageable) {
+    if (!userRepository.existsById(userId)) {
+      throw new NotFoundException();
+    }
+
+    Page<Friend> friends = friendRepository.findAllFriendWithPaging(userId, pageable);
+    return friends.map(FriendInfoResponse::new);
   }
 
 }

@@ -14,6 +14,7 @@ import com.prgrms.coretime.friend.dto.request.FriendRequestRevokeRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestSendRequest;
 import com.prgrms.coretime.user.domain.TestUser;
 import com.prgrms.coretime.user.domain.UserRepository;
+import java.util.ArrayList;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 @ExtendWith(MockitoExtension.class)
 class FriendServiceTest {
@@ -102,6 +105,30 @@ class FriendServiceTest {
     friendService.refuseFriendRequest(user1.getId(), request);
 
     verify(friendRepository).deleteById(any());
+  }
+
+  @Test
+  @DisplayName("친구 요청 받은 목록 조회하기: 성공")
+  void getAllFriendRequestsSuccessTest() {
+    doReturn(true).when(userRepository).existsById(any());
+    doReturn(new PageImpl<>(new ArrayList<>())).when(friendRepository)
+        .findByFolloweeUser_Id(any(), any());
+
+    friendService.getAllFriendRequests(user1.getId(), PageRequest.of(0, 20));
+
+    verify(friendRepository).findByFolloweeUser_Id(any(), any());
+  }
+
+  @Test
+  @DisplayName("친구 목록 조회하기: 성공")
+  void getAllFriendsSuccessTest() {
+    doReturn(true).when(userRepository).existsById(any());
+    doReturn(new PageImpl<>(new ArrayList<>())).when(friendRepository)
+        .findAllFriendWithPaging(any(), any());
+
+    friendService.getAllFriends(user1.getId(), PageRequest.of(0, 20));
+
+    verify(friendRepository).findAllFriendWithPaging(any(), any());
   }
 
 }
