@@ -5,6 +5,7 @@ import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
@@ -97,4 +98,30 @@ public class GlobalExceptionHandler {
     ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
+
+  /**
+   * TODO: 수정 필요
+   */
+
+  @ExceptionHandler(FriendAlreadyExistsException.class)
+  public ResponseEntity<String> handleFriendExistsException(FriendAlreadyExistsException e) {
+    return ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body("FriendAlreadyExistsException");
+  }
+
+  @ExceptionHandler(DuplicateFriendRequestException.class)
+  public ResponseEntity<String> handleDuplicateFriendRequestException(DuplicateFriendRequestException e) {
+    return ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body("FriendAlreadyExistsException");
+  }
+
+  @ExceptionHandler(InvalidRequestException.class)
+  public ResponseEntity<String> handleInvalidRequestException(InvalidRequestException e) {
+    return ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body("InvalidRequestException");
+  }
+
 }

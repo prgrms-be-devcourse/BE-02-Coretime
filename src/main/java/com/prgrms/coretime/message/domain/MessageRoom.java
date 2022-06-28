@@ -5,7 +5,6 @@ import com.prgrms.coretime.post.domain.Post;
 import com.prgrms.coretime.user.domain.User;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -47,22 +46,5 @@ public class MessageRoom extends BaseEntity {
 
   @OneToMany(mappedBy = "messageRoom")
   private List<Message> messages = new ArrayList<>();
-
-  /*public void setInitialSender(User initialSender) {
-    if (Objects.nonNull(this.initialSender)) {
-      initialSender.getMessageRoomInitialSenders().remove(this);
-    }
-    this.initialSender = initialSender;
-    initialSender.getMessageRoomInitialSenders().add(this);
-
-  }
-
-  public void setInitialReceiver(User initialReceiver) {
-    if (Objects.nonNull(this.initialReceiver)) {
-      initialReceiver.getMessageRoomInitialReceivers().remove(this);
-    }
-    this.initialReceiver = initialReceiver;
-    initialReceiver.getMessageRoomInitialReceivers().add(this);
-  }*/
 
 }
