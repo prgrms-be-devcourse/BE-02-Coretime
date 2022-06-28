@@ -8,13 +8,18 @@ import com.prgrms.coretime.common.error.NotFoundException;
 import com.prgrms.coretime.friend.domain.Friend;
 import com.prgrms.coretime.friend.domain.FriendId;
 import com.prgrms.coretime.friend.domain.FriendRepository;
+import com.prgrms.coretime.friend.dto.request.FriendDeleteRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestAcceptRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRefuseRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRevokeRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestSendRequest;
+import com.prgrms.coretime.friend.dto.response.FriendInfoResponse;
+import com.prgrms.coretime.friend.dto.response.FriendRequestInfoResponse;
 import com.prgrms.coretime.user.domain.TestUser;
 import com.prgrms.coretime.user.domain.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -121,6 +126,19 @@ public class FriendService {
     }
 
     friendRepository.deleteById(targetUserSideFriendId);
+  }
+
+  /**
+   * 친구 요청 받은 목록 조회
+   */
+  @Transactional(readOnly = true)
+  public Page<FriendRequestInfoResponse> getAllFriendRequests(Long userId, Pageable pageable) {
+    if (!userRepository.existsById(userId)) {
+      throw new NotFoundException();
+    }
+
+    Page<Friend> friendRequests = friendRepository.findByFolloweeUser_Id(userId, pageable);
+    return friendRequests.map(FriendRequestInfoResponse::new);
   }
 
 }

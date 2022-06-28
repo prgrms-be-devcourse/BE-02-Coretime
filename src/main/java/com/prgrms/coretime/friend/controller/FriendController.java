@@ -1,16 +1,26 @@
 package com.prgrms.coretime.friend.controller;
 
 import com.prgrms.coretime.common.ApiResponse;
+import com.prgrms.coretime.friend.dto.request.FriendDeleteRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestAcceptRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRefuseRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRevokeRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestSendRequest;
+import com.prgrms.coretime.friend.dto.response.FriendInfoResponse;
+import com.prgrms.coretime.friend.dto.response.FriendRequestInfoResponse;
 import com.prgrms.coretime.friend.service.FriendService;
+import com.prgrms.coretime.user.domain.TestUser;
+import com.prgrms.coretime.user.domain.UserRepository;
 import io.swagger.annotations.ApiOperation;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,6 +68,16 @@ public class FriendController {
 
     friendService.refuseFriendRequest(userId, request);
     return ResponseEntity.ok().body(new ApiResponse<>("친구 요청 거절이 완료되었습니다."));
+  }
+
+  @ApiOperation(value = "친구 요청 받은 목록 조회하기", notes = "친구 요청 받은 목록을 조회하는 요청입니다.")
+  @GetMapping("/requests")
+  public ResponseEntity<ApiResponse> getAllFriendRequests(@RequestParam final Long userId,
+      @RequestParam(required = false) @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) final Pageable pageable) {
+    Page<FriendRequestInfoResponse> allFriendRequests = friendService.getAllFriendRequests(userId,
+        pageable);
+    return ResponseEntity.ok()
+        .body(new ApiResponse<>("친구 요청받은 목록 조회가 완료되었습니다.", allFriendRequests));
   }
 
 }
