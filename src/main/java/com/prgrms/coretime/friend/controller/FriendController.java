@@ -1,6 +1,7 @@
 package com.prgrms.coretime.friend.controller;
 
 import com.prgrms.coretime.common.ApiResponse;
+import com.prgrms.coretime.friend.dto.request.FriendDeleteRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestAcceptRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRefuseRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRevokeRequest;
@@ -84,6 +85,15 @@ public class FriendController {
 
     Page<FriendInfoResponse> allFriends = friendService.getAllFriends(userId, pageable);
     return ResponseEntity.ok().body(new ApiResponse<>("친구 목록 조회가 완료되었습니다.", allFriends));
+  }
+
+  @ApiOperation(value = "친구 삭제하기", notes = "친구를 삭제하는 요청입니다.")
+  @DeleteMapping
+  public ResponseEntity<ApiResponse> deleteFriend(@RequestParam final Long userId,
+      @Valid @RequestBody final FriendDeleteRequest request) {
+
+    friendService.deleteFriend(userId, request);
+    return ResponseEntity.ok().body(new ApiResponse<>("친구 삭제가 완료되었습니다."));
   }
 
 }

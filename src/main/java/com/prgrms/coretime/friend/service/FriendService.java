@@ -8,6 +8,7 @@ import com.prgrms.coretime.common.error.NotFoundException;
 import com.prgrms.coretime.friend.domain.Friend;
 import com.prgrms.coretime.friend.domain.FriendId;
 import com.prgrms.coretime.friend.domain.FriendRepository;
+import com.prgrms.coretime.friend.dto.request.FriendDeleteRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestAcceptRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRefuseRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRevokeRequest;
@@ -153,4 +154,19 @@ public class FriendService {
     return friends.map(FriendInfoResponse::new);
   }
 
+  /**
+   * 친구 삭제
+   */
+  @Transactional
+  public void deleteFriend(Long userId, FriendDeleteRequest request) {
+    FriendId currentUserSideFriendId = new FriendId(userId, request.getFriendId());
+    FriendId targetUserSideFriendId = new FriendId(request.getFriendId(), userId);
+    if (friendRepository.existsById(currentUserSideFriendId)
+        && friendRepository.existsById(targetUserSideFriendId)) {
+      friendRepository.deleteById(currentUserSideFriendId);
+      friendRepository.deleteById(targetUserSideFriendId);
+    } else {
+      throw new NotFoundException();
+    }
+  }
 }

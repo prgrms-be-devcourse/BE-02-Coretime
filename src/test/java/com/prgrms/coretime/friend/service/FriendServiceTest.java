@@ -3,11 +3,13 @@ package com.prgrms.coretime.friend.service;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.prgrms.coretime.friend.domain.Friend;
 import com.prgrms.coretime.friend.domain.FriendRepository;
+import com.prgrms.coretime.friend.dto.request.FriendDeleteRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestAcceptRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRefuseRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRevokeRequest;
@@ -41,6 +43,7 @@ class FriendServiceTest {
   private TestUser user2 = mock(TestUser.class);
 
   private Friend friend1 = mock(Friend.class);
+  private Friend friend2 = mock(Friend.class);
 
   @Test
   @DisplayName("친구 요청 보내기: 성공")
@@ -131,4 +134,17 @@ class FriendServiceTest {
     verify(friendRepository).findAllFriendWithPaging(any(), any());
   }
 
+  @Test
+  @DisplayName("친구 삭제하기: 성공")
+  void deleteFriendSuccessTest() {
+    FriendDeleteRequest request = new FriendDeleteRequest(1L);
+
+    doReturn(true)
+        .doReturn(true)
+        .when(friendRepository).existsById(any());
+
+    friendService.deleteFriend(user1.getId(), request);
+
+    verify(friendRepository, times(2)).deleteById(any());
+  }
 }
