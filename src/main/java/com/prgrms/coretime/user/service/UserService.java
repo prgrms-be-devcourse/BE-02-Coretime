@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import static com.prgrms.coretime.common.ErrorCode.*;
+
 @Service
 public class UserService {
 
@@ -30,7 +32,7 @@ public class UserService {
     Assert.hasText(principal, "principal이 누락되었습니다.");
     Assert.hasText(credentials, "credentials이 누락되었습니다.");
 
-    LocalUser user = (LocalUser) userRepository.findByEmail(principal).orElseThrow(() -> new NotFoundException("유저가 존재하지 않습니다."));
+    LocalUser user = (LocalUser) userRepository.findByEmail(principal).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
     user.checkPassword(passwordEncoder, credentials);
     return user;
   }
@@ -40,7 +42,7 @@ public class UserService {
   public User findByEmail(String email) {
     Assert.hasText(email, "email이 누락되었습니다.");
     return userRepository.findByEmail(email)
-        .orElseThrow(() -> new NotFoundException("유저가 존재하지 않습니다."));
+        .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
   }
 
   @Transactional
