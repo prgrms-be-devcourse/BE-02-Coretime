@@ -18,16 +18,13 @@ public class OfficialLectureSearchRequest {
   private Semester semester;
 
   @NotEmpty
-  private List<LectureType> lectureTypes;
-
-  @NotEmpty
   private List<Grade> grades;
 
   @NotEmpty
-  private List<Double> credits;
+  private List<LectureType> lectureTypes;
 
-  // TODO : 학교에 대한 필터링
-  // TODO : time은 가장 마지막에 구현
+  @NotEmpty
+  private List<Double> credits;
 
   @Builder
   public OfficialLectureSearchRequest(Integer year,

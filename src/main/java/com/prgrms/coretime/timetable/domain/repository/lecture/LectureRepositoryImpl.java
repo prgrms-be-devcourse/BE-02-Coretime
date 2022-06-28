@@ -70,7 +70,7 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
     if(officialLectureSearchCondition.getCredits() != null) {
       BooleanBuilder creditBuilder = new BooleanBuilder();
       for(Double credit : officialLectureSearchCondition.getCredits()) {
-        if(credit >= 4.0) {
+        if(credit == 4.0) {
           creditBuilder.or(creditGoe(credit));
         }else{
           creditBuilder.or(creditEq(credit));
