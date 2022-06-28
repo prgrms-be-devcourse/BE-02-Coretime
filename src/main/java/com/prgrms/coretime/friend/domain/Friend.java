@@ -39,7 +39,7 @@ public class Friend extends BaseEntity {
   )
   private User followeeUser;
 
-  public void setFollowerUser(User followerUser) {
+  /*public void setFollowerUser(User followerUser) {
     if (Objects.nonNull(this.followerUser)) {
       followerUser.getFollowers().remove(this);
     }
@@ -53,5 +53,5 @@ public class Friend extends BaseEntity {
     }
     this.followeeUser = followeeUser;
     followeeUser.getFollowees().add(this);
-  }
+  }*/
 }

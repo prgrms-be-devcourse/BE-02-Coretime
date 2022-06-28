@@ -1,4 +1,4 @@
-package com.prgrms.coretime.common.error;
+package com.prgrms.coretime.common.error.exception;
 
 import com.prgrms.coretime.common.ErrorCode;
 import lombok.Getter;

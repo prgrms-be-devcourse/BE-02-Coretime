@@ -1,10 +1,13 @@
 spring:
   redis:
-    host: localhost
+    host: redis_dev
     port: 6379
     password:
+  h2:
+    console:
+      enabled: true
   datasource:
-    url: jdbc:h2:tcp://localhost/~/coretime
+    url: "jdbc:h2:mem:coretime;MODE=MYSQL;DB_CLOSE_DELAY=-1"
     username: sa
     password:
     driver-class-name: org.h2.Driver

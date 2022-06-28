@@ -45,12 +45,12 @@ public class Message extends BaseEntity {
     messageRoom.getMessages().add(this);
   }
 
-  public void setWriter(User writer) {
+  /*public void setWriter(User writer) {
     if (Objects.nonNull(this.writer)) {
       writer.getMessageWriters().remove(this);
     }
     this.writer = writer;
     writer.getMessageWriters().add(this);
-  }
+  }*/
 
 }

@@ -1,6 +1,7 @@
 package com.prgrms.coretime.common.error;
 
 
+import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
