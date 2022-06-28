@@ -1,19 +1,21 @@
 package com.prgrms.coretime.post.service;
 
 import com.prgrms.coretime.comment.domain.Comment;
+import com.prgrms.coretime.common.ErrorCode;
+import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.post.domain.Board;
-import com.prgrms.coretime.post.domain.BoardRepository;
+import com.prgrms.coretime.post.domain.repository.BoardRepository;
 import com.prgrms.coretime.post.domain.Post;
 import com.prgrms.coretime.post.domain.PostLike;
-import com.prgrms.coretime.post.domain.PostLikeRepository;
-import com.prgrms.coretime.post.domain.PostRepository;
-import com.prgrms.coretime.post.domain.TempUserRepository;
+import com.prgrms.coretime.post.domain.repository.PostLikeRepository;
+import com.prgrms.coretime.post.domain.repository.PostRepository;
 import com.prgrms.coretime.post.dto.request.PostCreateRequest;
 import com.prgrms.coretime.post.dto.request.PostUpdateRequest;
 import com.prgrms.coretime.post.dto.response.PostIdResponse;
 import com.prgrms.coretime.post.dto.response.PostResponse;
 import com.prgrms.coretime.post.dto.response.PostSimpleResponse;
 import com.prgrms.coretime.user.domain.User;
+import com.prgrms.coretime.user.domain.repository.UserRepository;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,21 +24,19 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
-
 @Service
 public class PostService {
 
   private final PostRepository postRepository;
   private final BoardRepository boardRepository;
   private final PostLikeRepository postLikeRepository;
-  private final TempUserRepository userRepository;
+  private final UserRepository userRepository;
   private final Integer HOT_COUNT = 10;
   private final Integer BEST_COUNT = 100;
 
   public PostService(PostRepository postRepository, BoardRepository boardRepository,
       PostLikeRepository postLikeRepository,
-      TempUserRepository userRepository) {
+      UserRepository userRepository) {
     this.postRepository = postRepository;
     this.boardRepository = boardRepository;
     this.postLikeRepository = postLikeRepository;
@@ -123,7 +123,7 @@ public class PostService {
   public void likePost(Long userId, Long postId) {
     Optional<PostLike> postLike = postLikeRepository.findByUserIdAndPostId(userId, postId);
     if (postLike.isPresent()) {
-      throw new IllegalArgumentException("해당 좋아요가 이미 존재합니다.");
+      throw new NotFoundException(ErrorCode.POST_LIKE_ALREADY_EXISTS);
     }
     Post post = findPost(postId);
     User user = findUser(userId);
@@ -135,7 +135,7 @@ public class PostService {
   public void unlikePost(Long userId, Long postId) {
     Optional<PostLike> postLike = postLikeRepository.findByUserIdAndPostId(userId, postId);
     if (postLike.isEmpty()) {
-      throw new IllegalArgumentException("해당 좋아요가 존재하지 않습니다.");
+      throw new NotFoundException(ErrorCode.POST_LIKE_NOT_FOUND);
     }
     Post post = findPost(postId);
     User user = findUser(userId);
@@ -145,25 +145,19 @@ public class PostService {
 
   private Board findBoard(Long boardId) {
     return boardRepository.findById(boardId).orElseThrow(
-        () -> new IllegalArgumentException("해당 ID의 게시판이 존재하지 않습니다.")
+        () -> new NotFoundException(ErrorCode.BOARD_NOT_FOUND)
     );
   }
 
   private Post findPost(Long postId) {
     return postRepository.findPostById(postId).orElseThrow(
-        () -> new IllegalArgumentException("해당 ID의 게시글이 존재하지 않습니다.")
+        () -> new NotFoundException(ErrorCode.POST_NOT_FOUND)
     );
   }
 
   private User findUser(Long userId) {
     return userRepository.findById(userId).orElseThrow(
-        () -> new IllegalArgumentException("해당 ID의 유저가 존재하지 않습니다.")
-    );
-  }
-
-  private PostLike findPostLike(Long postLikeId) {
-    return postLikeRepository.findById(postLikeId).orElseThrow(
-        () -> new IllegalArgumentException("해당 좋아요가 존재하지 않습니다.")
+        () -> new NotFoundException(ErrorCode.USER_NOT_FOUND)
     );
   }
 }

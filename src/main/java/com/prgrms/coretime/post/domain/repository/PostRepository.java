@@ -1,6 +1,7 @@
-package com.prgrms.coretime.post.domain;
+package com.prgrms.coretime.post.domain.repository;
 
 import com.prgrms.coretime.comment.domain.Comment;
+import com.prgrms.coretime.post.domain.Post;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

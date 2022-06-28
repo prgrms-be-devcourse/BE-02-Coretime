@@ -7,7 +7,7 @@ import com.prgrms.coretime.comment.dto.response.CommentCreateResponse;
 import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.post.domain.Post;
-import com.prgrms.coretime.post.domain.PostRepository;
+import com.prgrms.coretime.post.domain.repository.PostRepository;
 import com.prgrms.coretime.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
