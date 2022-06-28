@@ -43,8 +43,8 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
       User user = userService.login(principal, credentials);
       // TODO : 확장성 고려할 것
       List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("USER"));
-      String token = getToken(user.getId(), user.getNickname(), authorities);
-      JwtAuthenticationToken authenticated = new JwtAuthenticationToken(new JwtPrincipal(token, user.getNickname(), user.getId()), null, authorities);
+      String token = getToken(user.getId(), user.getSchool().getId(), user.getNickname(), user.getEmail(), authorities);
+      JwtAuthenticationToken authenticated = new JwtAuthenticationToken(new JwtPrincipal(token, user.getNickname(), user.getEmail(), user.getId(), user.getSchool().getId()), null, authorities);
       authenticated.setDetails(user);
       return authenticated;
     } catch (IllegalArgumentException e) {
@@ -54,10 +54,10 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     }
   }
 
-  private String getToken(Long userId, String nickname, List<GrantedAuthority> authorities) {
+  private String getToken(Long userId, Long schoolId, String nickname, String email, List<GrantedAuthority> authorities) {
     String[] roles = authorities.stream()
         .map(GrantedAuthority::getAuthority)
         .toArray(String[]::new);
-    return jwt.sign(Jwt.Claims.from(userId, nickname, roles));
+    return jwt.sign(Jwt.Claims.from(userId, schoolId, nickname, email, roles));
   }
 }

@@ -37,11 +37,17 @@ public class UserService {
     return user;
   }
 
-  // TODO : message 관리
   @Transactional(readOnly = true)
   public User findByEmail(String email) {
     Assert.hasText(email, "email이 누락되었습니다.");
     return userRepository.findByEmail(email)
+        .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+  }
+
+  @Transactional(readOnly = true)
+  public User findByNickname(String nickname) {
+    Assert.hasText(nickname, "nickname이 누락되었습니다.");
+    return userRepository.findByNickname(nickname)
         .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
   }
 

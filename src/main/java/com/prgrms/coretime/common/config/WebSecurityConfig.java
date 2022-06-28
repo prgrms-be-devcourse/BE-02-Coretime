@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -72,6 +73,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         .authorizeRequests()
         .antMatchers("/swagger*/**").permitAll()
-        .antMatchers("/api/v1/**").permitAll();
+        .antMatchers("/api/v1/**").permitAll()
+        .and()
+        .addFilterAfter(jwtAuthenticationFilter(), SecurityContextPersistenceFilter.class);
   }
 }

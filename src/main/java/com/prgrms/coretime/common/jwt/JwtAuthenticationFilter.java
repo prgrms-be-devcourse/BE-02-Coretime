@@ -48,14 +48,16 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
           log.debug("Jwt parse result: {}", claims);
 
           String nickname = claims.nickname;
+          String email = claims.email;
           Long userId = claims.userId;
+          Long schoolId= claims.schoolId;
           List<GrantedAuthority> authorities = getAuthorities(claims);
 
-          if ((nickname != null && !nickname.equals(""))
+          if ((nickname != null && !nickname.trim().equals(""))
               && userId != null
               && authorities.size() > 0
           ) {
-            JwtAuthenticationToken authentication = new JwtAuthenticationToken(new JwtPrincipal(token, nickname, userId), null,authorities);
+            JwtAuthenticationToken authentication = new JwtAuthenticationToken(new JwtPrincipal(token, nickname, email, userId, schoolId), null,authorities);
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
           }
@@ -72,7 +74,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
   private String getToken(HttpServletRequest request) {
     String token = request.getHeader(headerKey);
-    if(token == null || token.equals("")) {
+    if(token != null && !token.trim().equals("")) {
       log.debug("Jwt authorization api detected: {}", token);
       try {
         return URLDecoder.decode(token, "UTF-8");

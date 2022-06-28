@@ -9,6 +9,8 @@ import com.prgrms.coretime.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,5 +44,8 @@ public class UserController {
     return null;
   }
 
-
+  @GetMapping("/principal")
+  public ResponseEntity<ApiResponse<JwtPrincipal>> getPrincipalInfo(@AuthenticationPrincipal JwtPrincipal principal) {
+    return ResponseEntity.ok(new ApiResponse<>("현재 로그인한 사용자입니다.", principal));
+  }
 }

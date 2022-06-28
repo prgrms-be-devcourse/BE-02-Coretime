@@ -48,6 +48,8 @@ public final class Jwt {
     }
     builder.withClaim("userId", claims.userId);
     builder.withClaim("nickname", claims.nickname);
+    builder.withClaim("email", claims.email);
+    builder.withClaim("schoolId", claims.schoolId);
     builder.withArrayClaim("roles", claims.roles);
     return  builder.sign(algorithm);
   }
@@ -59,7 +61,9 @@ public final class Jwt {
   static public class Claims {
 
     Long userId;
+    Long schoolId;
     String nickname;
+    String email;
     String[] roles;
     Date iat; // 발행 시각
     Date exp; // 만료 시각
@@ -71,9 +75,17 @@ public final class Jwt {
       if (!userId.isNull()) {
         this.userId = userId.asLong();
       }
+      Claim schoolId = decodedJWT.getClaim("schoolId");
+      if (!schoolId.isNull()) {
+        this.schoolId = schoolId.asLong();
+      }
       Claim nickname = decodedJWT.getClaim("nickname");
       if (!nickname.isNull()) {
         this.nickname = nickname.asString();
+      }
+      Claim email = decodedJWT.getClaim("email");
+      if (!email.isNull()) {
+        this.email = email.asString();
       }
       Claim roles = decodedJWT.getClaim("roles");
       if (!roles.isNull()) {
@@ -83,10 +95,12 @@ public final class Jwt {
       this.exp = decodedJWT.getExpiresAt();
     }
 
-    public static Claims from(Long userId, String nickname, String[] roles) {
+    public static Claims from(Long userId, Long schoolId, String nickname, String email, String[] roles) {
       Claims claims = new Claims();
       claims.userId = userId;
+      claims.schoolId = schoolId;
       claims.nickname = nickname;
+      claims.email = email;
       claims.roles = roles;
       return claims;
     }
