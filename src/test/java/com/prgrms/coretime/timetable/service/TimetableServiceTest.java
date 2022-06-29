@@ -7,13 +7,13 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.prgrms.coretime.common.error.NotFoundException;
-import com.prgrms.coretime.timetable.domain.repository.TemporaryUserRepository;
+import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
 import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
+import com.prgrms.coretime.user.domain.repository.UserRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -29,9 +29,8 @@ class TimetableServiceTest {
   @Mock
   TimetableRepository timetableRepository;
 
-  // TODO : 머지 후 TemporaryUserRepository -> UserRepository로 교체
   @Mock
-  TemporaryUserRepository userRepository;
+  UserRepository userRepository;
 
   @InjectMocks
   TimetableService timetableService;
@@ -42,7 +41,9 @@ class TimetableServiceTest {
       .semester(SECOND)
       .build();
 
-  User user = new LocalUser();
+  User user = LocalUser
+      .builder()
+      .build();
 
   Timetable timetable = Timetable.builder()
       .name("시간표1")
@@ -62,7 +63,7 @@ class TimetableServiceTest {
       try {
         timetableService.createTimetable(timetableCreateRequest);
       }catch (Exception e) {
-        verify(timetableRepository, never()).countDuplicateTimetableName(timetableCreateRequest.getName(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester());
+        verify(timetableRepository, never()).countDuplicateTimetableName(any(), timetableCreateRequest.getName(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester());
         verify(timetableRepository, never()).save(any());
       }
     }
@@ -71,7 +72,7 @@ class TimetableServiceTest {
     @DisplayName("시간표 이름이 중복되는 경우 테스트")
     void testCreateTimetableNameDuplicate() {
       when(userRepository.findById(any())).thenReturn(Optional.of(user));
-      when(timetableRepository.countDuplicateTimetableName(timetableCreateRequest.getName(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester())).thenReturn(1L);
+      when(timetableRepository.countDuplicateTimetableName(any(), timetableCreateRequest.getName(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester())).thenReturn(1L);
 
       try {
         timetableService.createTimetable(timetableCreateRequest);

@@ -40,35 +40,33 @@ public class User extends BaseEntity {
   @JoinColumn(name = "school_id")
   private School school;
 
-  @Column(name = "email")
+  @Column(name = "email", unique = true)
   private String email;
 
   @Column(name = "profile_image")
   private String profileImage;
 
-  @Column(name = "nickname")
+  @Column(name = "nickname", unique = true)
   private String nickname;
 
   @Column(name = "name")
   private String name;
 
-  @OneToMany(mappedBy = "followerUser")
-  private List<Friend> followers = new ArrayList<>();
-
-  @OneToMany(mappedBy = "followeeUser")
-  private List<Friend> followees = new ArrayList<>();
-
-  @OneToMany(mappedBy = "writer")
-  private List<Message> messageWriters = new ArrayList<>();
-
-  @OneToMany(mappedBy = "initialSender")
-  private List<MessageRoom> messageRoomInitialSenders = new ArrayList<>();
-
-  @OneToMany(mappedBy = "initialReceiver")
-  private List<MessageRoom> messageRoomInitialReceivers = new ArrayList<>();
+  public User (School school, String email, String profileImage, String nickname, String name) {
+    this.school = school;
+    this.email = email;
+    this.profileImage = profileImage;
+    this.nickname = nickname;
+    this.name = name;
+  }
 
   public User(String email, String name) {
     this.email = email;
     this.name = name;
+  }
+
+  // TODO : test 용
+  public void setId(Long id) {
+    this.id = id;
   }
 }

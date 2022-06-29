@@ -3,9 +3,9 @@ package com.prgrms.coretime.timetable.service;
 
 import static com.prgrms.coretime.common.ErrorCode.NOT_FOUND;
 
-import com.prgrms.coretime.common.error.NotFoundException;
+import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.timetable.domain.Semester;
-import com.prgrms.coretime.timetable.domain.repository.TemporaryUserRepository;
+import com.prgrms.coretime.timetable.domain.repository.enrollment.EnrollmentRepository;
 import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
@@ -14,6 +14,7 @@ import com.prgrms.coretime.timetable.dto.response.TimetableInfo;
 import com.prgrms.coretime.timetable.dto.response.TimetableResponse;
 import com.prgrms.coretime.timetable.dto.response.TimetablesResponse;
 import com.prgrms.coretime.user.domain.User;
+import com.prgrms.coretime.user.domain.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -26,9 +27,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class TimetableService {
   private final TimetableRepository timetableRepository;
-
-  // TODO : 지워야할 것
-  private final TemporaryUserRepository userRepository;
+  private final EnrollmentRepository enrollmentRepository;
+  private final UserRepository userRepository;
 
   @Transactional
   public Long createTimetable(@RequestBody @Valid TimetableCreateRequest timetableCreateRequest) {
@@ -37,7 +37,7 @@ public class TimetableService {
     Long userId = 1L;
     User user  = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
 
-    long duplicateNameCount = timetableRepository.countDuplicateTimetableName(timetableCreateRequest.getName().trim(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester());
+    long duplicateNameCount = timetableRepository.countDuplicateTimetableName(userId, timetableCreateRequest.getName().trim(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester());
     if(duplicateNameCount != 0) {
       throw new IllegalArgumentException("이미 사용중인 이름입니다.");
     }
@@ -55,7 +55,7 @@ public class TimetableService {
 
   @Transactional(readOnly = true)
   public TimetablesResponse getTimetables(Integer year, Semester semester) {
-    // TODO : 사용자에게 소유의 시간표만 보여주도록 해야한다.
+    // TODO : 사용자 소유의 시간표만 보여주도록 해야한다.
 
     List<TimetableInfo> timetables = timetableRepository.getTimetables(year, semester).stream()
         .map(timetable -> new TimetableInfo(timetable.getId(), timetable.getName()))
@@ -71,6 +71,10 @@ public class TimetableService {
     Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
 
     // TODO : 시간표 정보 가져오기
+    // name
+    // professor
+    // clssroom
+    // userDetails -> fetch
 
     return TimetableResponse.builder()
         .timetableId(timetable.getId())

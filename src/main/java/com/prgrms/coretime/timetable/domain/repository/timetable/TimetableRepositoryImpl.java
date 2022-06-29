@@ -15,7 +15,7 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public long countDuplicateTimetableName(String name, Integer year, Semester semester) {
+  public long countDuplicateTimetableName(Long userId, String name, Integer year, Semester semester) {
     return queryFactory
         .select(timetable.count())
         .from(timetable)
@@ -37,6 +37,10 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
         )
         .orderBy(timetable.name.asc())
         .fetch();
+  }
+
+  private BooleanExpression userId(Long userId) {
+    return userId == null ? null : timetable.user.id.eq(userId);
   }
 
   private BooleanExpression yearEq(Integer year) {

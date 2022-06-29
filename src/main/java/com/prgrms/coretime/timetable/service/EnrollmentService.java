@@ -2,7 +2,7 @@ package com.prgrms.coretime.timetable.service;
 
 import static com.prgrms.coretime.common.ErrorCode.NOT_FOUND;
 
-import com.prgrms.coretime.common.error.NotFoundException;
+import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
 import com.prgrms.coretime.timetable.domain.enrollment.EnrollmentId;
 import com.prgrms.coretime.timetable.domain.lecture.CustomLecture;

@@ -1,6 +1,6 @@
 spring:
   redis:
-    host: redis_dev
+    host: localhost
     port: 6379
     password:
   datasource:
@@ -20,3 +20,8 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+jwt:
+  header: accessToken
+  issuer: victory
+  client-secret: EENY5W0eegTf1naQB2eDeyCLl5kRS2b8xa5c4qLdS0hmVjtbvo8tOyhPMcAmtPuQ
+  expiry-seconds: 1800

@@ -43,13 +43,16 @@ dependencies {
 
 	//swagger setting
 	implementation "io.springfox:springfox-boot-starter:3.0.0"
+
+	//jwt setting
+	implementation 'com.auth0:java-jwt:3.19.2'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
 
-def querydslDir = "$buildDir/generated/querydsl"
+def querydslDir = "$buildDir/generated/querydsl" as Object
 
 querydsl {
 	jpa = true

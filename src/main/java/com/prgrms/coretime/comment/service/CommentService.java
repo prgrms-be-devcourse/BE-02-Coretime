@@ -5,7 +5,7 @@ import com.prgrms.coretime.comment.domain.repository.CommentRepository;
 import com.prgrms.coretime.comment.dto.request.CommentCreateRequest;
 import com.prgrms.coretime.comment.dto.response.CommentCreateResponse;
 import com.prgrms.coretime.common.ErrorCode;
-import com.prgrms.coretime.common.error.NotFoundException;
+import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.post.domain.Post;
 import com.prgrms.coretime.post.domain.PostRepository;
 import com.prgrms.coretime.user.domain.User;
