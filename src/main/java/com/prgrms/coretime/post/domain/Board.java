@@ -2,6 +2,7 @@ package com.prgrms.coretime.post.domain;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.school.domain.School;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -14,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -38,4 +40,11 @@ public class Board extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "school_id")
   private School school;
+
+  @Builder
+  public Board(String name, BoardType category, School school) {
+    this.name = name;
+    this.category = category;
+    this.school = school;
+  }
 }

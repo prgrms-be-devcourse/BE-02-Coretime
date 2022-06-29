@@ -21,7 +21,7 @@ public class BaseEntity {
 
   @CreatedDate
   @Column(name = "created_at", updatable = false)
-  private LocalDateTime createdAt;
+  private LocalDateTime createdAt = LocalDateTime.now().withNano(0);
 
   @LastModifiedDate
   @Column(name = "updated_at")

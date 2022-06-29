@@ -1,5 +1,6 @@
 package com.prgrms.coretime.user.domain.repository;
 
+import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.school.domain.respository.SchoolRepository;
@@ -54,8 +55,10 @@ class UserRepositoryTest {
     userRepository.save(user1);
     userRepository.save(user2);
 
-    User localResult = userRepository.findByEmail(localTestEmail).orElseThrow(() -> new NotFoundException("local user를 찾을 수 없습니다."));
-    User oauthResult = userRepository.findByEmail(oauthTestEmail).orElseThrow(() -> new NotFoundException("oauth user를 찾을 수 없습니다."));
+    User localResult = userRepository.findByEmail(localTestEmail)
+        .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+    User oauthResult = userRepository.findByEmail(oauthTestEmail)
+        .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
     assertThat(localResult).isInstanceOf(LocalUser.class);
     assertThat(oauthResult).isInstanceOf(OAuthUser.class);
