@@ -27,25 +27,25 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class TimetableServiceTest {
 
   @Mock
-  TimetableRepository timetableRepository;
+  private TimetableRepository timetableRepository;
 
   @Mock
-  UserRepository userRepository;
+  private UserRepository userRepository;
 
   @InjectMocks
-  TimetableService timetableService;
+  private TimetableService timetableService;
 
-  TimetableCreateRequest timetableCreateRequest = TimetableCreateRequest.builder()
+  private TimetableCreateRequest timetableCreateRequest = TimetableCreateRequest.builder()
       .name("시간표1")
       .year(2022)
       .semester(SECOND)
       .build();
 
-  User user = LocalUser
+  private User user = LocalUser
       .builder()
       .build();
 
-  Timetable timetable = Timetable.builder()
+  private Timetable timetable = Timetable.builder()
       .name("시간표1")
       .year(2022)
       .semester(SECOND)
@@ -63,7 +63,7 @@ class TimetableServiceTest {
       try {
         timetableService.createTimetable(timetableCreateRequest);
       }catch (Exception e) {
-        verify(timetableRepository, never()).countDuplicateTimetableName(any(), timetableCreateRequest.getName(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester());
+        verify(timetableRepository, never()).isDuplicateTimetableName(any(), any(), any(), any());
         verify(timetableRepository, never()).save(any());
       }
     }
@@ -71,8 +71,8 @@ class TimetableServiceTest {
     @Test
     @DisplayName("시간표 이름이 중복되는 경우 테스트")
     void testCreateTimetableNameDuplicate() {
-      when(userRepository.findById(any())).thenReturn(Optional.of(user));
-      when(timetableRepository.countDuplicateTimetableName(any(), timetableCreateRequest.getName(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester())).thenReturn(1L);
+       when(userRepository.findById(any())).thenReturn(Optional.of(user));
+       when(timetableRepository.isDuplicateTimetableName(any(), any(), any(), any())).thenReturn(true);
 
       try {
         timetableService.createTimetable(timetableCreateRequest);

@@ -54,6 +54,8 @@ class UserRepositoryTest {
     userRepository.save(user1);
     userRepository.save(user2);
 
+    // TODO : 커밋하지 말 것
+    /*
     User localResult = userRepository.findByEmail(localTestEmail).orElseThrow(() -> new NotFoundException("local user를 찾을 수 없습니다."));
     User oauthResult = userRepository.findByEmail(oauthTestEmail).orElseThrow(() -> new NotFoundException("oauth user를 찾을 수 없습니다."));
 
@@ -61,5 +63,6 @@ class UserRepositoryTest {
     assertThat(oauthResult).isInstanceOf(OAuthUser.class);
     assertThat(localResult.getNickname()).isEqualTo("local유저");
     assertThat(oauthResult.getNickname()).isEqualTo("oauth유저");
+    */
   }
 }

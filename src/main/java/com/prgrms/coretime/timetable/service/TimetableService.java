@@ -37,8 +37,7 @@ public class TimetableService {
     Long userId = 1L;
     User user  = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
 
-    long duplicateNameCount = timetableRepository.countDuplicateTimetableName(userId, timetableCreateRequest.getName().trim(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester());
-    if(duplicateNameCount != 0) {
+    if(timetableRepository.isDuplicateTimetableName(userId, timetableCreateRequest.getName().trim(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester())) {
       throw new IllegalArgumentException("이미 사용중인 이름입니다.");
     }
 
@@ -55,9 +54,10 @@ public class TimetableService {
 
   @Transactional(readOnly = true)
   public TimetablesResponse getTimetables(Integer year, Semester semester) {
-    // TODO : 사용자 소유의 시간표만 보여주도록 해야한다.
+    // TODO : 사용자 ID 가져오는 로직이 추가적으로 필요하다.
 
-    List<TimetableInfo> timetables = timetableRepository.getTimetables(year, semester).stream()
+    Long userId = 1L;
+    List<TimetableInfo> timetables = timetableRepository.getTimetables(userId, year, semester).stream()
         .map(timetable -> new TimetableInfo(timetable.getId(), timetable.getName()))
         .collect(Collectors.toList());
 

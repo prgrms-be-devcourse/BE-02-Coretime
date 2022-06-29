@@ -1,7 +1,13 @@
 package com.prgrms.coretime.timetable.domain.repository.timetable;
 
+import static com.prgrms.coretime.timetable.domain.Semester.FIRST;
+import static com.prgrms.coretime.timetable.domain.Semester.SECOND;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.user.domain.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,22 +33,38 @@ class TimetableRepositoryTest {
   @Autowired
   private EntityManager em;
 
-  private User user;
+  private User userA, userB;
 
   @BeforeEach
   void setUp() {
-    User user = new User("a@school.com", "tester");
+    userA = new User("a@school.com", "testerA");
+    em.persist(userA);
 
+    userB = new User("b@school.com", "testerB");
+    em.persist(userB);
+
+    for(int i = 0; i < 10; i++) {
+      Timetable timetable = Timetable.builder()
+          .name("시간표 "+i)
+          .year(2022)
+          .semester(i <= 4 ? FIRST : SECOND)
+          .build();
+      timetable.setUser(i % 2 == 0 ? userA : userB);
+      em.persist(timetable);
+    }
   }
 
   @Test
-  @DisplayName("사용자가 가지고 있는 시간표에서 특정 연도와 학기 내에 중복된 시간표 이름이 있는지 확인한다.")
+  @DisplayName("사용자가 가지고 있는 시간표에서 특정 연도와 학기 내에 중복된 시간표 이름을 확인할 수 있는지 테스트한다.")
   void testDuplicateNameCount() {
-
+    assertThat(timetableRepository.isDuplicateTimetableName(userA.getId(), "시간표 0", 2022, FIRST)).isTrue();
+    assertThat(timetableRepository.isDuplicateTimetableName(userB.getId(), "시간표 0", 2022, FIRST)).isFalse();
   }
 
   @Test
-  @DisplayName("시간표 목록 조회 테스트")
+  @DisplayName("특정 사용자에게 속하며 특정 연도와 학기에 해당하는 시간표들을 제대로 반환하는지 테스트한다.")
   void testGetTimesTables() {
+    List<Timetable> timetables = timetableRepository.getTimetables(userB.getId(), 2022, SECOND);
+    assertThat(timetables.size()).isEqualTo(3);
   }
 }
