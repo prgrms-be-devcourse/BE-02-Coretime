@@ -58,13 +58,28 @@ public class Lecture extends BaseEntity {
     this.classroom = classroom;
   }
 
+  public void updateName(String name) {
+    validateName(name);
+    this.name = name;
+  }
+
+  public void updateProfessor(String professor) {
+    validateProfessor(professor);
+    this.professor = professor;
+  }
+
+  public void updateClassroom(String classroom) {
+    validateClassroom(classroom);
+    this.classroom = classroom;
+  }
+
   private void validateLectureField(String name, String professor, String classroom) {
-    validateLectureName(name);
+    validateName(name);
     validateProfessor(professor);
     validateClassroom(classroom);
   }
 
-  private void validateLectureName(String name) {
+  private void validateName(String name) {
     hasText(name, "name은 null이거나 빈칸일 수 없습니다.");
     if(1 > name.length() || name.length() > 30) {
       throw new IllegalArgumentException("name의 길이는 1 ~ 30 입니다.");

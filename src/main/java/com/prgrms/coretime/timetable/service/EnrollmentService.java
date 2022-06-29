@@ -9,15 +9,18 @@ import com.prgrms.coretime.timetable.domain.lecture.CustomLecture;
 import com.prgrms.coretime.timetable.domain.lecture.Lecture;
 import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.domain.lectureDetail.LectureDetail;
-import com.prgrms.coretime.timetable.domain.repository.LectureDetailRepository;
 import com.prgrms.coretime.timetable.domain.repository.enrollment.EnrollmentRepository;
 import com.prgrms.coretime.timetable.domain.repository.lecture.LectureRepository;
+import com.prgrms.coretime.timetable.domain.repository.lectureDetail.LectureDetailRepository;
 import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
-import com.prgrms.coretime.timetable.dto.request.CustomLectureCreateRequest;
+import com.prgrms.coretime.timetable.dto.request.CustomLectureDetail;
+import com.prgrms.coretime.timetable.dto.request.CustomLectureRequest;
 import com.prgrms.coretime.timetable.dto.request.EnrollmentCreateRequest;
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,29 +61,19 @@ public class EnrollmentService {
   }
 
   @Transactional
-  public Enrollment addCustomLectureToTimetable(Long timetableId, CustomLectureCreateRequest customLectureCreateRequest) {
+  public Enrollment addCustomLectureToTimetable(Long timetableId, CustomLectureRequest customLectureRequest) {
     Timetable timetable = getTimetableById(timetableId);
-
-    List<LectureDetail> lectureDetails = customLectureCreateRequest.getLectureDetails().stream()
-        .map(customLectureDetail -> LectureDetail.builder()
-            .startTime(LocalTime.parse(customLectureDetail.getStartTime()))
-            .endTime(LocalTime.parse(customLectureDetail.getEndTime()))
-            .day(customLectureDetail.getDay())
-            .build())
-        .collect(Collectors.toList());
+    List<LectureDetail> lectureDetails = changeCustomLectureDetailsToLectureDetails(customLectureRequest);
 
     validateLectureConflict(timetable.getId(), lectureDetails);
 
     Lecture customLecture = lectureRepository.save(CustomLecture.builder()
-        .name(customLectureCreateRequest.getName())
-        .professor(customLectureCreateRequest.getProfessor())
-        .classroom(customLectureCreateRequest.getClassRoom())
+        .name(customLectureRequest.getName())
+        .professor(customLectureRequest.getProfessor())
+        .classroom(customLectureRequest.getClassroom())
         .build());
 
-    for(LectureDetail lectureDetail : lectureDetails) {
-      lectureDetail.setLecture(customLecture);
-      lectureDetailRepository.save(lectureDetail);
-    }
+    creatLectureDetails(customLecture, lectureDetails);
 
     EnrollmentId enrollmentId = new EnrollmentId(customLecture.getId(), timetable.getId());
     Enrollment enrollment = new Enrollment(enrollmentId);
@@ -90,19 +83,59 @@ public class EnrollmentService {
     return enrollmentRepository.save(enrollment);
   }
 
-  // custom 강의 수정
+  @Transactional
+  public void updateCustomLecture(Long timetableId, Long lectureId, CustomLectureRequest customLectureRequest) {
+    Timetable timetable = getTimetableById(timetableId);
+    Lecture customLecture = lectureRepository.findById(lectureId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+    List<LectureDetail> lectureDetails = changeCustomLectureDetailsToLectureDetails(customLectureRequest);
 
-  // 강의 시간표에서 삭제
+    customLecture.updateName(customLectureRequest.getName());
+    customLecture.updateProfessor(customLectureRequest.getProfessor());
+    customLecture.updateClassroom(customLectureRequest.getClassroom());
+
+    lectureDetailRepository.deleteCustomLecturesByLectureId(customLecture.getId());
+
+    validateLectureConflict(timetable.getId(), lectureDetails);
+
+    creatLectureDetails(customLecture, lectureDetails);
+  }
+
+  // 강의를 시간표에서 삭제
+
 
   private Timetable getTimetableById(Long timetableId) {
     return timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
   }
 
   private void validateLectureConflict(Long timetableId, List<LectureDetail> lectureDetails) {
-    long cnt = lectureRepository.getNumberOfConflictLectures(timetableId, lectureDetails);
-    log.info("cnt : {}", cnt);
-    if(cnt > 0) {
+    if(lectureRepository.getNumberOfConflictLectures(timetableId, lectureDetails) > 0) {
       throw new IllegalArgumentException("같은 시간에 다른 강의가 있습니다.");
+    }
+  }
+
+  private List<LectureDetail> changeCustomLectureDetailsToLectureDetails(CustomLectureRequest customLectureRequest) {
+    Set<CustomLectureDetail> lectureDetailSet = new HashSet<>();
+
+    return customLectureRequest.getLectureDetails().stream()
+        .map(customLectureDetail -> {
+          if(lectureDetailSet.contains(customLectureDetail)) {
+            throw new IllegalArgumentException("입력된 시간중 겹치는 시간이 있습니다.");
+          }
+
+          lectureDetailSet.add(customLectureDetail);
+          return LectureDetail.builder()
+            .startTime(LocalTime.parse(customLectureDetail.getStartTime()))
+            .endTime(LocalTime.parse(customLectureDetail.getEndTime()))
+            .day(customLectureDetail.getDay())
+            .build();
+        })
+        .collect(Collectors.toList());
+  }
+
+  private void creatLectureDetails(Lecture customLecture, List<LectureDetail> lectureDetails) {
+    for(LectureDetail lectureDetail : lectureDetails) {
+      lectureDetail.setLecture(customLecture);
+      lectureDetailRepository.save(lectureDetail);
     }
   }
 }

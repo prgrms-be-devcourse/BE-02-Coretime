@@ -4,11 +4,13 @@ import com.prgrms.coretime.timetable.domain.lectureDetail.Day;
 import com.prgrms.coretime.timetable.util.TimeFormatConstraint;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@EqualsAndHashCode
 public class CustomLectureDetail {
   @NotNull
   private Day day;

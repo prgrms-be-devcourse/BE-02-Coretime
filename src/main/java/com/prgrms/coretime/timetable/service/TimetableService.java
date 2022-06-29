@@ -55,6 +55,7 @@ public class TimetableService {
 
   @Transactional(readOnly = true)
   public TimetablesResponse getTimetables(Integer year, Semester semester) {
+    // TODO : 사용자에 따른 구분 필요
     List<TimetableInfo> timetables = timetableRepository.getTimetables(year, semester).stream()
         .map(timetable -> new TimetableInfo(timetable.getId(), timetable.getName()))
         .collect(Collectors.toList());

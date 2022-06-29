@@ -2,10 +2,7 @@ package com.prgrms.coretime.timetable.domain.repository.lecture;
 
 import static com.prgrms.coretime.timetable.domain.Semester.SECOND;
 import static com.prgrms.coretime.timetable.domain.lecture.Grade.FRESHMAN;
-import static com.prgrms.coretime.timetable.domain.lecture.Grade.JUNIOR;
-import static com.prgrms.coretime.timetable.domain.lecture.LectureType.ELECTIVE;
 import static com.prgrms.coretime.timetable.domain.lecture.LectureType.MAJOR;
-import static com.prgrms.coretime.timetable.domain.lectureDetail.Day.FRI;
 import static com.prgrms.coretime.timetable.domain.lectureDetail.Day.MON;
 import static com.prgrms.coretime.timetable.domain.lectureDetail.Day.WED;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,27 +10,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.domain.lectureDetail.LectureDetail;
-import com.prgrms.coretime.timetable.domain.repository.LectureDetailRepository;
+import com.prgrms.coretime.timetable.domain.repository.lectureDetail.LectureDetailRepository;
 import com.prgrms.coretime.timetable.domain.repository.TemporarySchoolRepository;
-import com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.ActiveProfiles;
 
 @DataJpaTest
 class LectureRepositoryTest {
