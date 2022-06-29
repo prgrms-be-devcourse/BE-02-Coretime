@@ -22,19 +22,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
-// TODO : 해당 로직을 수행할 수 있는 권한이 있는지 확인해야 한다.
-
 @Service
 @RequiredArgsConstructor
 public class TimetableService {
   private final TimetableRepository timetableRepository;
 
-  // TODO : 머지 후 TemporaryUserRepository -> UserRepository로 교체
+  // TODO : 지워야할 것
   private final TemporaryUserRepository userRepository;
 
   @Transactional
   public Long createTimetable(@RequestBody @Valid TimetableCreateRequest timetableCreateRequest) {
-    // TODO : 사용자 ID 가져오는 로직 추가
+    // TODO : 사용자 ID 가져오는 로직이 추가적으로 필요하다.
+
     Long userId = 1L;
     User user  = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
 
@@ -56,7 +55,8 @@ public class TimetableService {
 
   @Transactional(readOnly = true)
   public TimetablesResponse getTimetables(Integer year, Semester semester) {
-    // TODO : 사용자에 따른 구분 필요
+    // TODO : 사용자에게 소유의 시간표만 보여주도록 해야한다.
+
     List<TimetableInfo> timetables = timetableRepository.getTimetables(year, semester).stream()
         .map(timetable -> new TimetableInfo(timetable.getId(), timetable.getName()))
         .collect(Collectors.toList());
@@ -66,10 +66,11 @@ public class TimetableService {
 
   @Transactional(readOnly = true)
   public TimetableResponse getTimetable(Long timetableId) {
+    // TODO : 시간표가 사용자의 것인지 확인해야한다.
+
     Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
 
-    // TODO : lecture와 lecture DETAIL에 대한 정보 조회와 조회한 값 DTO에 전달
-    // TODO : 추가된 내용에 따른 테스트 코드 작성
+    // TODO : 시간표 정보 가져오기
 
     return TimetableResponse.builder()
         .timetableId(timetable.getId())
@@ -81,12 +82,17 @@ public class TimetableService {
 
   @Transactional
   public void updateTimetableName(Long timetableId, TimetableUpdateRequest timetableUpdateRequest) {
+    // TODO : 시간표가 사용자의 것인지 확인해야한다.
+
     Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+
     timetable.updateName(timetableUpdateRequest.getName().trim());
   }
 
   @Transactional
   public void deleteTimetable(Long timetableId) {
+    // TODO : 시간표가 사용자의 것인지 확인해야한다.
+
     Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
 
     // TODO : enrollment에서 삭제(timetableId에 해당하는 항목 삭제)

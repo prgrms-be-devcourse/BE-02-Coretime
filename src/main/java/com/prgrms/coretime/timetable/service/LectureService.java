@@ -32,7 +32,7 @@ public class LectureService {
 
   @Transactional(readOnly = true)
   public Page<OfficialLectureInfo> getOfficialLectures(OfficialLectureSearchRequest officialLectureSearchRequest, Pageable pageable) {
-    // TODO : 학교 정보가 필요
+    // TODO : 사용자의 학교 정보(학교 ID)가 필요하며 해당 정보를 검색 조건에 추가해야한다.
 
     Page<OfficialLecture> officialLecturesPagingResult = lectureRepository.findOfficialLectures(
         createOfficialLectureSearchCondition(officialLectureSearchRequest),

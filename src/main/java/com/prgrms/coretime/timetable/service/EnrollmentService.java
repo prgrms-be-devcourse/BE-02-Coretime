@@ -27,8 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-// TODO : 해당 로직을 수행할 수 있는 권한이 있는지 확인해야 한다.
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -40,10 +38,12 @@ public class EnrollmentService {
 
   @Transactional
   public Enrollment addOfficialLectureToTimetable(Long timetableId, EnrollmentCreateRequest enrollmentCreateRequest) {
+    // TODO : 시간표가 사용자의 것인지 확인하는 로직이 필요하다.
+    // TODO : 사용자가 속한 학교와 강의가 속한 학교를 비교해야한다.(같은 학교인 경우에만 시간표에 강의를 추가할 수 있다.)
+
     Timetable timetable = getTimetableById(timetableId);
     OfficialLecture officialLecture = lectureRepository.findOfficialLectureById(enrollmentCreateRequest.getLectureId()).orElseThrow(() -> new NotFoundException(NOT_FOUND));
 
-    // TODO : 학교 정보 비교
     if(!timetable.getYear().equals(officialLecture.getOpenYear()) || !timetable.getSemester().equals(officialLecture.getSemester())) {
       throw new IllegalArgumentException("시간표에 추가할 수 없는 강의입니다.");
     }
@@ -64,6 +64,8 @@ public class EnrollmentService {
 
   @Transactional
   public Enrollment addCustomLectureToTimetable(Long timetableId, CustomLectureRequest customLectureRequest) {
+    // TODO : 시간표가 사용자의 것인지 확인하는 로직이 필요하다.
+
     Timetable timetable = getTimetableById(timetableId);
     List<LectureDetail> lectureDetails = changeCustomLectureDetailsToLectureDetails(customLectureRequest);
 
@@ -87,6 +89,8 @@ public class EnrollmentService {
 
   @Transactional
   public void updateCustomLecture(Long timetableId, Long lectureId, CustomLectureRequest customLectureRequest) {
+    // TODO : 시간표가 사용자의 것인지 확인하는 로직이 필요하다.
+
     Timetable timetable = getTimetableById(timetableId);
     Lecture customLecture = lectureRepository.findById(lectureId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
     List<LectureDetail> lectureDetails = changeCustomLectureDetailsToLectureDetails(customLectureRequest);
@@ -104,6 +108,8 @@ public class EnrollmentService {
 
   @Transactional
   public void deleteLectureFromTimetable(Long timetableId, Long lectureId) {
+    // TODO : 시간표가 사용자의 것인지 확인하는 로직이 필요하다.
+
     EnrollmentId enrollmentId = new EnrollmentId(lectureId, timetableId);
     Enrollment enrollment = enrollmentRepository.findById(enrollmentId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
     enrollmentRepository.delete(enrollment);
