@@ -54,6 +54,7 @@ public class LectureService {
           .lectureId(officialLecture.getId())
           .name(officialLecture.getName())
           .professor(officialLecture.getProfessor())
+          .classroom(officialLecture.getClassroom())
           .code(officialLecture.getCode())
           .credit(officialLecture.getCredit())
           .lectureType(officialLecture.getLectureType())

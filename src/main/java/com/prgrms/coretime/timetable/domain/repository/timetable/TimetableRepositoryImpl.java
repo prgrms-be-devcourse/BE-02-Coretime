@@ -9,6 +9,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -39,6 +40,17 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
         .fetch();
   }
 
+  @Override
+  public Optional<Timetable> getTimetableByUserIdAndTimetableId(Long userId, Long timetableId) {
+    return Optional.ofNullable(queryFactory
+        .select(timetable)
+        .from(timetable)
+        .where(
+            getTimetableCondition(userId, timetableId)
+        )
+        .fetchOne());
+  }
+
   private BooleanBuilder getDuplicateNameTableCondition(Long userId, String name, Integer year, Semester semester) {
     BooleanBuilder duplicateNameTableCondition = new BooleanBuilder();
 
@@ -62,16 +74,30 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
     return timetablesCondition;
   }
 
+  private BooleanBuilder getTimetableCondition(Long userId, Long timetableId) {
+    BooleanBuilder timetableCondition = new BooleanBuilder();
+
+    timetableCondition
+        .and(userIdEq(userId))
+        .and(timetableIdEq(timetableId));
+
+    return timetableCondition;
+  }
+
   private BooleanExpression userIdEq(Long userId) {
     return userId == null ? null : timetable.user.id.eq(userId);
   }
 
+  private BooleanExpression timetableIdEq(Long timetableId) {
+    return timetableId == null ? null : timetable.id.eq(timetableId);
+  }
+
   private BooleanExpression yearEq(Integer year) {
-    return year != null ? timetable.year.eq(year) : null;
+    return year == null ? null : timetable.year.eq(year);
   }
 
   private BooleanExpression semesterEq(Semester semester) {
-    return semester != null ? timetable.semester.eq(semester) : null;
+    return semester == null ? null : timetable.semester.eq(semester);
   }
 
   private BooleanExpression nameEq(String name) {

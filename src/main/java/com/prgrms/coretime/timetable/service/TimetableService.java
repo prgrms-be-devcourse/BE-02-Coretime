@@ -5,11 +5,14 @@ import static com.prgrms.coretime.common.ErrorCode.NOT_FOUND;
 
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.timetable.domain.Semester;
+import com.prgrms.coretime.timetable.domain.lecture.Lecture;
 import com.prgrms.coretime.timetable.domain.repository.enrollment.EnrollmentRepository;
 import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
 import com.prgrms.coretime.timetable.dto.request.TimetableUpdateRequest;
+import com.prgrms.coretime.timetable.dto.response.LectureDetailInfo;
+import com.prgrms.coretime.timetable.dto.response.LectureInfo;
 import com.prgrms.coretime.timetable.dto.response.TimetableInfo;
 import com.prgrms.coretime.timetable.dto.response.TimetableResponse;
 import com.prgrms.coretime.timetable.dto.response.TimetablesResponse;
@@ -66,21 +69,41 @@ public class TimetableService {
 
   @Transactional(readOnly = true)
   public TimetableResponse getTimetable(Long timetableId) {
-    // TODO : 시간표가 사용자의 것인지 확인해야한다.
+    // TODO : 사용자 ID 가져오는 로직이 추가적으로 필요하다.
 
-    Timetable timetable = timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+    Long userId = 1L;
+    Timetable timetable = timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
 
-    // TODO : 시간표 정보 가져오기
-    // name
-    // professor
-    // clssroom
-    // userDetails -> fetch
+    List<LectureInfo> lectures = enrollmentRepository.getEnrollmentByIdWithLecture(timetableId).stream()
+        .map(enrollment -> {
+          Lecture lecture = enrollment.getLecture();
+
+          List<LectureDetailInfo> lectureDetails = lecture.getLectureDetails().stream()
+              .map(lectureDetail ->
+                  LectureDetailInfo.builder()
+                      .day(lectureDetail.getDay())
+                      .startTime(lectureDetail.getStartTime())
+                      .endTime(lectureDetail.getEndTime())
+                      .build()
+              )
+              .collect(Collectors.toList());
+
+          return LectureInfo.builder()
+              .lectureId(lecture.getId())
+              .name(lecture.getName())
+              .professor(lecture.getProfessor())
+              .classroom(lecture.getClassroom())
+              .lectureDetails(lectureDetails)
+              .build();
+        })
+        .collect(Collectors.toList());
 
     return TimetableResponse.builder()
         .timetableId(timetable.getId())
         .name(timetable.getName())
         .year(timetable.getYear())
         .semester(timetable.getSemester())
+        .lectures(lectures)
         .build();
   }
 

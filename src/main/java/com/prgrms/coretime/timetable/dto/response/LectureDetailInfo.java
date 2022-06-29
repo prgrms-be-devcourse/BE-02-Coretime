@@ -11,17 +11,13 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-@JsonInclude(Include.NON_NULL)
 public class LectureDetailInfo {
-  private Long lectureDetailId;
   private Day day;
   private LocalTime startTime;
   private LocalTime endTime;
 
-  @QueryProjection
   @Builder
-  public LectureDetailInfo(Long lectureDetailId, Day day, LocalTime startTime, LocalTime endTime) {
-    this.lectureDetailId = lectureDetailId;
+  public LectureDetailInfo(Day day, LocalTime startTime, LocalTime endTime) {
     this.day = day;
     this.startTime = startTime;
     this.endTime = endTime;

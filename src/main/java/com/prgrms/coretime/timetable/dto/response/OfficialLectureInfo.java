@@ -2,31 +2,25 @@ package com.prgrms.coretime.timetable.dto.response;
 
 import com.prgrms.coretime.timetable.domain.lecture.LectureType;
 import java.util.List;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
+@SuperBuilder
 @Getter
 @NoArgsConstructor
-public class OfficialLectureInfo {
-  private Long lectureId;
-  private String name;
-  private String professor;
+public class OfficialLectureInfo extends LectureInfo{
   private String code;
   private Double credit;
   private LectureType lectureType;
-  private List<LectureDetailInfo> lectureDetails;
 
-  @Builder
-  public OfficialLectureInfo(Long lectureId, String name, String professor, String code,
-      Double credit, LectureType lectureType,
-      List<LectureDetailInfo> lectureDetails) {
-    this.lectureId = lectureId;
-    this.name = name;
-    this.professor = professor;
+  public OfficialLectureInfo(Long lectureId, String name, String professor,
+      String classroom,
+      List<LectureDetailInfo> lectureDetails, String code, Double credit,
+      LectureType lectureType) {
+    super(lectureId, name, professor, classroom, lectureDetails);
     this.code = code;
     this.credit = credit;
     this.lectureType = lectureType;
-    this.lectureDetails = lectureDetails;
   }
 }

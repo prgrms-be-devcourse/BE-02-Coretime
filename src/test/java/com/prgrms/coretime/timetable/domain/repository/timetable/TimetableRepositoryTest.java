@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.user.domain.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +35,7 @@ class TimetableRepositoryTest {
   private EntityManager em;
 
   private User userA, userB;
+  private List<Timetable> timetables = new ArrayList<>();
 
   @BeforeEach
   void setUp() {
@@ -51,6 +53,7 @@ class TimetableRepositoryTest {
           .build();
       timetable.setUser(i % 2 == 0 ? userA : userB);
       em.persist(timetable);
+      timetables.add(timetable);
     }
   }
 
@@ -66,5 +69,12 @@ class TimetableRepositoryTest {
   void testGetTimesTables() {
     List<Timetable> timetables = timetableRepository.getTimetables(userB.getId(), 2022, SECOND);
     assertThat(timetables.size()).isEqualTo(3);
+  }
+
+  @Test
+  @DisplayName("사용자에게 속해 있는 특정 ID의 시간표를 제대로 반환하는지 테스트한다.")
+  void testGetTimetableByUserIdAndTimetableIdCondition() {
+    assertThat(timetableRepository.getTimetableByUserIdAndTimetableId(userA.getId(), timetables.get(1).getId())).isEmpty();
+    assertThat(timetableRepository.getTimetableByUserIdAndTimetableId(userA.getId(), timetables.get(2).getId())).isNotEmpty();
   }
 }
