@@ -4,7 +4,7 @@ import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.comment.domain.repository.CommentLikeRepository;
 import com.prgrms.coretime.comment.domain.repository.CommentRepository;
 import com.prgrms.coretime.common.ErrorCode;
-import com.prgrms.coretime.common.error.NotFoundException;
+import com.prgrms.coretime.common.error.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
