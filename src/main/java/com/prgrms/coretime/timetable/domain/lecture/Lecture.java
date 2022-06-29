@@ -45,6 +45,9 @@ public class Lecture extends BaseEntity {
   @Column(name = "classroom", length = 10)
   private String classroom;
 
+  @Column(name = "DTYPE", nullable = false, insertable = false, updatable = false)
+  private String dType;
+
   @OneToMany(mappedBy = "lecture")
   private List<LectureDetail> lectureDetails = new ArrayList<>();
 
