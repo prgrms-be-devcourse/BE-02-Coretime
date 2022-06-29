@@ -25,4 +25,9 @@ public class School extends BaseEntity {
 
   @Column(name = "email", nullable = false, length = 300)
   private String email;
+  // TODO : pull하기전에 지울 것
+  public School(String name, String email) {
+    this.name = name;
+    this.email = email;
+  }
 }
