@@ -7,7 +7,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.error.NotFoundException;
 import com.prgrms.coretime.timetable.domain.repository.TemporaryUserRepository;
 import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
