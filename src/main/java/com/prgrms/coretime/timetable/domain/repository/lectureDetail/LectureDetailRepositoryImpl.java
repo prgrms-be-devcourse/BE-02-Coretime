@@ -12,7 +12,7 @@ public class LectureDetailRepositoryImpl implements LectureDetailCustomRepositor
 
   @Override
   @Modifying(clearAutomatically = true)
-  public void deleteCustomLecturesByLectureId(Long lectureId) {
+  public void deleteCustomLectureDetailsByLectureId(Long lectureId) {
     queryFactory
         .delete(lectureDetail)
         .where(lectureDetail.lecture.id.eq(lectureId))

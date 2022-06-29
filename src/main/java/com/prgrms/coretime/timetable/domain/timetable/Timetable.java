@@ -2,8 +2,8 @@ package com.prgrms.coretime.timetable.domain.timetable;
 
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.LAZY;
-import static org.springframework.util.Assert.*;
 import static org.springframework.util.Assert.hasText;
+import static org.springframework.util.Assert.notNull;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.timetable.domain.Semester;
@@ -26,7 +26,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.util.Assert;
 
 @Entity
 @Table(name = "timetable")

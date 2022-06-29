@@ -6,4 +6,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EnrollmentRepositoryImpl implements EnrollmentCustomRepository{
   private final JPAQueryFactory queryFactory;
+
 }

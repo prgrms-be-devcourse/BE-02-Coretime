@@ -5,9 +5,11 @@ import static com.prgrms.coretime.timetable.domain.enrollment.QEnrollment.enroll
 import static com.prgrms.coretime.timetable.domain.lecture.QLecture.lecture;
 import static com.prgrms.coretime.timetable.domain.lecture.QOfficialLecture.officialLecture;
 import static com.prgrms.coretime.timetable.domain.lectureDetail.QLectureDetail.lectureDetail;
+import static java.util.Objects.isNull;
 
 import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.lecture.Grade;
+import com.prgrms.coretime.timetable.domain.lecture.Lecture;
 import com.prgrms.coretime.timetable.domain.lecture.LectureType;
 import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.domain.lectureDetail.Day;
@@ -40,7 +42,7 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
     List<OfficialLecture> officialLectures = queryFactory
         .selectFrom(officialLecture)
         .where(
-            searchConditionBuilder(officialLectureSearchCondition)
+            getSearchConditionBuilder(officialLectureSearchCondition)
         )
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())
@@ -53,7 +55,7 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
         .select(officialLecture.count())
         .from(officialLecture)
         .where(
-            searchConditionBuilder(officialLectureSearchCondition)
+            getSearchConditionBuilder(officialLectureSearchCondition)
         );
 
     return PageableExecutionUtils.getPage(officialLectures, pageable, countQuery::fetchOne);
@@ -81,12 +83,25 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
         .join(lecture.enrollments, enrollment)
         .join(lecture.lectureDetails, lectureDetail)
         .where(
-            conflictConditionBuilder(timetableId, lectureDetails)
+            getConflictConditionBuilder(timetableId, lectureDetails)
         )
         .fetchOne();
   }
 
-  private BooleanBuilder searchConditionBuilder(OfficialLectureSearchCondition officialLectureSearchCondition) {
+  @Override
+  public boolean isCustomLecture(Long lectureId) {
+    Lecture customLecture = queryFactory
+        .select(lecture)
+        .from(lecture)
+        .where(
+            getCustomLectureConditionBuilder(lectureId)
+        )
+        .fetchOne();
+
+    return isNull(customLecture) ? false : true;
+  }
+
+  private BooleanBuilder getSearchConditionBuilder(OfficialLectureSearchCondition officialLectureSearchCondition) {
     BooleanBuilder searchConditionBuilder = new BooleanBuilder();
     searchConditionBuilder.and(openYearEq(officialLectureSearchCondition.getOpenYear()));
     searchConditionBuilder.and(semesterEq(officialLectureSearchCondition.getSemester()));
@@ -161,7 +176,7 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
     return new OrderSpecifier(Order.ASC, officialLecture.id);
   }
 
-  private BooleanBuilder conflictConditionBuilder(Long timetableId, List<LectureDetail> lectureDetails) {
+  private BooleanBuilder getConflictConditionBuilder(Long timetableId, List<LectureDetail> lectureDetails) {
     BooleanBuilder conflictConditionBuilder = new BooleanBuilder();
     BooleanBuilder dayAndTimesBuilder = new BooleanBuilder();
 
@@ -180,6 +195,15 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
         .and(dayAndTimesBuilder);
 
     return conflictConditionBuilder;
+  }
+
+  private BooleanBuilder getCustomLectureConditionBuilder(Long lectureId) {
+    BooleanBuilder customLectureExistConditionBuilder = new BooleanBuilder();
+    customLectureExistConditionBuilder
+        .and(lectureIdEq(lectureId))
+        .and(customDTypeEq());
+
+    return customLectureExistConditionBuilder;
   }
 
   private BooleanExpression officialLectureIddEq(Long officialLectureId) {
@@ -212,6 +236,14 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
 
   private BooleanExpression dayEq(Day day) {
     return day == null ? null : lectureDetail.day.eq(day);
+  }
+
+  private BooleanExpression lectureIdEq(Long lectureId) {
+    return lectureId == null ? null : lecture.id.eq(lectureId);
+  }
+
+  private BooleanExpression customDTypeEq() {
+    return lecture.dType.eq("CUSTOM");
   }
 
   private BooleanExpression creditGoe(Double credit) {

@@ -15,4 +15,6 @@ public interface LectureCustomRepository {
   Optional<OfficialLecture> findOfficialLectureById(Long lectureId);
 
   long getNumberOfConflictLectures(Long timetableId, List<LectureDetail> lectureDetails);
+
+  boolean isCustomLecture(Long lectureId);
 }

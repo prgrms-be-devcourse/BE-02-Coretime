@@ -27,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+// TODO : 해당 로직을 수행할 수 있는 권한이 있는지 확인해야 한다.
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -73,7 +75,7 @@ public class EnrollmentService {
         .classroom(customLectureRequest.getClassroom())
         .build());
 
-    creatLectureDetails(customLecture, lectureDetails);
+    createLectureDetails(customLecture, lectureDetails);
 
     EnrollmentId enrollmentId = new EnrollmentId(customLecture.getId(), timetable.getId());
     Enrollment enrollment = new Enrollment(enrollmentId);
@@ -93,15 +95,24 @@ public class EnrollmentService {
     customLecture.updateProfessor(customLectureRequest.getProfessor());
     customLecture.updateClassroom(customLectureRequest.getClassroom());
 
-    lectureDetailRepository.deleteCustomLecturesByLectureId(customLecture.getId());
+    lectureDetailRepository.deleteCustomLectureDetailsByLectureId(customLecture.getId());
 
     validateLectureConflict(timetable.getId(), lectureDetails);
 
-    creatLectureDetails(customLecture, lectureDetails);
+    createLectureDetails(customLecture, lectureDetails);
   }
 
-  // 강의를 시간표에서 삭제
+  @Transactional
+  public void deleteLectureFromTimetable(Long timetableId, Long lectureId) {
+    EnrollmentId enrollmentId = new EnrollmentId(lectureId, timetableId);
+    Enrollment enrollment = enrollmentRepository.findById(enrollmentId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+    enrollmentRepository.delete(enrollment);
 
+    if(lectureRepository.isCustomLecture(lectureId)) {
+      lectureDetailRepository.deleteCustomLectureDetailsByLectureId(lectureId);
+      lectureRepository.deleteById(lectureId);
+    }
+  }
 
   private Timetable getTimetableById(Long timetableId) {
     return timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
@@ -132,7 +143,7 @@ public class EnrollmentService {
         .collect(Collectors.toList());
   }
 
-  private void creatLectureDetails(Lecture customLecture, List<LectureDetail> lectureDetails) {
+  private void createLectureDetails(Lecture customLecture, List<LectureDetail> lectureDetails) {
     for(LectureDetail lectureDetail : lectureDetails) {
       lectureDetail.setLecture(customLecture);
       lectureDetailRepository.save(lectureDetail);

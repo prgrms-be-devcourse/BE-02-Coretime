@@ -3,7 +3,6 @@ package com.prgrms.coretime.timetable.service;
 
 import static com.prgrms.coretime.common.ErrorCode.NOT_FOUND;
 
-import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.error.NotFoundException;
 import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.repository.TemporaryUserRepository;
@@ -22,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
+
+// TODO : 해당 로직을 수행할 수 있는 권한이 있는지 확인해야 한다.
 
 @Service
 @RequiredArgsConstructor

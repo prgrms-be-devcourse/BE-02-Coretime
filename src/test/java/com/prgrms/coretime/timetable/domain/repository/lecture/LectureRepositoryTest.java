@@ -4,7 +4,6 @@ import static com.prgrms.coretime.timetable.domain.Semester.SECOND;
 import static com.prgrms.coretime.timetable.domain.lecture.Grade.FRESHMAN;
 import static com.prgrms.coretime.timetable.domain.lecture.LectureType.MAJOR;
 import static com.prgrms.coretime.timetable.domain.lectureDetail.Day.MON;
-import static com.prgrms.coretime.timetable.domain.lectureDetail.Day.WED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.prgrms.coretime.school.domain.School;
@@ -13,7 +12,6 @@ import com.prgrms.coretime.timetable.domain.lecture.Lecture;
 import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.domain.lectureDetail.LectureDetail;
 import com.prgrms.coretime.timetable.domain.repository.lectureDetail.LectureDetailRepository;
-import com.prgrms.coretime.timetable.domain.repository.TemporarySchoolRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalTime;
 import java.util.Optional;
@@ -45,12 +43,9 @@ class LectureRepositoryTest {
   @Autowired
   EntityManager em;
 
-  // TODO : 나주에 바꿔야할 것
-  @Autowired
-  TemporarySchoolRepository schoolRepository;
-
   School schoolA;
   OfficialLecture officialLectureA;
+  CustomLecture customLecture;
   LectureDetail lectureDetailA;
 
   @BeforeEach
@@ -80,6 +75,13 @@ class LectureRepositoryTest {
     lectureDetailA.setLecture(officialLectureA);
     em.persist(lectureDetailA);
 
+    customLecture = CustomLecture.builder()
+        .name("aaa")
+        .professor("bbb")
+        .classroom("ccc")
+        .build();
+    em.persist(customLecture);
+
     em.flush();
     em.clear();
   }
@@ -96,5 +98,12 @@ class LectureRepositoryTest {
   void testEntityIncludeDType() throws Exception {
     Lecture officialLecture = lectureRepository.findById(officialLectureA.getId()).orElseThrow(() -> new Exception());
     assertThat(officialLecture.getDType()).isEqualTo("OFFICIAL");
+  }
+
+  @Test
+  @DisplayName("isCustomLecture() 메서드가 customLecture 여부를 잘 판단할 수 있는지 테스트")
+  void testIsCustomLecture() {
+    assertThat(lectureRepository.isCustomLecture(officialLectureA.getId())).isFalse();
+    assertThat(lectureRepository.isCustomLecture(customLecture.getId())).isTrue();
   }
 }

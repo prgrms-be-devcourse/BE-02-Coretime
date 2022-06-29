@@ -1,6 +1,7 @@
 package com.prgrms.coretime.timetable.controller;
 
 import com.prgrms.coretime.common.ApiResponse;
+import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
 import com.prgrms.coretime.timetable.dto.request.CustomLectureRequest;
@@ -122,13 +123,25 @@ public class TimetableController {
         .body(apiResponse);
   }
 
-  @ApiOperation(value = "시간표에 custom 강의 추가", notes = "시간표에 custom 강의를 추가합니다.")
+  @ApiOperation(value = "시간표에 추가된 custom 강의 수정", notes = "시간표에 추가된 custom 강의를 수정합니다.")
   @PutMapping("/{timetableId}/enrollments/custom-lectures/{lectureId}")
   public ResponseEntity<ApiResponse> addCustomLectureToTimetable(@PathVariable Long timetableId, @PathVariable Long lectureId, @RequestBody @Valid
       CustomLectureRequest customLectureCreateRequest) {
     enrollmentService.updateCustomLecture(timetableId, lectureId, customLectureCreateRequest);
 
     ApiResponse apiResponse = new ApiResponse("시간표에 추가된 custom 강의 수정 완료");
+
+    return ResponseEntity
+        .ok()
+        .body(apiResponse);
+  }
+
+  @ApiOperation(value = "시간표에서 강의 삭제", notes = "강의를 시간표에서 삭제합니다")
+  @DeleteMapping("/{timetableId}/enrollments/{lectureId}")
+  public ResponseEntity<ApiResponse> deleteLectureFromTimetable(@PathVariable Long timetableId, @PathVariable Long lectureId) {
+    enrollmentService.deleteLectureFromTimetable(timetableId, lectureId);
+
+    ApiResponse apiResponse = new ApiResponse("시간표에서 강의 삭제 완료");
 
     return ResponseEntity
         .ok()
