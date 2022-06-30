@@ -9,7 +9,6 @@ import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.lecture.Lecture;
 import com.prgrms.coretime.timetable.domain.repository.enrollment.EnrollmentRepository;
-import com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType;
 import com.prgrms.coretime.timetable.domain.repository.lecture.LectureRepository;
 import com.prgrms.coretime.timetable.domain.repository.lectureDetail.LectureDetailRepository;
 import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
@@ -61,8 +60,8 @@ public class TimetableService {
         .name(timetableName)
         .year(year)
         .semester(semester)
+        .user(user)
         .build();
-    newTimetable.setUser(user);
 
     Timetable createdTimetable = timetableRepository.save(newTimetable);
     return createdTimetable.getId();
@@ -148,7 +147,7 @@ public class TimetableService {
     lectureDetailRepository.deleteLectureDetailsByLectureIds(customLectureIds);
     lectureRepository.deleteLectureByLectureIds(customLectureIds);
 
-    // timetableRepository.delete(getTimetableOfUser(userId, timetableId));
+    // timetableRepository.delete(getTimetableOfUser(userId, timetableId)); ? 왜 안되지?
     timetableRepository.deleteByTimetableId(timetable.getId());
   }
 

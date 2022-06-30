@@ -31,8 +31,6 @@ class LectureDetailTest {
     return Stream.of(
         Arguments.of(null, LocalTime.of(11, 50), MON, "startTime은 null일 수 없습니다."),
         Arguments.of(LocalTime.of(11, 0), null, MON, "endTime은 null일 수 없습니다."),
-        Arguments.of(LocalTime.of(11, 12), LocalTime.of(11, 50), MON, "잘못된 시간 포맷입니다."),
-        Arguments.of(LocalTime.of(11, 0), LocalTime.of(11, 12), MON, "잘못된 시간 포맷입니다."),
         Arguments.of(LocalTime.of(11, 0, 1), LocalTime.of(11, 50), MON, "잘못된 시간 포맷입니다."),
         Arguments.of(LocalTime.of(11, 0), LocalTime.of(11, 50, 1), MON, "잘못된 시간 포맷입니다."),
         Arguments.of(LocalTime.of(11, 0), LocalTime.of(11, 50), null, "day는 null일 수 없습니다.")

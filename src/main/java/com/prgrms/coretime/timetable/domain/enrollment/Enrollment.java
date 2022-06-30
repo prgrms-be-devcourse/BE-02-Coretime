@@ -5,6 +5,7 @@ import static javax.persistence.FetchType.LAZY;
 import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.timetable.domain.lecture.Lecture;
+import java.util.Objects;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -18,7 +19,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Enrollment extends BaseEntity {
-
   @EmbeddedId
   private EnrollmentId enrollmentId;
 
@@ -32,15 +32,19 @@ public class Enrollment extends BaseEntity {
   @JoinColumn(name="timetable_id", referencedColumnName = "timetable_id")
   private Timetable timeTable;
 
-  public Enrollment(EnrollmentId enrollmentId) {
-    this.enrollmentId = enrollmentId;
+  public Enrollment(Lecture lecture, Timetable timetable) {
+    this.enrollmentId = new EnrollmentId(lecture.getId(), timetable.getId());
+    setLecture(lecture);
+    setTimeTable(timetable);
   }
 
-  public void setLecture(Lecture lecture) {
+  private void setLecture(Lecture lecture) {
     this.lecture = lecture;
+    lecture.getEnrollments().add(this);
   }
 
-  public void setTimeTable(Timetable timetable) {
+  private void setTimeTable(Timetable timetable) {
     this.timeTable = timetable;
+    timetable.getEnrollments().add(this);
   }
 }

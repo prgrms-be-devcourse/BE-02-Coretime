@@ -51,16 +51,13 @@ public class EnrollmentService {
       throw new IllegalArgumentException("시간표에 추가할 수 없는 강의입니다.");
     }
 
-    EnrollmentId enrollmentId = new EnrollmentId(officialLecture.getId(), timetable.getId());
-    if(enrollmentRepository.findById(enrollmentId).isPresent()) {
+    Enrollment enrollment = new Enrollment(officialLecture, timetable);
+
+    if(enrollmentRepository.findById(enrollment.getEnrollmentId()).isPresent()) {
       throw new IllegalArgumentException("이미 추가된 강의입니다.");
     }
 
     validateLectureConflict(timetable.getId(), officialLecture.getLectureDetails());
-
-    Enrollment enrollment = new Enrollment(enrollmentId);
-    enrollment.setLecture(officialLecture);
-    enrollment.setTimeTable(timetable);
 
     return enrollmentRepository.save(enrollment);
   }
@@ -84,10 +81,7 @@ public class EnrollmentService {
 
     createLectureDetails(customLecture, lectureDetails);
 
-    EnrollmentId enrollmentId = new EnrollmentId(customLecture.getId(), timetable.getId());
-    Enrollment enrollment = new Enrollment(enrollmentId);
-    enrollment.setLecture(customLecture);
-    enrollment.setTimeTable(timetable);
+    Enrollment enrollment = new Enrollment(customLecture, timetable);
 
     return enrollmentRepository.save(enrollment);
   }

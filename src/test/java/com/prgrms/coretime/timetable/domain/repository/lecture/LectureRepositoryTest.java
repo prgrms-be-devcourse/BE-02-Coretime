@@ -68,12 +68,12 @@ class LectureRepositoryTest {
     em.persist(officialLectureA);
 
     lectureDetailA = LectureDetail.builder()
-        .day(MON)
         .startTime(LocalTime.of(10, 0))
         .endTime(LocalTime.of(10, 50))
+        .day(MON)
         .build();
-    lectureDetailA.setLecture(officialLectureA);
     em.persist(lectureDetailA);
+    lectureDetailA.setLecture(officialLectureA);
 
     customLecture = CustomLecture.builder()
         .name("aaa")

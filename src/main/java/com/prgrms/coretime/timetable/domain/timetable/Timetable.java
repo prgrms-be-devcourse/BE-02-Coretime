@@ -56,17 +56,11 @@ public class Timetable extends BaseEntity {
   private List<Enrollment> enrollments = new ArrayList<>();
 
   @Builder
-  public Timetable(String name, Semester semester, Integer year) {
-    validateTimetableField(name, semester, year);
+  public Timetable(String name, Semester semester, Integer year, User user) {
+    validateTimetableField(name, semester, year, user);
     this.name = name;
     this.semester = semester;
     this.year = year;
-  }
-
-  public void setUser(User user) {
-    if (Objects.nonNull(this.user)) {
-      //
-    }
     this.user = user;
   }
 
@@ -75,10 +69,11 @@ public class Timetable extends BaseEntity {
     this.name = name;
   }
 
-  private void validateTimetableField(String name, Semester semester, Integer year) {
+  private void validateTimetableField(String name, Semester semester, Integer year, User user) {
     validateTimetableName(name);
     notNull(semester, "semester는 null일 수 없습니다.");
     notNull(year, "year는 null일 수 없습니다.");
+    notNull(user, "user는 null일 수 없습니다.");
   }
 
   private void validateTimetableName(String name) {

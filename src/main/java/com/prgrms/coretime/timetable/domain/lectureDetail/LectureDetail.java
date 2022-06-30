@@ -1,5 +1,6 @@
 package com.prgrms.coretime.timetable.domain.lectureDetail;
 
+import static java.util.Objects.*;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.LAZY;
 import static org.springframework.util.Assert.notNull;
@@ -11,7 +12,6 @@ import java.time.LocalTime;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -23,7 +23,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.util.Assert;
 
 @Entity
 @Table(name = "lecture_detail")
@@ -58,9 +57,6 @@ public class LectureDetail extends BaseEntity {
   }
 
   public void setLecture(Lecture lecture) {
-    if(Objects.nonNull(this.lecture)) {
-      this.lecture.getLectureDetails().remove(this.lecture);
-    }
     this.lecture = lecture;
     lecture.getLectureDetails().add(this);
   }
@@ -68,8 +64,8 @@ public class LectureDetail extends BaseEntity {
   private void validateLectureDetailField(LocalTime startTime, LocalTime endTime, Day day) {
     validateStartTime(startTime);
     validateEndTime(endTime);
-    validateDay(day);
     validateStartTimeEndTime(startTime, endTime);
+    notNull(day, "day는 null일 수 없습니다.");
   }
 
   private void validateStartTime(LocalTime startTime) {
@@ -80,10 +76,6 @@ public class LectureDetail extends BaseEntity {
   private void validateEndTime(LocalTime endTime) {
     notNull(endTime, "endTime은 null일 수 없습니다.");
     validateTimeFormat(endTime);
-  }
-
-  private void validateDay(Day day) {
-    notNull(day, "day는 null일 수 없습니다.");
   }
 
   private void validateStartTimeEndTime(LocalTime startTime, LocalTime endTime) {

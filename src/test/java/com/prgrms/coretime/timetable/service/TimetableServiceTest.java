@@ -49,6 +49,7 @@ class TimetableServiceTest {
       .name("시간표1")
       .year(2022)
       .semester(SECOND)
+      .user(user)
       .build();
 
 

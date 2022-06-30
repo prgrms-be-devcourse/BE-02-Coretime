@@ -15,7 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class OfficialLectureTest {
   @ParameterizedTest
-  @MethodSource("officialLectureValidationParam")
+  @MethodSource("officialLectureValidationParameter")
   @DisplayName("OfficialLecture의 필드 validation 테스트")
   void testOfficialLectureValidation(String name, String professor, String classroom, Semester semester, Integer openYear, Grade grade, Double credit, String code, LectureType lectureType, String errorMessage) {
     Exception exception = assertThrows(IllegalArgumentException.class, () ->

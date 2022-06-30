@@ -5,16 +5,15 @@ import static com.prgrms.coretime.timetable.domain.Semester.SECOND;
 import static com.prgrms.coretime.timetable.domain.lecture.Grade.FRESHMAN;
 import static com.prgrms.coretime.timetable.domain.lecture.LectureType.MAJOR;
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.CUSTOM;
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
-import com.prgrms.coretime.timetable.domain.enrollment.EnrollmentId;
 import com.prgrms.coretime.timetable.domain.lecture.CustomLecture;
 import com.prgrms.coretime.timetable.domain.lecture.Lecture;
 import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
+import com.prgrms.coretime.user.domain.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -49,10 +48,14 @@ class EnrollmentRepositoryTest {
     School schoolA = new School("a", "bc");
     em.persist(schoolA);
 
+    User user = new User("이메일", "이름");
+    em.persist(user);
+
     timetable = Timetable.builder()
         .name("시간표")
         .year(2022)
         .semester(FIRST)
+        .user(user)
         .build();
     em.persist(timetable);
 
@@ -73,13 +76,8 @@ class EnrollmentRepositoryTest {
         .build();
     em.persist(customLecture);
 
-    Enrollment officialEnrollment = new Enrollment(new EnrollmentId(officialLecture.getId(), timetable.getId()));
-    officialEnrollment.setLecture(officialLecture);
-    officialEnrollment.setTimeTable(timetable);
-
-    Enrollment customEnrollment = new Enrollment(new EnrollmentId(customLecture.getId(), timetable.getId()));
-    customEnrollment.setLecture(customLecture);
-    customEnrollment.setTimeTable(timetable);
+    Enrollment officialEnrollment = new Enrollment(officialLecture, timetable);
+    Enrollment customEnrollment = new Enrollment(customLecture, timetable);
 
     em.persist(officialEnrollment);
     em.persist(customEnrollment);
