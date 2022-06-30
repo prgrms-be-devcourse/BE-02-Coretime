@@ -34,9 +34,10 @@ public class UserController {
   public ResponseEntity<ApiResponse<LoginResponse>> localLogin(@RequestBody UserLocalLoginRequest request) {
     JwtAuthenticationToken authToken = new JwtAuthenticationToken(request.getEmail(),
         request.getPassword());
-    Authentication resultToken = authenticationManager.authenticate(authToken);
-    JwtPrincipal principal = (JwtPrincipal) resultToken.getPrincipal();
-    return ResponseEntity.ok(new ApiResponse<>("로그인 성공", new LoginResponse(principal.token, true)));
+    Authentication authentication = authenticationManager.authenticate(authToken);
+    String refreshToken = (String) authentication.getDetails();
+    JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
+    return ResponseEntity.ok(new ApiResponse<>("로그인 성공", new LoginResponse(principal.accessToken, refreshToken, true)));
   }
 
   @PostMapping("/oauth/login")

@@ -1,5 +1,6 @@
 package com.prgrms.coretime.common.jwt;
 
+import com.prgrms.coretime.common.jwt.claim.AccessClaim;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -25,12 +26,12 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private final String headerKey;
+  private final String accessHeaderKey;
 
   private final Jwt jwt;
 
-  public JwtAuthenticationFilter(String headerKey, Jwt jwt) {
-    this.headerKey = headerKey;
+  public JwtAuthenticationFilter(String accessHeaderKey, Jwt jwt) {
+    this.accessHeaderKey = accessHeaderKey;
     this.jwt = jwt;
   }
 
@@ -41,16 +42,16 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     HttpServletResponse response = (HttpServletResponse) res;
 
     if (SecurityContextHolder.getContext().getAuthentication() == null) {
-      String token = getToken(request);
+      String token = getAccessToken(request);
       if (token != null) {
         try {
-          Jwt.Claims claims = verify(token);
+          AccessClaim claims = jwt.verifyAccessToken(token);
           log.debug("Jwt parse result: {}", claims);
 
-          String nickname = claims.nickname;
-          String email = claims.email;
-          Long userId = claims.userId;
-          Long schoolId= claims.schoolId;
+          String nickname = claims.getNickname();
+          String email = claims.getEmail();
+          Long userId = claims.getUserId();
+          Long schoolId= claims.getSchoolId();
           List<GrantedAuthority> authorities = getAuthorities(claims);
 
           if ((nickname != null && !nickname.trim().equals(""))
@@ -72,8 +73,8 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     chain.doFilter(request, response);
   }
 
-  private String getToken(HttpServletRequest request) {
-    String token = request.getHeader(headerKey);
+  private String getAccessToken(HttpServletRequest request) {
+    String token = request.getHeader(accessHeaderKey);
     if(token != null && !token.trim().equals("")) {
       log.debug("Jwt authorization api detected: {}", token);
       try {
@@ -85,12 +86,8 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     return null;
   }
 
-  private Jwt.Claims verify(String token) {
-    return jwt.verify(token);
-  }
-
-  private List<GrantedAuthority> getAuthorities(Jwt.Claims claims) {
-    String[] roles = claims.roles;
+  private List<GrantedAuthority> getAuthorities(AccessClaim claims) {
+    String[] roles = claims.getRoles();
     return roles == null || roles.length == 0 ? Collections.emptyList() : Arrays.stream(roles).map(
         SimpleGrantedAuthority::new).collect(Collectors.toList());
   }
