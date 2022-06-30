@@ -20,4 +20,11 @@ public interface FriendRepository extends JpaRepository<Friend, FriendId> {
       value = "select f1.follower_id, f1.followee_id, f1.created_at, f1.updated_at from friend as f1 inner join friend as f2 on f1.follower_id=f2.followee_id where f1.follower_id=:id and f1.followee_id=f2.follower_id",
       nativeQuery = true)
   Page<Friend> findAllFriendWithPaging(@Param("id") Long id, Pageable pageable);
+
+  @Query(
+      value = "SELECT EXISTS (SELECT * FROM friend WHERE followee_id=:first_id AND follower_id=:second_id) "
+          + "AND "
+          + "EXISTS (SELECT * FROM friend WHERE followee_id=:second_id AND follower_id=:first_id)",
+      nativeQuery = true)
+  boolean existsFriendRelationship(@Param("first_id") Long firstId, @Param("second_id") Long secondId);
 }
