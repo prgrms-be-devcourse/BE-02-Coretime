@@ -87,7 +87,7 @@ public class TimetableService {
     Long userId = 1L;
     Timetable timetable = getTimetableOfUser(userId, timetableId);
 
-    List<LectureInfo> lectures = enrollmentRepository.getEnrollmentWithLectureById(timetableId, ALL).stream()
+    List<LectureInfo> lectures = enrollmentRepository.getEnrollmentsWithLectureByTimetableId(timetableId, ALL).stream()
         .map(enrollment -> {
           Lecture lecture = enrollment.getLecture();
 
@@ -120,6 +120,9 @@ public class TimetableService {
         .build();
   }
 
+  // TODO : 친구 시간표 조회
+  // (userId = 사용자의 ID) or (userId != 사용자의 ID and userId와 사용자의 Id 친구)
+
   @Transactional
   public void updateTimetableName(Long timetableId, TimetableUpdateRequest timetableUpdateRequest) {
     // TODO : 사용자 ID 가져오는 로직이 필요하다.
@@ -135,22 +138,20 @@ public class TimetableService {
   @Transactional
   public void deleteTimetable(Long timetableId) {
     // TODO : 사용자 ID 가져오는 로직이 필요하다.
-    // TODO : CUSTOM 강의 삭제, 쿼리가 너무 많이 날라갈거 같은데...
 
     Long userId = 1L;
     Timetable timetable = getTimetableOfUser(userId, timetableId);
 
-    List<Long> lectureIds = enrollmentRepository.getEnrollmentWithLectureById(timetableId, CUSTOM).stream()
+    List<Long> customLectureIds = enrollmentRepository.getEnrollmentsWithLectureByTimetableId(timetableId, CUSTOM).stream()
         .map(enrollment -> enrollment.getLecture().getId())
         .collect(Collectors.toList());
 
-    // DELETE lecture_details -> IN QUERY
+    enrollmentRepository.deleteByTimetableId(timetableId);
+    lectureDetailRepository.deleteLectureDetailsByLectureIds(customLectureIds);
+    lectureRepository.deleteLectureByLectureIds(customLectureIds);
 
-    // DELETE lecture -> IN QUERY
-
-    // enrollmentRepository.deleteByTimetableId(timetableId);
-
-    // timetableRepository.delete(timetable);
+    // timetableRepository.delete(getTimetableOfUser(userId, timetableId)); -> 이거 왜 안되지?
+    timetableRepository.deleteByTimetableId(timetable.getId());
   }
 
   private Timetable getTimetableOfUser(Long userId, Long timetableId) {

@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.support.PageableExecutionUtils;
 
 @Slf4j
@@ -99,6 +100,15 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
         .fetchOne();
 
     return isNull(customLecture) ? false : true;
+  }
+
+  @Override
+  @Modifying(clearAutomatically = true)
+  public void deleteLectureByLectureIds(List<Long> lectureIds) {
+    queryFactory
+        .delete(lecture)
+        .where(lecture.id.in(lectureIds))
+        .execute();
   }
 
   private BooleanBuilder getSearchConditionBuilder(OfficialLectureSearchCondition officialLectureSearchCondition) {

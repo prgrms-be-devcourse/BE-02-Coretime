@@ -36,7 +36,7 @@ public class Lecture extends BaseEntity {
   @Column(name = "lecture_id")
   private Long id;
 
-  @Column(name = "name", length = 30)
+  @Column(name = "name", length = 30, nullable = false)
   private String name;
 
   @Column(name = "professor", length = 20)

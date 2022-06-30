@@ -9,6 +9,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.Modifying;
 
 @RequiredArgsConstructor
 public class EnrollmentRepositoryImpl implements EnrollmentCustomRepository{
@@ -28,6 +29,7 @@ public class EnrollmentRepositoryImpl implements EnrollmentCustomRepository{
   }
 
   @Override
+  @Modifying(flushAutomatically = true, clearAutomatically = true)
   public void deleteByTimetableId(Long timetableId) {
     queryFactory
         .delete(enrollment)

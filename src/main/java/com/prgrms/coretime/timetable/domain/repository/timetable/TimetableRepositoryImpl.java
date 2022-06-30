@@ -51,6 +51,14 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
         .fetchOne());
   }
 
+  @Override
+  public void deleteByTimetableId(Long timetableId) {
+    queryFactory
+        .delete(timetable)
+        .where(timetable.id.eq(timetableId))
+        .execute();
+  }
+
   private BooleanBuilder getDuplicateNameTableCondition(Long userId, String name, Integer year, Semester semester) {
     BooleanBuilder duplicateNameTableCondition = new BooleanBuilder();
 

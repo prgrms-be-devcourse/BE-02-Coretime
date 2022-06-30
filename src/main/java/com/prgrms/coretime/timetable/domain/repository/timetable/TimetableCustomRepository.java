@@ -11,4 +11,6 @@ public interface TimetableCustomRepository {
   List<Timetable> getTimetables(Long userId, Integer year, Semester semester);
 
   Optional<Timetable> getTimetableByUserIdAndTimetableId(Long userId, Long timetableId);
+
+  void deleteByTimetableId(Long timetableId);
 }

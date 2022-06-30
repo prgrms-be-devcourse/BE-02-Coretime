@@ -17,4 +17,6 @@ public interface LectureCustomRepository {
   long getNumberOfConflictLectures(Long timetableId, List<LectureDetail> lectureDetails);
 
   boolean isCustomLecture(Long lectureId);
+
+  void deleteLectureByLectureIds(List<Long> lectureIds);
 }
