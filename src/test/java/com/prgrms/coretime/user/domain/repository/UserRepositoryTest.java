@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import static com.prgrms.coretime.common.ErrorCode.*;
 import static org.assertj.core.api.Assertions.*;
 
 @DataJpaTest
@@ -55,10 +56,9 @@ class UserRepositoryTest {
     userRepository.save(user1);
     userRepository.save(user2);
 
-    User localResult = userRepository.findByEmail(localTestEmail)
-        .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
-    User oauthResult = userRepository.findByEmail(oauthTestEmail)
-        .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+    User localResult = userRepository.findByEmail(localTestEmail).orElseThrow(() -> new NotFoundException(
+        USER_NOT_FOUND));
+    User oauthResult = userRepository.findByEmail(oauthTestEmail).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
 
     assertThat(localResult).isInstanceOf(LocalUser.class);
     assertThat(oauthResult).isInstanceOf(OAuthUser.class);

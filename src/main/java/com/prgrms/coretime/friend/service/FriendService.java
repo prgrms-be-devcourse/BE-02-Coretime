@@ -45,9 +45,7 @@ public class FriendService {
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
     FriendId currentUserSideFriendId = new FriendId(currentUser.getId(), targetUser.getId());
-    FriendId targetUserSideFriendId = new FriendId(targetUser.getId(), currentUser.getId());
-    if (friendRepository.existsById(currentUserSideFriendId)
-        && friendRepository.existsById(targetUserSideFriendId)) {
+    if (friendRepository.existsFriendRelationship(currentUser.getId(), targetUser.getId())) {
       throw new FriendAlreadyExistsException(ErrorCode.FRIEND_ALREADY_EXISTS);
     }
     if (friendRepository.existsById(currentUserSideFriendId)) {
@@ -69,12 +67,10 @@ public class FriendService {
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
     FriendId currentUserSideFriendId = new FriendId(currentUser.getId(), targetUser.getId());
-    FriendId targetUserSideFriendId = new FriendId(targetUser.getId(), currentUser.getId());
     if (!friendRepository.existsById(currentUserSideFriendId)) {
       throw new NotFoundException(ErrorCode.FRIEND_NOT_FOUND);
     }
-    if (friendRepository.existsById(currentUserSideFriendId)
-        && friendRepository.existsById(targetUserSideFriendId)) {
+    if (friendRepository.existsFriendRelationship(currentUser.getId(), targetUser.getId())) {
       throw new FriendAlreadyExistsException(ErrorCode.FRIEND_ALREADY_EXISTS);
     }
 
@@ -91,13 +87,11 @@ public class FriendService {
     TestUser targetUser = testUserRepository.findById(request.getFollowerId())
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
-    FriendId currentUserSideFriendId = new FriendId(currentUser.getId(), targetUser.getId());
     FriendId targetUserSideFriendId = new FriendId(targetUser.getId(), currentUser.getId());
     if (!friendRepository.existsById(targetUserSideFriendId)) {
       throw new NotFoundException(ErrorCode.FRIEND_NOT_FOUND);
     }
-    if (friendRepository.existsById(currentUserSideFriendId)
-        && friendRepository.existsById(targetUserSideFriendId)) {
+    if (friendRepository.existsFriendRelationship(currentUser.getId(), targetUser.getId())) {
       throw new FriendAlreadyExistsException(ErrorCode.FRIEND_ALREADY_EXISTS);
     }
 
@@ -115,13 +109,11 @@ public class FriendService {
     TestUser targetUser = testUserRepository.findById(request.getFollowerId())
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
-    FriendId currentUserSideFriendId = new FriendId(currentUser.getId(), targetUser.getId());
     FriendId targetUserSideFriendId = new FriendId(targetUser.getId(), currentUser.getId());
     if (!friendRepository.existsById(targetUserSideFriendId)) {
       throw new NotFoundException(ErrorCode.FRIEND_NOT_FOUND);
     }
-    if (friendRepository.existsById(currentUserSideFriendId)
-        && friendRepository.existsById(targetUserSideFriendId)) {
+    if (friendRepository.existsFriendRelationship(currentUser.getId(), targetUser.getId())) {
       throw new FriendAlreadyExistsException(ErrorCode.FRIEND_ALREADY_EXISTS);
     }
 
@@ -161,8 +153,7 @@ public class FriendService {
   public void deleteFriend(Long userId, FriendDeleteRequest request) {
     FriendId currentUserSideFriendId = new FriendId(userId, request.getFriendId());
     FriendId targetUserSideFriendId = new FriendId(request.getFriendId(), userId);
-    if (friendRepository.existsById(currentUserSideFriendId)
-        && friendRepository.existsById(targetUserSideFriendId)) {
+    if (friendRepository.existsFriendRelationship(userId, request.getFriendId())) {
       friendRepository.deleteById(currentUserSideFriendId);
       friendRepository.deleteById(targetUserSideFriendId);
     } else {
