@@ -14,6 +14,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -89,6 +90,13 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleNoHandlerFoundException(NoHandlerFoundException e) {
     log.warn(e.getMessage(), e);
     ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.NOT_FOUND);
+    return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+  }
+
+  @ExceptionHandler(MissingServletRequestParameterException.class)
+  public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+    log.warn(e.getMessage(), e);
+    ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.MISSING_REQUEST_PARAMETER);
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
 
