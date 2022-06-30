@@ -28,7 +28,7 @@ public class BoardController {
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showPostsByBoard(
       @PathVariable(name = "boardId") Long boardId,
       @RequestParam(required = false) @PageableDefault(
-          sort = {"created_at"},
+          sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable
   ) {
@@ -45,7 +45,7 @@ public class BoardController {
       @PathVariable(name = "boardId") Long boardId,
       @RequestParam String keyword,
       @RequestParam(required = false) @PageableDefault(
-          sort = {"created_at"},
+          sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable
   ) {

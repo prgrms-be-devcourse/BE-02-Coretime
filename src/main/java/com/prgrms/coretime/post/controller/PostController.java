@@ -27,7 +27,7 @@ public class PostController {
   @GetMapping("/hot")
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showHotPosts(
       @RequestParam(required = false) @PageableDefault(
-          sort = {"created_at"},
+          sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable
   ) {
@@ -42,7 +42,7 @@ public class PostController {
   @GetMapping("/best")
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showBestPosts(
       @RequestParam(required = false) @PageableDefault(
-          sort = {"created_at"},
+          sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable
   ) {
@@ -57,7 +57,7 @@ public class PostController {
   @GetMapping("/my")
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showMyPosts(
       @RequestParam(required = false) @PageableDefault(
-          sort = {"created_at"},
+          sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable,
       Long userId
@@ -70,21 +70,21 @@ public class PostController {
     );
   }
 
-  @GetMapping("/mycomment")
-  public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showMyCommentedPosts(
-      @RequestParam(required = false) @PageableDefault(
-          sort = {"created_at"},
-          direction = Sort.Direction.DESC
-      ) Pageable pageable,
-      Long userId
-  ) {
-    return ResponseEntity.ok(
-        new ApiResponse<>(
-            "내 게시글 목록",
-            postService.getPostsThatUserCommentedAt(userId, pageable)
-        )
-    );
-  }
+//  @GetMapping("/mycomment")
+//  public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showMyCommentedPosts(
+//      @RequestParam(required = false) @PageableDefault(
+//          sort = {"createdAt"},
+//          direction = Sort.Direction.DESC
+//      ) Pageable pageable,
+//      Long userId
+//  ) {
+//    return ResponseEntity.ok(
+//        new ApiResponse<>(
+//            "내 게시글 목록",
+//            postService.getPostsThatUserCommentedAt(userId, pageable)
+//        )
+//    );
+//  }
 
   @GetMapping("/{postId}")
   public ResponseEntity<ApiResponse<PostResponse>> showPost(
@@ -122,7 +122,7 @@ public class PostController {
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> searchPosts(
       @RequestParam String keyword,
       @RequestParam(required = false) @PageableDefault(
-          sort = {"created_at"},
+          sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable
   ) {

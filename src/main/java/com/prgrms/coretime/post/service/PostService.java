@@ -67,16 +67,16 @@ public class PostService {
     return posts.map(PostSimpleResponse::new);
   }
 
-    @Transactional(readOnly = true)
-    public Page<PostSimpleResponse> getPostsThatUserCommentedAt(Long userId, Pageable pageable) {
-        Page<Post> posts = postRepository.findPostsThatUserCommentedAt(userId, pageable);
-        return posts.map(PostSimpleResponse::new);
-    }
+//    @Transactional(readOnly = true)
+//    public Page<PostSimpleResponse> getPostsThatUserCommentedAt(Long userId, Pageable pageable) {
+//        Page<Post> posts = postRepository.findPostsThatUserCommentedAt(userId);
+//        return posts.map(PostSimpleResponse::new);
+//    }
 
   @Transactional(readOnly = true)
   public PostResponse getPost(Long postId) {
     Post post = findPost(postId);
-    PageRequest pageRequest = PageRequest.of(0, 20, Sort.by("created_at"));
+    PageRequest pageRequest = PageRequest.of(0, 20, Sort.by("createdAt"));
     Page<Comment> comments = postRepository.findCommentsByPost(postId, pageRequest);
     return new PostResponse(post, comments);
   }
@@ -128,7 +128,6 @@ public class PostService {
     Post post = findPost(postId);
     User user = findUser(userId);
     postLikeRepository.save(new PostLike(post, user));
-    post.likePost();
   }
 
   @Transactional
