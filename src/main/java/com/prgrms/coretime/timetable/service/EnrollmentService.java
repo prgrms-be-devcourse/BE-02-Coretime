@@ -38,13 +38,16 @@ public class EnrollmentService {
 
   @Transactional
   public Enrollment addOfficialLectureToTimetable(Long timetableId, EnrollmentCreateRequest enrollmentCreateRequest) {
-    // TODO : 시간표가 사용자의 것인지 확인하는 로직이 필요하다.
-    // TODO : 사용자가 속한 학교와 강의가 속한 학교를 비교해야한다.(같은 학교인 경우에만 시간표에 강의를 추가할 수 있다.)
+    // TODO : 사용자 ID 가져오는 로직이 필요하다.
+    // TODO : 사용자의 school_id를 가져오는 로직이 필요하다
 
-    Timetable timetable = getTimetableById(timetableId);
+    Long userId = 1L;
+    Long schoolId = 1L;
+
+    Timetable timetable = getTimetableOfUser(userId, timetableId);
     OfficialLecture officialLecture = lectureRepository.findOfficialLectureById(enrollmentCreateRequest.getLectureId()).orElseThrow(() -> new NotFoundException(NOT_FOUND));
 
-    if(!timetable.getYear().equals(officialLecture.getOpenYear()) || !timetable.getSemester().equals(officialLecture.getSemester())) {
+    if(schoolId != officialLecture.getSchool().getId() || !timetable.getYear().equals(officialLecture.getOpenYear()) || !timetable.getSemester().equals(officialLecture.getSemester())) {
       throw new IllegalArgumentException("시간표에 추가할 수 없는 강의입니다.");
     }
 
@@ -64,9 +67,11 @@ public class EnrollmentService {
 
   @Transactional
   public Enrollment addCustomLectureToTimetable(Long timetableId, CustomLectureRequest customLectureRequest) {
-    // TODO : 시간표가 사용자의 것인지 확인하는 로직이 필요하다.
+    // TODO : 사용자 ID 가져오는 로직이 필요하다.
 
-    Timetable timetable = getTimetableById(timetableId);
+    Long userId = 1L;
+    Timetable timetable = getTimetableOfUser(userId, timetableId);
+
     List<LectureDetail> lectureDetails = changeCustomLectureDetailsToLectureDetails(customLectureRequest);
 
     validateLectureConflict(timetable.getId(), lectureDetails);
@@ -89,9 +94,11 @@ public class EnrollmentService {
 
   @Transactional
   public void updateCustomLecture(Long timetableId, Long lectureId, CustomLectureRequest customLectureRequest) {
-    // TODO : 시간표가 사용자의 것인지 확인하는 로직이 필요하다.
+    // TODO : 사용자 ID 가져오는 로직이 필요하다.
 
-    Timetable timetable = getTimetableById(timetableId);
+    Long userId = 1L;
+    Timetable timetable = getTimetableOfUser(userId, timetableId);
+
     Lecture customLecture = lectureRepository.findById(lectureId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
     List<LectureDetail> lectureDetails = changeCustomLectureDetailsToLectureDetails(customLectureRequest);
 
@@ -108,9 +115,12 @@ public class EnrollmentService {
 
   @Transactional
   public void deleteLectureFromTimetable(Long timetableId, Long lectureId) {
-    // TODO : 시간표가 사용자의 것인지 확인하는 로직이 필요하다.
+    // TODO : 사용자 ID 가져오는 로직이 필요하다.
 
-    EnrollmentId enrollmentId = new EnrollmentId(lectureId, timetableId);
+    Long userId = 1L;
+    Timetable timetable = getTimetableOfUser(userId, timetableId);
+
+    EnrollmentId enrollmentId = new EnrollmentId(lectureId, timetable.getId());
     Enrollment enrollment = enrollmentRepository.findById(enrollmentId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
     enrollmentRepository.delete(enrollment);
 
@@ -120,8 +130,8 @@ public class EnrollmentService {
     }
   }
 
-  private Timetable getTimetableById(Long timetableId) {
-    return timetableRepository.findById(timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+  private Timetable getTimetableOfUser(Long userId, Long timetableId) {
+    return timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
   }
 
   private void validateLectureConflict(Long timetableId, List<LectureDetail> lectureDetails) {
