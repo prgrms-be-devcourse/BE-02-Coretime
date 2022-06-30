@@ -2,6 +2,7 @@ package com.prgrms.coretime.timetable.domain.repository.enrollment;
 
 import static com.prgrms.coretime.timetable.domain.enrollment.QEnrollment.enrollment;
 import static com.prgrms.coretime.timetable.domain.lecture.QLecture.lecture;
+import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.CUSTOM;
 
 import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
 import com.querydsl.core.BooleanBuilder;
@@ -15,29 +16,36 @@ public class EnrollmentRepositoryImpl implements EnrollmentCustomRepository{
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public List<Enrollment> getEnrollmentByIdWithLecture(Long timetableId) {
+  public List<Enrollment> getEnrollmentWithLectureById(Long timetableId, LectureType lectureType) {
+    BooleanBuilder condition = getEnrollmentWithLectureCondition(timetableId, lectureType);
 
     return queryFactory
         .select(enrollment)
         .from(enrollment)
         .join(enrollment.lecture, lecture)
         .fetchJoin()
-        .where(
-            getEnrollmentCondition(timetableId)
-        )
+        .where(condition)
         .fetch();
   }
 
-  private BooleanBuilder getEnrollmentCondition(Long timetableId) {
+  @Override
+  public void deleteByTimetableId(Long timetableId) {
+    queryFactory
+        .delete(enrollment)
+        .where(enrollment.enrollmentId.timeTableId.eq(timetableId))
+        .execute();
+  }
+
+  private BooleanBuilder getEnrollmentWithLectureCondition(Long timetableId, LectureType lectureType) {
     BooleanBuilder enrollmentCondition = new BooleanBuilder();
 
     enrollmentCondition
-        .and(timetableIdEq(timetableId));
+        .and(enrollment.enrollmentId.timeTableId.eq(timetableId));
+
+    if(lectureType.equals(CUSTOM)) {
+      enrollmentCondition.and(enrollment.lecture.dType.eq("CUSTOM"));
+    }
 
     return enrollmentCondition;
-  }
-
-  private BooleanExpression timetableIdEq(Long timetableId) {
-    return timetableId == null ? null : enrollment.enrollmentId.timeTableId.eq(timetableId);
   }
 }

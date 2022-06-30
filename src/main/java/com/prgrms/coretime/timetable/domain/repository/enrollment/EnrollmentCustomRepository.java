@@ -4,5 +4,7 @@ import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
 import java.util.List;
 
 public interface EnrollmentCustomRepository {
-  List<Enrollment> getEnrollmentByIdWithLecture(Long timetableId);
+  List<Enrollment> getEnrollmentWithLectureById(Long timetableId, LectureType lectureType);
+
+  void deleteByTimetableId(Long timetableId);
 }
