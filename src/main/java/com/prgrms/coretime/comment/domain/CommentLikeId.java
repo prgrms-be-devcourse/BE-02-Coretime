@@ -17,5 +17,9 @@ public class CommentLikeId implements Serializable {
 
   @Column(name = "comment_id")
   private Long commentId;
-  
+
+  public CommentLikeId(Long userId, Long commentId) {
+    this.userId = userId;
+    this.commentId = commentId;
+  }
 }
