@@ -1,5 +1,8 @@
 package com.prgrms.coretime.user.domain.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.school.domain.respository.SchoolRepository;
@@ -10,11 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-
-import static org.assertj.core.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles({"test"})
@@ -54,8 +53,11 @@ class UserRepositoryTest {
     userRepository.save(user1);
     userRepository.save(user2);
 
-    User localResult = userRepository.findByEmail(localTestEmail).orElseThrow(() -> new NotFoundException("local user를 찾을 수 없습니다."));
-    User oauthResult = userRepository.findByEmail(oauthTestEmail).orElseThrow(() -> new NotFoundException("oauth user를 찾을 수 없습니다."));
+    User localResult = userRepository.findByEmail(localTestEmail)
+        .orElseThrow(() -> new NotFoundException(
+            ErrorCode.NOT_FOUND));
+    User oauthResult = userRepository.findByEmail(oauthTestEmail)
+        .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND));
 
     assertThat(localResult).isInstanceOf(LocalUser.class);
     assertThat(oauthResult).isInstanceOf(OAuthUser.class);
