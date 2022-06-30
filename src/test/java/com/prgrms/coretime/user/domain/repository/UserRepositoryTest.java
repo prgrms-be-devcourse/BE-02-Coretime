@@ -1,5 +1,6 @@
 package com.prgrms.coretime.user.domain.repository;
 
+import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.school.domain.respository.SchoolRepository;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import static com.prgrms.coretime.common.ErrorCode.*;
 import static org.assertj.core.api.Assertions.*;
 
 @DataJpaTest
@@ -54,15 +56,13 @@ class UserRepositoryTest {
     userRepository.save(user1);
     userRepository.save(user2);
 
-    // TODO : 커밋하지 말 것
-    /*
-    User localResult = userRepository.findByEmail(localTestEmail).orElseThrow(() -> new NotFoundException("local user를 찾을 수 없습니다."));
-    User oauthResult = userRepository.findByEmail(oauthTestEmail).orElseThrow(() -> new NotFoundException("oauth user를 찾을 수 없습니다."));
+    User localResult = userRepository.findByEmail(localTestEmail).orElseThrow(() -> new NotFoundException(
+        USER_NOT_FOUND));
+    User oauthResult = userRepository.findByEmail(oauthTestEmail).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
 
     assertThat(localResult).isInstanceOf(LocalUser.class);
     assertThat(oauthResult).isInstanceOf(OAuthUser.class);
     assertThat(localResult.getNickname()).isEqualTo("local유저");
     assertThat(oauthResult.getNickname()).isEqualTo("oauth유저");
-    */
   }
 }
