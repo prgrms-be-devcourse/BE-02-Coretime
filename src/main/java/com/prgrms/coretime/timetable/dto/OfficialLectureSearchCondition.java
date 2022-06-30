@@ -10,6 +10,7 @@ import lombok.Getter;
 
 @Getter
 public class OfficialLectureSearchCondition {
+  private Long schoolId;
   private Integer openYear;
   private Semester semester;
   private SearchType searchType;
@@ -19,10 +20,11 @@ public class OfficialLectureSearchCondition {
   private List<Double> credits;
 
   @Builder
-  public OfficialLectureSearchCondition(Integer openYear,
+  public OfficialLectureSearchCondition(Long schoolId, Integer openYear,
       Semester semester, SearchType searchType, String searchWord,
       List<Grade> grades,
       List<LectureType> lectureTypes, List<Double> credits) {
+    this.schoolId = schoolId;
     this.openYear = openYear;
     this.semester = semester;
     this.searchType = searchType;

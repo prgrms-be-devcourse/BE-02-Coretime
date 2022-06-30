@@ -32,10 +32,11 @@ public class LectureService {
 
   @Transactional(readOnly = true)
   public Page<OfficialLectureInfo> getOfficialLectures(OfficialLectureSearchRequest officialLectureSearchRequest, Pageable pageable) {
-    // TODO : 사용자의 학교 정보(학교 ID)가 필요하며 해당 정보를 검색 조건에 추가해야한다.
+    // TODO : 사용자의 school_id를 가져오는 로직이 필요하다
 
+    Long schoolId = 1L;
     Page<OfficialLecture> officialLecturesPagingResult = lectureRepository.findOfficialLectures(
-        createOfficialLectureSearchCondition(officialLectureSearchRequest),
+        createOfficialLectureSearchCondition(schoolId, officialLectureSearchRequest),
         pageable
     );
 
@@ -64,10 +65,10 @@ public class LectureService {
   }
 
 
-  private OfficialLectureSearchCondition createOfficialLectureSearchCondition(OfficialLectureSearchRequest officialLectureSearchRequest) {
-    // TODO : 학교에 대한 필터링
-    // TODO : time은 가장 마지막에 구현
+  private OfficialLectureSearchCondition createOfficialLectureSearchCondition(Long schoolId, OfficialLectureSearchRequest officialLectureSearchRequest) {
+    // TODO : time 조건 추가
 
+    validateSchoolId(schoolId);
     validateYear(officialLectureSearchRequest.getYear());
     validateSemster(officialLectureSearchRequest.getSemester());
     validateGrades(officialLectureSearchRequest.getGrades());
@@ -76,6 +77,7 @@ public class LectureService {
     validateSearch(officialLectureSearchRequest.getSearchType(), officialLectureSearchRequest.getSearchWord());
 
     return OfficialLectureSearchCondition.builder()
+        .schoolId(schoolId)
         .openYear(officialLectureSearchRequest.getYear())
         .semester(officialLectureSearchRequest.getSemester())
         .searchType(officialLectureSearchRequest.getSearchType())
@@ -84,6 +86,10 @@ public class LectureService {
         .lectureTypes(officialLectureSearchRequest.getLectureTypes())
         .credits(officialLectureSearchRequest.getCredits())
         .build();
+  }
+
+  private void validateSchoolId(Long schoolId) {
+    notNull(schoolId, "schoolId는 null일 수 없습니다.");
   }
 
   private void validateYear(Integer year) {

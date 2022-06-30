@@ -103,6 +103,7 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
 
   private BooleanBuilder getSearchConditionBuilder(OfficialLectureSearchCondition officialLectureSearchCondition) {
     BooleanBuilder searchConditionBuilder = new BooleanBuilder();
+    searchConditionBuilder.and(schoolIdEq(officialLectureSearchCondition.getSchoolId()));
     searchConditionBuilder.and(openYearEq(officialLectureSearchCondition.getOpenYear()));
     searchConditionBuilder.and(semesterEq(officialLectureSearchCondition.getSemester()));
 
@@ -204,6 +205,10 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
         .and(customDTypeEq());
 
     return customLectureExistConditionBuilder;
+  }
+
+  private BooleanExpression schoolIdEq(Long schoolId) {
+    return schoolId == null ? null : officialLecture.school.id.eq(schoolId);
   }
 
   private BooleanExpression officialLectureIddEq(Long officialLectureId) {
