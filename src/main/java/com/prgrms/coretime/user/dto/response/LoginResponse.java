@@ -9,11 +9,8 @@ public class LoginResponse {
 
   private final String refreshToken;
 
-  private final Boolean isLocal;
-
-  public LoginResponse(String accessToken, String refreshToken, Boolean isLocal) {
+  public LoginResponse(String accessToken, String refreshToken) {
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
-    this.isLocal = isLocal;
   }
 }

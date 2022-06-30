@@ -3,6 +3,7 @@ package com.prgrms.coretime.common.config;
 import com.prgrms.coretime.common.jwt.Jwt;
 import com.prgrms.coretime.common.jwt.JwtAuthenticationFilter;
 import com.prgrms.coretime.common.jwt.JwtAuthenticationProvider;
+import com.prgrms.coretime.common.util.JwtService;
 import com.prgrms.coretime.common.util.RedisService;
 import com.prgrms.coretime.user.service.UserService;
 import org.springframework.context.annotation.Bean;
@@ -41,8 +42,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
-  public JwtAuthenticationProvider jwtAuthenticationProvider(UserService userService, RedisService redisService) {
-    return new JwtAuthenticationProvider(jwtConfig, userService, redisService);
+  public JwtAuthenticationProvider jwtAuthenticationProvider(JwtService jwtService, UserService userService) {
+    return new JwtAuthenticationProvider(jwtService, userService);
   }
 
   @Bean

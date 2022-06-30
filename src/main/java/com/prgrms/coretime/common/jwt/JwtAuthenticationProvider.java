@@ -1,9 +1,10 @@
 package com.prgrms.coretime.common.jwt;
 
-import com.prgrms.coretime.common.config.JwtConfig;
+import com.prgrms.coretime.common.ErrorCode;
+import com.prgrms.coretime.common.error.exception.AuthErrorException;
 import com.prgrms.coretime.common.jwt.claim.AccessClaim;
 import com.prgrms.coretime.common.jwt.claim.RefreshClaim;
-import com.prgrms.coretime.common.util.RedisService;
+import com.prgrms.coretime.common.util.JwtService;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.service.UserService;
 import java.time.Duration;
@@ -20,17 +21,14 @@ import org.springframework.util.Assert;
 
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
-  private final JwtConfig jwtConfig;
+  private final JwtService jwtService;
 
   private final UserService userService;
 
-  private final RedisService redisService;
-
-  public JwtAuthenticationProvider(JwtConfig jwtConfig,
-      UserService userService, RedisService redisService) {
-    this.jwtConfig = jwtConfig;
+  public JwtAuthenticationProvider(
+      JwtService jwtService, UserService userService) {
+    this.jwtService = jwtService;
     this.userService = userService;
-    this.redisService = redisService;
   }
 
   @Override
@@ -50,10 +48,8 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
       User user = userService.login(principal, credentials);
       // TODO : 확장성 고려할 것
       List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("USER"));
-      String accessToken = createAccessToken(user.getId(), user.getSchool().getId(), user.getNickname(), user.getEmail(), authorities);
-      String refreshToken = createRefreshToken(user.getEmail());
-      redisService.setValues(user.getEmail(), refreshToken, Duration.ofMillis(
-          jwtConfig.getRefreshExpirySeconds()));
+      String accessToken = jwtService.createAccessToken(user.getId(), user.getSchool().getId(), user.getNickname(), user.getEmail(), authorities);
+      String refreshToken = jwtService.createRefreshToken(user.getEmail());
       JwtAuthenticationToken authenticated = new JwtAuthenticationToken(new JwtPrincipal(accessToken, user.getNickname(), user.getEmail(), user.getId(), user.getSchool().getId()), null, authorities);
       authenticated.setDetails(refreshToken);
       return authenticated;
@@ -62,20 +58,5 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     } catch (DataAccessException e) {
       throw new AuthenticationServiceException(e.getMessage(), e);
     }
-  }
-
-  private String createAccessToken(Long userId, Long schoolId, String nickname, String email, List<GrantedAuthority> authorities) {
-    String[] roles = authorities.stream()
-        .map(GrantedAuthority::getAuthority)
-        .toArray(String[]::new);
-    Jwt jwt = new Jwt(jwtConfig.getIssuer(), jwtConfig.getClientSecret(),
-        jwtConfig.getExpirySeconds());
-    return jwt.sign(new AccessClaim(userId, schoolId, nickname, email, roles));
-  }
-
-  private String createRefreshToken(String email) {
-    Jwt jwt = new Jwt(jwtConfig.getIssuer(), jwtConfig.getClientSecret(),
-        jwtConfig.getRefreshExpirySeconds());
-    return jwt.sign(new RefreshClaim(email));
   }
 }

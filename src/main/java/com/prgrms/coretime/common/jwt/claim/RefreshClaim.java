@@ -4,7 +4,9 @@ import com.auth0.jwt.JWTCreator.Builder;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import java.util.Date;
+import lombok.Getter;
 
+@Getter
 public class RefreshClaim implements Claims{
 
   private String email;
