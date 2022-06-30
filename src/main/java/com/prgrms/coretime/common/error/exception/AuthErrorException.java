@@ -1,12 +1,13 @@
 package com.prgrms.coretime.common.error.exception;
 
+import com.prgrms.coretime.common.ErrorCode;
+
 public class AuthErrorException extends RuntimeException {
 
-  public AuthErrorException() {
-    super();
-  }
+  private final ErrorCode errorCode;
 
-  public AuthErrorException(String message) {
-    super(message);
+  public AuthErrorException(ErrorCode errorCode) {
+    super(errorCode.getMessage());
+    this.errorCode = errorCode;
   }
 }

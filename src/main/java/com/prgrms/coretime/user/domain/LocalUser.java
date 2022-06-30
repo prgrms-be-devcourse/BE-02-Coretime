@@ -1,5 +1,8 @@
 package com.prgrms.coretime.user.domain;
 
+import static com.prgrms.coretime.common.ErrorCode.*;
+
+import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.error.exception.AuthErrorException;
 import com.prgrms.coretime.school.domain.School;
 import javax.persistence.Column;
@@ -28,6 +31,6 @@ public class LocalUser extends User {
 
   public void checkPassword(PasswordEncoder passwordEncoder, String credentials) {
     if (!passwordEncoder.matches(credentials, password))
-      throw new AuthErrorException("Bad credential");
+      throw new AuthErrorException(INVALID_ACCOUNT_REQUEST);
   }
 }

@@ -2,6 +2,8 @@ package com.prgrms.coretime.common.config;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,13 +18,15 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Setter
 public class RedisConfig {
 
+  private final Logger log = LoggerFactory.getLogger(getClass());
+
   private String host;
 
   private int port;
 
   @Bean
   public RedisConnectionFactory redisConnectionFactory() {
-    System.out.println(host);
+    log.info("host: {}, port: {}", host, port);
     return new LettuceConnectionFactory(host, port);
   }
 
