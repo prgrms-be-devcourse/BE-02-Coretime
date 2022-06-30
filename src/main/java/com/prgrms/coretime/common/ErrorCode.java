@@ -22,6 +22,7 @@ public enum ErrorCode {
   INVALID_TYPE_VALUE(400, "client02", "요청 값의 타입이 잘못되었습니다."),
   INVALID_INPUT_VALUE(400, "client03", "적절하지 않은 요청값입니다."),
   NOT_FOUND(404, "client04", "해당 리소스를 찾을 수 없습니다."),
+  MISSING_REQUEST_PARAMETER(400, "client05", "필수 파라미터가 누락되었습니다."),
   USER_NOT_FOUND(500, "U001", "유저가 존재하지 않습니다."),
   INVALID_ACCOUNT_REQUEST(400, "U002", "아이디 및 비밀번호가 올바르지 않습니다."),
   INVALID_TOKEN_REQUEST(400, "U003", "토큰이 올바르지 않습니다."),

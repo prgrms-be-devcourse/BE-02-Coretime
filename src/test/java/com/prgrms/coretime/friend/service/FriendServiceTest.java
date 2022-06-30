@@ -1,6 +1,7 @@
 package com.prgrms.coretime.friend.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -50,8 +51,10 @@ class FriendServiceTest {
   void sendFriendRequestSuccessTest() {
     FriendRequestSendRequest request = new FriendRequestSendRequest(1L);
 
-    when(testUserRepository.findById(any())).thenReturn(Optional.of(user1));
-    when(testUserRepository.findById(any())).thenReturn(Optional.of(user2));
+    doReturn(Optional.of(user1), Optional.of(user2)).when(testUserRepository).findById(any());
+    doReturn(false).when(friendRepository).existsFriendRelationship(any(), any());
+    doReturn(false).when(friendRepository).existsById(any());
+
     when(friendRepository.save(any())).thenReturn(friend1);
 
     friendService.sendFriendRequest(user1.getId(), request);
@@ -65,11 +68,8 @@ class FriendServiceTest {
     FriendRequestRevokeRequest request = new FriendRequestRevokeRequest(1L);
 
     doReturn(Optional.of(user1), Optional.of(user2)).when(testUserRepository).findById(any());
-
-    doReturn(true)
-        .doReturn(true)
-        .doReturn(false)
-        .when(friendRepository).existsById(any());
+    doReturn(true).when(friendRepository).existsById(any());
+    doReturn(false).when(friendRepository).existsFriendRelationship(anyLong(), anyLong());
 
     friendService.revokeFriendRequest(user1.getId(), request);
 
@@ -82,11 +82,8 @@ class FriendServiceTest {
     FriendRequestAcceptRequest request = new FriendRequestAcceptRequest(1L);
 
     doReturn(Optional.of(user1), Optional.of(user2)).when(testUserRepository).findById(any());
-
-    doReturn(true)
-        .doReturn(true)
-        .doReturn(false)
-        .when(friendRepository).existsById(any());
+    doReturn(true).when(friendRepository).existsById(any());
+    doReturn(false).when(friendRepository).existsFriendRelationship(anyLong(), anyLong());
 
     friendService.acceptFriendRequest(user1.getId(), request);
 
@@ -99,11 +96,8 @@ class FriendServiceTest {
     FriendRequestRefuseRequest request = new FriendRequestRefuseRequest(1L);
 
     doReturn(Optional.of(user1), Optional.of(user2)).when(testUserRepository).findById(any());
-
-    doReturn(true)
-        .doReturn(true)
-        .doReturn(false)
-        .when(friendRepository).existsById(any());
+    doReturn(true).when(friendRepository).existsById(any());
+    doReturn(false).when(friendRepository).existsFriendRelationship(anyLong(), anyLong());
 
     friendService.refuseFriendRequest(user1.getId(), request);
 
@@ -139,9 +133,7 @@ class FriendServiceTest {
   void deleteFriendSuccessTest() {
     FriendDeleteRequest request = new FriendDeleteRequest(1L);
 
-    doReturn(true)
-        .doReturn(true)
-        .when(friendRepository).existsById(any());
+    doReturn(true).when(friendRepository).existsFriendRelationship(anyLong(), anyLong());
 
     friendService.deleteFriend(user1.getId(), request);
 
