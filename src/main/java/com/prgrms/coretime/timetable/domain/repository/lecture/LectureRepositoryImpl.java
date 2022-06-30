@@ -38,7 +38,7 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public Page<OfficialLecture> findOfficialLectures(OfficialLectureSearchCondition officialLectureSearchCondition, Pageable pageable) {
+  public Page<OfficialLecture> getOfficialLectures(OfficialLectureSearchCondition officialLectureSearchCondition, Pageable pageable) {
     List<OfficialLecture> officialLectures = queryFactory
         .selectFrom(officialLecture)
         .where(
@@ -62,7 +62,7 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
   }
 
   @Override
-  public Optional<OfficialLecture> findOfficialLectureById(Long id) {
+  public Optional<OfficialLecture> getOfficialLectureById(Long id) {
     return Optional.ofNullable(queryFactory
         .select(officialLecture)
         .distinct()

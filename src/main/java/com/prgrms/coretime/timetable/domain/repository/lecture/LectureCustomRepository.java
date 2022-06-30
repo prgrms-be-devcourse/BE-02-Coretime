@@ -9,10 +9,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface LectureCustomRepository {
-  Page<OfficialLecture> findOfficialLectures(
+  Page<OfficialLecture> getOfficialLectures(
       OfficialLectureSearchCondition officialLectureSearchCondition, Pageable pageable);
 
-  Optional<OfficialLecture> findOfficialLectureById(Long lectureId);
+  Optional<OfficialLecture> getOfficialLectureById(Long lectureId);
 
   long getNumberOfConflictLectures(Long timetableId, List<LectureDetail> lectureDetails);
 

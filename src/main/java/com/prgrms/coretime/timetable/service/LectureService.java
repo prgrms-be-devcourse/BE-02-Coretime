@@ -35,7 +35,7 @@ public class LectureService {
     // TODO : 사용자의 school_id를 가져오는 로직이 필요하다
 
     Long schoolId = 1L;
-    Page<OfficialLecture> officialLecturesPagingResult = lectureRepository.findOfficialLectures(
+    Page<OfficialLecture> officialLecturesPagingResult = lectureRepository.getOfficialLectures(
         createOfficialLectureSearchCondition(schoolId, officialLectureSearchRequest),
         pageable
     );

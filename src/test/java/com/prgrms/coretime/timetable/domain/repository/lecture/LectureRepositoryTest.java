@@ -89,7 +89,7 @@ class LectureRepositoryTest {
   @Test
   @DisplayName("findOfficialLectureById()를 통해 정상적으로 엔티티를 받아오는지 확인하는 테스트")
   void testFindOfficialLectureById() {
-    Optional<OfficialLecture> notEmptyOfficialLecture = lectureRepository.findOfficialLectureById(officialLectureA.getId());
+    Optional<OfficialLecture> notEmptyOfficialLecture = lectureRepository.getOfficialLectureById(officialLectureA.getId());
     assertThat(notEmptyOfficialLecture).isNotEmpty();
   }
 

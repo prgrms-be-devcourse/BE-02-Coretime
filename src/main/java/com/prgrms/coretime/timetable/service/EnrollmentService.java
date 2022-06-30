@@ -45,7 +45,7 @@ public class EnrollmentService {
     Long schoolId = 1L;
 
     Timetable timetable = getTimetableOfUser(userId, timetableId);
-    OfficialLecture officialLecture = lectureRepository.findOfficialLectureById(enrollmentCreateRequest.getLectureId()).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+    OfficialLecture officialLecture = lectureRepository.getOfficialLectureById(enrollmentCreateRequest.getLectureId()).orElseThrow(() -> new NotFoundException(NOT_FOUND));
 
     if(schoolId != officialLecture.getSchool().getId() || !timetable.getYear().equals(officialLecture.getOpenYear()) || !timetable.getSemester().equals(officialLecture.getSemester())) {
       throw new IllegalArgumentException("시간표에 추가할 수 없는 강의입니다.");
