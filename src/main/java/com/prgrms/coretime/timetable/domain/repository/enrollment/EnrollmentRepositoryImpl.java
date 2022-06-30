@@ -29,7 +29,7 @@ public class EnrollmentRepositoryImpl implements EnrollmentCustomRepository{
   }
 
   @Override
-  @Modifying(flushAutomatically = true, clearAutomatically = true)
+  @Modifying(clearAutomatically = true)
   public void deleteByTimetableId(Long timetableId) {
     queryFactory
         .delete(enrollment)

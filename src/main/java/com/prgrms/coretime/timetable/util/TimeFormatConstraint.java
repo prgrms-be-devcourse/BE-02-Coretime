@@ -14,7 +14,7 @@ import javax.validation.Payload;
 @Target({FIELD})
 @Retention(RUNTIME)
 public @interface TimeFormatConstraint {
-  String message() default "옳지 않은 시간 포맷 입니다.";
+  String message() default "잘못된 시간 포맷 입니다.";
   Class<?>[] groups() default {};
   Class<? extends Payload>[] payload() default {};
 }

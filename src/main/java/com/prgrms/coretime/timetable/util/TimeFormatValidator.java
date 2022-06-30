@@ -18,7 +18,7 @@ public class TimeFormatValidator implements ConstraintValidator<TimeFormatConstr
       return false;
     }
 
-    Pattern pattern = Pattern.compile("^(([0-1]{1}[0-9]{1})|([2]{1}[0-3]{1})):(([0-5]{1}[0|5]{1}))$");
+    Pattern pattern = Pattern.compile("^(([0-1]{1}[0-9]{1})|([2]{1}[0-3]{1})):(([0-5]{1}[0-9]{1}))$");
     Matcher matcher = pattern.matcher(time);
     return matcher.matches();
   }

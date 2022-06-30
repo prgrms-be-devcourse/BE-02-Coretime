@@ -133,8 +133,6 @@ public class TimetableService {
     timetable.updateName(timetableUpdateRequest.getName().trim());
   }
 
-
-
   @Transactional
   public void deleteTimetable(Long timetableId) {
     // TODO : 사용자 ID 가져오는 로직이 필요하다.
@@ -150,7 +148,7 @@ public class TimetableService {
     lectureDetailRepository.deleteLectureDetailsByLectureIds(customLectureIds);
     lectureRepository.deleteLectureByLectureIds(customLectureIds);
 
-    // timetableRepository.delete(getTimetableOfUser(userId, timetableId)); -> 이거 왜 안되지?
+    // timetableRepository.delete(getTimetableOfUser(userId, timetableId));
     timetableRepository.deleteByTimetableId(timetable.getId());
   }
 

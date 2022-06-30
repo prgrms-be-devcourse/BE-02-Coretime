@@ -6,6 +6,7 @@ import static org.springframework.util.Assert.notNull;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.timetable.domain.lecture.Lecture;
+import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Objects;
 import javax.persistence.Column;
@@ -89,10 +90,17 @@ public class LectureDetail extends BaseEntity {
     if(startTime.isAfter(endTime) || startTime.equals(endTime)) {
       throw new IllegalArgumentException("startTime은 endTime 보다 빨라야합니다.");
     }
+
+    Duration between = Duration.between(startTime, endTime);
+    long gap = between.getSeconds() / 60;
+
+    if(gap < 30) {
+      throw new IllegalArgumentException("custom 강의 시간의 최소 단위는 30분입니다.");
+    }
   }
 
   private void validateTimeFormat(LocalTime time) {
-    if(time.getMinute() % 5 != 0 || time.getSecond() != 0 || time.getNano() != 0) {
+    if(time.getSecond() != 0 || time.getNano() != 0) {
       throw new IllegalArgumentException("잘못된 시간 포맷입니다.");
     }
   }
