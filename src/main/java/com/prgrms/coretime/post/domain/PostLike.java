@@ -18,7 +18,7 @@ import javax.persistence.*;
 public class PostLike {
 
   @EmbeddedId
-  private PostLikeId postLikeId = new PostLikeId();
+  private PostLikeId postLikeId;
 
   @MapsId("postId")
   @ManyToOne(fetch = FetchType.LAZY)
@@ -39,6 +39,7 @@ public class PostLike {
   public PostLike(Post post, User user) {
     setPost(post);
     setUser(user);
+    this.postLikeId = new PostLikeId(post.getId(), user.getId());
   }
 
   private void setPost(Post post) {

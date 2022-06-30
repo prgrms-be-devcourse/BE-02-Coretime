@@ -2,13 +2,14 @@ package com.prgrms.coretime.post.dto.response;
 
 import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.post.domain.Post;
+import java.util.List;
 import lombok.Builder;
 import org.springframework.data.domain.Page;
 
 public record PostResponse(Long postId, BoardSimpleResponse board,
                            Long userId, String nickname, String title,
                            String content, Boolean isAnonymous,
-                           Page<CommentResponse> comments,
+                           List<CommentResponse> comments,
                            Integer likeCount) {
 
   @Builder
@@ -24,7 +25,7 @@ public record PostResponse(Long postId, BoardSimpleResponse board,
         entity.getTitle(),
         entity.getContent(),
         entity.getIsAnonymous(),
-        comments.map(CommentResponse::new),
+        comments.getContent().stream().map(CommentResponse::new).toList(),
         entity.getLikeCount()
     );
   }

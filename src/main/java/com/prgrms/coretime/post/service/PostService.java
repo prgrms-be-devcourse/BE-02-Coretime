@@ -2,6 +2,7 @@ package com.prgrms.coretime.post.service;
 
 import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.common.ErrorCode;
+import com.prgrms.coretime.common.error.exception.LikeAlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.post.domain.Board;
 import com.prgrms.coretime.post.domain.repository.BoardRepository;
@@ -16,6 +17,7 @@ import com.prgrms.coretime.post.dto.response.PostResponse;
 import com.prgrms.coretime.post.dto.response.PostSimpleResponse;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,6 +47,7 @@ public class PostService {
 
   @Transactional(readOnly = true)
   public Page<PostSimpleResponse> getPostsByBoard(Long boardId, Pageable pageable) {
+    findBoard(boardId);
     Page<Post> posts = postRepository.findPostsByBoardId(boardId, pageable);
     return posts.map(PostSimpleResponse::new);
   }
@@ -63,15 +66,17 @@ public class PostService {
 
   @Transactional(readOnly = true)
   public Page<PostSimpleResponse> getPostsByUser(Long userId, Pageable pageable) {
+    findUser(userId);
     Page<Post> posts = postRepository.findPostsByUserId(userId, pageable);
     return posts.map(PostSimpleResponse::new);
   }
 
-//    @Transactional(readOnly = true)
-//    public Page<PostSimpleResponse> getPostsThatUserCommentedAt(Long userId, Pageable pageable) {
-//        Page<Post> posts = postRepository.findPostsThatUserCommentedAt(userId);
-//        return posts.map(PostSimpleResponse::new);
-//    }
+  @Transactional(readOnly = true)
+  public Page<PostSimpleResponse> getPostsThatUserCommentedAt(Long userId, Pageable pageable) {
+    List<Long> postIds = postRepository.findPostIdsThatUserCommentedAt(userId);
+    Page<Post> posts = postRepository.findPostsThatUserCommentedAt(postIds, pageable);
+    return posts.map(PostSimpleResponse::new);
+  }
 
   @Transactional(readOnly = true)
   public PostResponse getPost(Long postId) {
@@ -123,7 +128,7 @@ public class PostService {
   public void likePost(Long userId, Long postId) {
     Optional<PostLike> postLike = postLikeRepository.findByUserIdAndPostId(userId, postId);
     if (postLike.isPresent()) {
-      throw new NotFoundException(ErrorCode.POST_LIKE_ALREADY_EXISTS);
+      throw new LikeAlreadyExistsException(ErrorCode.POST_LIKE_ALREADY_EXISTS);
     }
     Post post = findPost(postId);
     User user = findUser(userId);

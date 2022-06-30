@@ -387,7 +387,7 @@ class PostRepositoryTest {
   }
 
   @Test
-  @DisplayName("게시글 좋아요 별 목록 조회 테스트")
+  @DisplayName("게시글 좋아요 기준 목록 조회 테스트")
   public void testFindPostsByLikeCount() {
     //Given
     for (int i = 0; i < 3; i++) {
