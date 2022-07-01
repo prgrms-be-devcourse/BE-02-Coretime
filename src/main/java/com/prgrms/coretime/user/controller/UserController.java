@@ -3,17 +3,23 @@ package com.prgrms.coretime.user.controller;
 import com.prgrms.coretime.common.ApiResponse;
 import com.prgrms.coretime.common.jwt.JwtAuthenticationToken;
 import com.prgrms.coretime.common.jwt.JwtPrincipal;
+import com.prgrms.coretime.common.util.JwtService;
+import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.dto.request.UserLocalLoginRequest;
 import com.prgrms.coretime.user.dto.response.LoginResponse;
 import com.prgrms.coretime.user.service.UserService;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,11 +28,15 @@ public class UserController {
 
   private final UserService userService;
 
+  private final JwtService jwtService;
+
   private final AuthenticationManager authenticationManager;
 
   public UserController(UserService userService,
+      JwtService jwtService,
       AuthenticationManager authenticationManager) {
     this.userService = userService;
+    this.jwtService = jwtService;
     this.authenticationManager = authenticationManager;
   }
 
@@ -34,9 +44,10 @@ public class UserController {
   public ResponseEntity<ApiResponse<LoginResponse>> localLogin(@RequestBody UserLocalLoginRequest request) {
     JwtAuthenticationToken authToken = new JwtAuthenticationToken(request.getEmail(),
         request.getPassword());
-    Authentication resultToken = authenticationManager.authenticate(authToken);
-    JwtPrincipal principal = (JwtPrincipal) resultToken.getPrincipal();
-    return ResponseEntity.ok(new ApiResponse<>("로그인 성공", new LoginResponse(principal.token, true)));
+    Authentication authentication = authenticationManager.authenticate(authToken);
+    String refreshToken = (String) authentication.getDetails();
+    JwtPrincipal principal = (JwtPrincipal) authentication.getPrincipal();
+    return ResponseEntity.ok(new ApiResponse<>("로그인 성공", new LoginResponse(principal.accessToken, refreshToken)));
   }
 
   @PostMapping("/oauth/login")
@@ -54,5 +65,15 @@ public class UserController {
     * principal.token
     * */
     return ResponseEntity.ok(new ApiResponse<>("현재 로그인한 사용자입니다.", principal));
+  }
+
+  /* TODO: 블랙아웃 처리 */
+  @GetMapping("/reissue")
+  public ResponseEntity<ApiResponse<LoginResponse>> reIssueAccessToken(@RequestParam("email") String email, @RequestParam("refreshToken") String refreshToken) {
+    User user = userService.findByEmail(email);
+    jwtService.checkRefreshToken(email, refreshToken);
+    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("USER"));
+    String newAccessToken = jwtService.createAccessToken(user.getId(), user.getSchool().getId(), user.getNickname(), user.getEmail(), authorities);
+    return ResponseEntity.ok(new ApiResponse<>("토큰이 재발급되었습니다.", new LoginResponse(newAccessToken, refreshToken)));
   }
 }

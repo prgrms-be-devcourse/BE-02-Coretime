@@ -1,9 +1,12 @@
-package com.prgrms.coretime.timetable.domain;
+package com.prgrms.coretime.timetable.domain.timetable;
 
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.LAZY;
+import static org.springframework.util.Assert.hasText;
+import static org.springframework.util.Assert.notNull;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
+import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
 import com.prgrms.coretime.user.domain.User;
 import java.util.ArrayList;
@@ -28,7 +31,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "timetable")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class TimeTable extends BaseEntity {
+public class Timetable extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -43,7 +46,7 @@ public class TimeTable extends BaseEntity {
   private Semester semester;
 
   @Column(name = "year", nullable = false)
-  private int year;
+  private Integer year;
 
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "user_id", referencedColumnName = "user_id")
@@ -53,16 +56,30 @@ public class TimeTable extends BaseEntity {
   private List<Enrollment> enrollments = new ArrayList<>();
 
   @Builder
-  public TimeTable(String name, Semester semester, int year) {
+  public Timetable(String name, Semester semester, Integer year, User user) {
+    validateTimetableField(name, semester, year, user);
     this.name = name;
     this.semester = semester;
     this.year = year;
+    this.user = user;
   }
 
-  public void setUser(User user) {
-    if (Objects.nonNull(this.user)) {
-      //
+  public void updateName(String name) {
+    validateTimetableName(name);
+    this.name = name;
+  }
+
+  private void validateTimetableField(String name, Semester semester, Integer year, User user) {
+    validateTimetableName(name);
+    notNull(semester, "semester는 null일 수 없습니다.");
+    notNull(year, "year는 null일 수 없습니다.");
+    notNull(user, "user는 null일 수 없습니다.");
+  }
+
+  private void validateTimetableName(String name) {
+    hasText(name, "name은 null이거나 빈칸일 수 없습니다.");
+    if(1 > name.length() || name.length() > 10) {
+      throw new IllegalArgumentException("name의 길이는 1 ~ 10 입니다.");
     }
-    this.user = user;
   }
 }

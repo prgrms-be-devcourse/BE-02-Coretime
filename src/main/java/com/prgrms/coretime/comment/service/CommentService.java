@@ -40,10 +40,9 @@ public class CommentService {
     return CommentCreateResponse.of(user, post, comment);
   }
 
-  public Void deleteComment(Long commentId) {
+  public void deleteComment(Long commentId) {
     Comment comment = getComment(commentId);
     comment.updateDelete();
-    return null;
   }
 
   /**
