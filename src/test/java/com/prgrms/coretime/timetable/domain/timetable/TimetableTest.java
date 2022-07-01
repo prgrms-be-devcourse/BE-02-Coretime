@@ -23,6 +23,7 @@ class TimetableTest {
               .name("홍유석의 2022년 2학기 이상적인 시간표")
               .semester(SECOND)
               .year(2022)
+              .isDefault(false)
               .build()
         );
 
@@ -37,6 +38,7 @@ class TimetableTest {
                 .name(" ")
                 .semester(SECOND)
                 .year(2022)
+                .isDefault(false)
                 .build()
         );
 
@@ -51,6 +53,7 @@ class TimetableTest {
                 .name(null)
                 .semester(SECOND)
                 .year(2022)
+                .isDefault(false)
                 .build()
         );
 
@@ -58,40 +61,49 @@ class TimetableTest {
       }
     }
 
-    @Nested
-    @DisplayName("semester 필드에 대한 검증 테스트")
-    class SemesterValidationTest{
-      @Test
-      @DisplayName("semester 필드 null 여부 검증에 대한 테스트")
-      void testSemesterNullValidation() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
-            Timetable.builder()
-                .name("기본 시간표")
-                .semester(null)
-                .year(2022)
-                .build()
-        );
+    @Test
+    @DisplayName("semester 필드 null 여부 검증에 대한 테스트")
+    void testSemesterNullValidation() {
+      Exception exception = assertThrows(IllegalArgumentException.class, () ->
+          Timetable.builder()
+              .name("기본 시간표")
+              .semester(null)
+              .year(2022)
+              .isDefault(false)
+              .build()
+      );
 
-        assertThat(exception.getMessage()).isEqualTo("semester는 null일 수 없습니다.");
-      }
+      assertThat(exception.getMessage()).isEqualTo("semester는 null일 수 없습니다.");
     }
 
-    @Nested
-    @DisplayName("year 필드에 대한 검증 테스트")
-    class YearValidationTest {
-      @Test
-      @DisplayName("year 필드 null 여부 검증에 대한 테스트")
-      void testYearNullValidation() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
-            Timetable.builder()
-                .name("기본 시간표")
-                .semester(SECOND)
-                .year(null)
-                .build()
-        );
+    @Test
+    @DisplayName("year 필드 null 여부 검증에 대한 테스트")
+    void testYearNullValidation() {
+      Exception exception = assertThrows(IllegalArgumentException.class, () ->
+          Timetable.builder()
+              .name("기본 시간표")
+              .semester(SECOND)
+              .year(null)
+              .isDefault(false)
+              .build()
+      );
 
-        assertThat(exception.getMessage()).isEqualTo("year는 null일 수 없습니다.");
-      }
+      assertThat(exception.getMessage()).isEqualTo("year는 null일 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("isDefault 필드 null 여부 검증에 대한 테스트")
+    void testIsDefaultNullValidation() {
+      Exception exception = assertThrows(IllegalArgumentException.class, () ->
+          Timetable.builder()
+              .name("기본 시간표")
+              .semester(SECOND)
+              .year(2022)
+              .isDefault(null)
+              .build()
+      );
+
+      assertThat(exception.getMessage()).isEqualTo("isDefault는 null일 수 없습니다.");
     }
   }
 }

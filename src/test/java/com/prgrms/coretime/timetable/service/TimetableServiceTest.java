@@ -50,6 +50,7 @@ class TimetableServiceTest {
       .year(2022)
       .semester(SECOND)
       .user(user)
+      .isDefault(false)
       .build();
 
 
