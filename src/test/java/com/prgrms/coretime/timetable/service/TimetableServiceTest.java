@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.prgrms.coretime.common.error.exception.NotFoundException;
+import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
@@ -41,9 +42,9 @@ class TimetableServiceTest {
       .semester(SECOND)
       .build();
 
-  private User user = LocalUser
-      .builder()
-      .build();
+  private School  school = new School("학교", "이메일@test.com");
+
+  private User user = new User("a@school.com", "testerA");
 
   private Timetable timetable = Timetable.builder()
       .name("시간표1")
@@ -65,7 +66,7 @@ class TimetableServiceTest {
       try {
         timetableService.createTimetable(timetableCreateRequest);
       }catch (Exception e) {
-        verify(timetableRepository, never()).isDuplicateTimetableName(any(), any(), any(), any());
+        verify(timetableRepository, never()).getTimetableBySameName(any(), any(), any(), any());
         verify(timetableRepository, never()).save(any());
       }
     }
@@ -74,7 +75,7 @@ class TimetableServiceTest {
     @DisplayName("시간표 이름이 중복되는 경우 테스트")
     void testCreateTimetableNameDuplicate() {
        when(userRepository.findById(any())).thenReturn(Optional.of(user));
-       when(timetableRepository.isDuplicateTimetableName(any(), any(), any(), any())).thenReturn(true);
+       when(timetableRepository.getTimetableBySameName(any(), any(), any(), any())).thenReturn(Optional.of(timetable));
 
       try {
         timetableService.createTimetable(timetableCreateRequest);
