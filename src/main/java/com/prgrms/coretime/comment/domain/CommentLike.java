@@ -42,6 +42,11 @@ public class CommentLike extends BaseEntity {
     Assert.notNull(comment, "댓글은 필수입니다.");
     this.id = new CommentLikeId(user.getId(), comment.getId());
     this.user = user;
+    setComment(comment);
+  }
+
+  public void setComment(Comment comment) {
     this.comment = comment;
+    comment.getLikes().add(this);
   }
 }
