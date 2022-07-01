@@ -17,16 +17,15 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public boolean isDuplicateTimetableName(Long userId, String name, Integer year, Semester semester) {
-    long numberOfDuplicateNameTable = queryFactory
-        .select(timetable.count())
-        .from(timetable)
-        .where(
-            getDuplicateNameTableCondition(userId, name, year, semester)
-        )
-        .fetchOne();
-
-    return numberOfDuplicateNameTable > 0 ? true : false;
+  public Optional<Timetable> getTimetableBySameName(Long userId, String name, Integer year, Semester semester) {
+    return Optional.ofNullable(
+        queryFactory
+            .selectFrom(timetable)
+            .where(
+                getSameTableCondition(userId, name, year, semester)
+            )
+            .fetchOne()
+    );
   }
 
   @Override
@@ -43,12 +42,35 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
   @Override
   public Optional<Timetable> getTimetableByUserIdAndTimetableId(Long userId, Long timetableId) {
     return Optional.ofNullable(queryFactory
-        .select(timetable)
-        .from(timetable)
+        .selectFrom(timetable)
         .where(
             getTimetableCondition(userId, timetableId)
         )
         .fetchOne());
+  }
+
+  @Override
+  public Optional<Timetable> getDefaultTimetable(Long userId, Integer year, Semester semester) {
+    return Optional.ofNullable(queryFactory
+        .selectFrom(timetable)
+        .where(
+            getDefaultTimetableCondition(userId, year, semester)
+        )
+        .fetchOne()
+    );
+  }
+
+  @Override
+  public boolean isFirstTimetable(Long userId, Integer year, Semester semester) {
+    long countOfTimetable = queryFactory
+        .select(timetable.count())
+        .from(timetable)
+        .where(
+            getCountOfTableCondition(userId, year, semester)
+        )
+        .fetchOne();
+
+    return countOfTimetable == 0 ? true : false;
   }
 
   @Override
@@ -59,16 +81,16 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
         .execute();
   }
 
-  private BooleanBuilder getDuplicateNameTableCondition(Long userId, String name, Integer year, Semester semester) {
-    BooleanBuilder duplicateNameTableCondition = new BooleanBuilder();
+  private BooleanBuilder getSameTableCondition(Long userId, String name, Integer year, Semester semester) {
+    BooleanBuilder sameNameTableCondition = new BooleanBuilder();
 
-    duplicateNameTableCondition
+    sameNameTableCondition
         .and(userIdEq(userId))
         .and(yearEq(year))
         .and(semesterEq(semester))
         .and(nameEq(name));
 
-    return duplicateNameTableCondition;
+    return sameNameTableCondition;
   }
 
   private BooleanBuilder getTimetablesCondition(Long userId, Integer year, Semester semester) {
@@ -90,6 +112,29 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
         .and(timetableIdEq(timetableId));
 
     return timetableCondition;
+  }
+
+  private BooleanBuilder getDefaultTimetableCondition(Long userId, Integer year, Semester semester) {
+    BooleanBuilder defaultTableCondition = new BooleanBuilder();
+
+    defaultTableCondition
+        .and(userIdEq(userId))
+        .and(yearEq(year))
+        .and(semesterEq(semester))
+        .and(timetable.isDefault.eq(true));
+
+    return defaultTableCondition;
+  }
+
+  private BooleanBuilder getCountOfTableCondition(Long userId, Integer year, Semester semester) {
+    BooleanBuilder countOfTableCondition = new BooleanBuilder();
+
+    countOfTableCondition
+        .and(userIdEq(userId))
+        .and(yearEq(year))
+        .and(semesterEq(semester));
+
+    return countOfTableCondition;
   }
 
   private BooleanExpression userIdEq(Long userId) {
