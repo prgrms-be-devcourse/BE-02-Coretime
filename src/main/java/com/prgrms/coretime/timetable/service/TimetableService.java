@@ -163,8 +163,11 @@ public class TimetableService {
     lectureDetailRepository.deleteLectureDetailsByLectureIds(customLectureIds);
     lectureRepository.deleteLectureByLectureIds(customLectureIds);
     timetableRepository.deleteByTimetableId(timetable.getId());
-
-    // 기본 시간표 권한 넘겨 주기
+    
+    if(timetable.getIsDefault()) {
+      timetableRepository.getRecentlyAddedTimetable(userId, timetable.getYear(), timetable.getSemester())
+          .ifPresent(newDefaultTimetable -> newDefaultTimetable.makeDefault());
+    }
   }
 
   private Timetable getTimetableOfUser(Long userId, Long timetableId) {
