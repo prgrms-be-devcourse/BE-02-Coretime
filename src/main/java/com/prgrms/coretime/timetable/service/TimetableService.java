@@ -22,6 +22,7 @@ import com.prgrms.coretime.timetable.dto.response.TimetableResponse;
 import com.prgrms.coretime.timetable.dto.response.TimetablesResponse;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
+import java.sql.Time;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -52,7 +53,7 @@ public class TimetableService {
     Integer year = timetableCreateRequest.getYear();
     Semester semester = timetableCreateRequest.getSemester();
 
-    if(timetableRepository.isDuplicateTimetableName(userId, timetableName, year, semester)) {
+    if(timetableRepository.getTimetableBySameName(userId, timetableName, year, semester).isPresent()) {
       throw new IllegalArgumentException("이미 사용중인 이름입니다.");
     }
 
@@ -61,6 +62,7 @@ public class TimetableService {
         .year(year)
         .semester(semester)
         .user(user)
+        .isDefault(timetableRepository.isFirstTimetable(userId, year, semester))
         .build();
 
     Timetable createdTimetable = timetableRepository.save(newTimetable);
@@ -73,7 +75,7 @@ public class TimetableService {
 
     Long userId = 1L;
     List<TimetableInfo> timetables = timetableRepository.getTimetables(userId, year, semester).stream()
-        .map(timetable -> new TimetableInfo(timetable.getId(), timetable.getName()))
+        .map(timetable -> new TimetableInfo(timetable.getId(), timetable.getName(), timetable.getIsDefault()))
         .collect(Collectors.toList());
 
     return new TimetablesResponse(timetables);
@@ -115,21 +117,43 @@ public class TimetableService {
         .name(timetable.getName())
         .year(timetable.getYear())
         .semester(timetable.getSemester())
+        .isDefault(timetable.getIsDefault())
         .lectures(lectures)
         .build();
   }
+
+  // TODO : 기본 시간표 조회
+  // 기본 시간표 조회
 
   // TODO : 친구 시간표 조회
   // (userId = 사용자의 ID) or (userId != 사용자의 ID and userId와 사용자의 Id 친구)
 
   @Transactional
-  public void updateTimetableName(Long timetableId, TimetableUpdateRequest timetableUpdateRequest) {
+  public void updateTimetable(Long timetableId, TimetableUpdateRequest timetableUpdateRequest) {
     // TODO : 사용자 ID 가져오는 로직이 필요하다.
-
     Long userId = 1L;
     Timetable timetable = getTimetableOfUser(userId, timetableId);
 
-    timetable.updateName(timetableUpdateRequest.getName().trim());
+    String updatedTimetableName = timetableUpdateRequest.getName().trim();
+    Integer year = timetable.getYear();
+    Semester semester = timetable.getSemester();
+    Boolean updatedIsDefault = timetableUpdateRequest.getIsDefault();
+
+    Timetable sameNameTable = timetableRepository.getTimetableBySameName(userId, updatedTimetableName, year, semester).orElse(timetable);
+    if(timetable != sameNameTable) {
+      throw new IllegalArgumentException("이미 사용중인 이름입니다.");
+    }
+
+    timetable.updateName(updatedTimetableName.trim());
+
+    if(updatedIsDefault) {
+      Timetable preDefaultTimetable = timetableRepository
+          .getDefaultTimetable(userId, timetable.getYear(), timetable.getSemester())
+          .orElseThrow(() -> new NotFoundException(NOT_FOUND));
+
+      preDefaultTimetable.makeNonDefault();
+      timetable.makeDefault();
+    }
   }
 
   @Transactional

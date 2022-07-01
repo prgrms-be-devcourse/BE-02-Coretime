@@ -73,10 +73,12 @@ public class TimetableController {
         .body(apiResponse);
   }
 
-  @ApiOperation(value = "시간표 이름 변경", notes = "시간표의 이름을 변경합니다.")
+
+  // 이름 변경, 시간표 변경 같이
+  @ApiOperation(value = "시간표 정보 변경", notes = "시간표의 이름과 기본 시간표 여부를 변경합니다.")
   @PatchMapping("/{timetableId}")
   public ResponseEntity<ApiResponse> updateTimetableName(@PathVariable Long timetableId, @RequestBody @Valid TimetableUpdateRequest timetableUpdateRequest) {
-    timetableService.updateTimetableName(timetableId, timetableUpdateRequest);
+    timetableService.updateTimetable(timetableId, timetableUpdateRequest);
 
     ApiResponse apiResponse = new ApiResponse("시간표 이름 수정 완료");
 
