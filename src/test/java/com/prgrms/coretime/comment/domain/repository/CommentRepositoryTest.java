@@ -14,6 +14,7 @@ import com.prgrms.coretime.school.domain.respository.SchoolRepository;
 import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
+import java.nio.channels.IllegalChannelGroupException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeAll;
@@ -26,11 +27,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 @DataJpaTest
-@Transactional
-@Rollback(false) // query 확인하기 위해서
+@Rollback(false) // query 확인하기 위해서 추후 지우겠습니당.
 @ActiveProfiles("test")
 @Import(TestConfig.class)
 @TestInstance(Lifecycle.PER_CLASS)
@@ -180,4 +179,19 @@ class CommentRepositoryTest {
     assertThat(masterPost.getComments().size()).isEqualTo(3);
   }
 
+  @Test
+  @DisplayName("update Delete 제대로 저장 되는지")
+  public void testDelete() {
+    Comment calledParent = commentRepository.findById(parent.getId())
+        .orElseThrow(IllegalChannelGroupException::new);
+    calledParent.updateDelete();
+
+    em.flush();
+    em.clear();
+
+    Comment updatedComment = commentRepository.findById(parent.getId())
+        .orElseThrow(IllegalArgumentException::new);
+
+    assertThat(updatedComment.getIsDelete()).isTrue();
+  }
 }
