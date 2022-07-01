@@ -1,13 +1,17 @@
 package com.prgrms.coretime.post.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.prgrms.coretime.common.util.JwtService;
 import com.prgrms.coretime.post.domain.Board;
 import com.prgrms.coretime.post.domain.BoardType;
 import com.prgrms.coretime.post.domain.repository.BoardRepository;
+import com.prgrms.coretime.post.dto.request.PostCreateRequest;
 import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.school.domain.respository.SchoolRepository;
 import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,10 +19,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,9 +42,14 @@ class PostControllerTest {
   private UserRepository userRepository;
   @Autowired
   private BoardRepository boardRepository;
+  @Autowired
+  private JwtService jwtService;
+  @Autowired
+  ObjectMapper objectMapper;
 
   User currentUser;
   Board board;
+  String accessToken;
 
   @BeforeEach
   void setUp() {
@@ -58,13 +70,22 @@ class PostControllerTest {
         .school(school)
         .password("1q2w3e")
         .build());
+
+    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("USER"));
+    accessToken = jwtService.createAccessToken(
+        currentUser.getId(),
+        currentUser.getSchool().getId(),
+        currentUser.getNickname(),
+        currentUser.getEmail(),
+        authorities
+    );
   }
 
   @Test
   @DisplayName("게시판 별 게시글 조회 api 테스트")
   public void testShowPostsByBoard() throws Exception {
     mockMvc.perform(get("/api/v1/boards/{boardId}/posts", board.getId())
-        .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andDo(print());
   }
@@ -88,6 +109,30 @@ class PostControllerTest {
         .andDo(print());
   }
 
+  @Test
+  @DisplayName("게시글 생성 api 테스트")
+  public void testCreatePost() throws Exception {
+    PostCreateRequest createRequest = PostCreateRequest.builder()
+        .content("내용")
+        .title("제목")
+        .isAnonymous(true)
+        .build();
 
+    mockMvc.perform(post("/api/v1/boards/{boardId}/posts", board.getId())
+            .header("accessToken", accessToken)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(createRequest)))
+        .andExpect(status().isCreated())
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("핫 게시판 게시글 조회 api 테스트")
+  public void testShowHotPosts() throws Exception {
+    mockMvc.perform(get("/api/v1/posts/hot")
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
 
 }
