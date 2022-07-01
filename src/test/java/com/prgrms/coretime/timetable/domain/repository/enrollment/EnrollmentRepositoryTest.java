@@ -56,6 +56,7 @@ class EnrollmentRepositoryTest {
         .year(2022)
         .semester(FIRST)
         .user(user)
+        .isDefault(false)
         .build();
     em.persist(timetable);
 

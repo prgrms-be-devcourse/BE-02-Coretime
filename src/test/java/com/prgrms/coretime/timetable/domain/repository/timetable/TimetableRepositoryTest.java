@@ -51,6 +51,7 @@ class TimetableRepositoryTest {
           .year(2022)
           .semester(i <= 4 ? FIRST : SECOND)
           .user(i % 2 == 0 ? userA : userB)
+          .isDefault(false)
           .build();
       em.persist(timetable);
       timetables.add(timetable);
