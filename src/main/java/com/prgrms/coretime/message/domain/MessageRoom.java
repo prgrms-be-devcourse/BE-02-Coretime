@@ -2,7 +2,7 @@ package com.prgrms.coretime.message.domain;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.post.domain.Post;
-import com.prgrms.coretime.user.domain.User;
+import com.prgrms.coretime.user.domain.TestUser;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
@@ -15,8 +15,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.Assert;
 
 @Entity
 @Table(name = "message_room")
@@ -31,20 +33,37 @@ public class MessageRoom extends BaseEntity {
 
   @ManyToOne
   @JoinColumn(name = "initial_sender_id", referencedColumnName = "user_id")
-  private User initialSender;
+  private TestUser initialSender;
 
   @ManyToOne
   @JoinColumn(name = "initial_receiver_id", referencedColumnName = "user_id")
-  private User initialReceiver;
+  private TestUser initialReceiver;
 
   @ManyToOne
   @JoinColumn(name = "created_from", referencedColumnName = "post_id")
   private Post createdFrom;
+
+  @Column(name = "is_anonymous", nullable = false)
+  private Boolean isAnonymous;
 
   @Column(name = "is_blocked", nullable = false)
   private Boolean isBlocked;
 
   @OneToMany(mappedBy = "messageRoom")
   private List<Message> messages = new ArrayList<>();
+
+  @Builder
+  public MessageRoom(TestUser initialSender, TestUser initialReceiver, Post createdFrom, Boolean isAnonymous) {
+    Assert.notNull(initialSender, "initialSender는 null이 아니어야 합니다.");
+    Assert.notNull(initialReceiver, "initialReceiver는 null이 아니어야 합니다.");
+    Assert.notNull(createdFrom, "createdFrom은 null이 아니어야 합니다.");
+    Assert.notNull(isAnonymous, "isAnonymous는 null이 아이어야 합니다.");
+
+    this.initialSender = initialSender;
+    this.initialReceiver = initialReceiver;
+    this.createdFrom = createdFrom;
+    this.isAnonymous = isAnonymous;
+    this.isBlocked = false;
+  }
 
 }
