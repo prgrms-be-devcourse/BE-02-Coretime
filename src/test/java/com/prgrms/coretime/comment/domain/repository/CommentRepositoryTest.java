@@ -18,7 +18,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -126,34 +125,59 @@ class CommentRepositoryTest {
     setComment();
   }
 
-  @Nested
-  @DisplayName("댓글을 저장할 때 ")
-  class Describe_Save {
+  @Test
+  @DisplayName("부모 댓글과 자식 댓글이 양방향으로 연결 되어 있는지")
+  public void testParentChild() {
+    Comment child = Comment.builder()
+        .user(user)
+        .post(anonyPost)
+        .parent(parent)
+        .isAnonymous(true)
+        .content("나는 자식댓글")
+        .build();
 
-    @Test
-    @DisplayName("부모 댓글과 자식 댓글이 양방향으로 연결 되어 있는지")
-    public void testParentChild() {
-      Comment child = Comment.builder()
-          .user(user)
-          .post(anonyPost)
-          .parent(parent)
-          .isAnonymous(true)
-          .content("나는 자식댓글")
-          .build();
+    Comment savedChild = commentRepository.save(child);
 
-      Comment savedChild = commentRepository.save(child);
+    em.flush();
+    em.clear();
 
-      em.flush();
-      em.clear();
+    Comment calledChild = commentRepository.findById(savedChild.getId())
+        .orElseThrow(IllegalArgumentException::new);
+    Comment calledParent = commentRepository.findById(parent.getId())
+        .orElseThrow(IllegalArgumentException::new);
 
-      Comment calledChild = commentRepository.findById(savedChild.getId()).get();
-      Comment calledParent = commentRepository.findById(parent.getId()).get();
-
-      assertThat(calledChild.getParent()).isEqualTo(calledParent);
-    }
-
-
+    assertThat(calledChild.getParent()).isEqualTo(calledParent);
   }
 
+  @Test
+  @DisplayName("Post의 댓글 제대로 들어가있는지 파악하기")
+  public void testCommentOfPost() {
+    Comment realComment = Comment.builder()
+        .user(user)
+        .post(anonyPost)
+        .parent(null)
+        .isAnonymous(false)
+        .content("나는 실명댓글")
+        .build();
+
+    Comment child = Comment.builder()
+        .user(user)
+        .post(anonyPost)
+        .parent(parent)
+        .isAnonymous(true)
+        .content("나는 자식댓글")
+        .build();
+
+    Comment savedRealParent = commentRepository.save(realComment);
+    Comment savedChild = commentRepository.save(child);
+
+    em.flush();
+    em.clear();
+
+    Post masterPost = postRepository.findById(anonyPost.getId())
+        .orElseThrow(IllegalArgumentException::new);
+
+    assertThat(masterPost.getComments().size()).isEqualTo(3);
+  }
 
 }
