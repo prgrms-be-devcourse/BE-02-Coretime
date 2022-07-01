@@ -122,10 +122,15 @@ public class PostController {
   }
 
   @DeleteMapping("/{postId}")
-  public void deletePost(
+  public ResponseEntity<ApiResponse<Void>> deletePost(
       @PathVariable(name = "postId") Long postId
   ) {
     postService.deletePost(postId);
+    return ResponseEntity.ok(
+        new ApiResponse<>(
+            "게시글 삭제"
+        )
+    );
   }
 
   @GetMapping()
@@ -138,25 +143,35 @@ public class PostController {
   ) {
     return ResponseEntity.ok(
         new ApiResponse<>(
-            "게시글 검색",
+            "전체 게시글 검색",
             postService.searchPosts(keyword, pageable)
         )
     );
   }
 
   @PostMapping("/{postId}/like")
-  public void likePost(
+  public ResponseEntity<ApiResponse<Void>> likePost(
       @PathVariable(name = "postId") Long postId,
       @AuthenticationPrincipal JwtPrincipal principal
   ) {
     postService.likePost(principal.userId, postId);
+    return ResponseEntity.ok(
+        new ApiResponse<>(
+            "게시글 좋아요"
+        )
+    );
   }
 
   @DeleteMapping("/{postId}/like")
-  public void unlikePost(
+  public ResponseEntity<ApiResponse<Void>> unlikePost(
       @PathVariable(name = "postId") Long postId,
       @AuthenticationPrincipal JwtPrincipal principal
   ) {
     postService.unlikePost(principal.userId, postId);
+    return ResponseEntity.ok(
+        new ApiResponse<>(
+            "게시글 좋아요 취소"
+        )
+    );
   }
 }

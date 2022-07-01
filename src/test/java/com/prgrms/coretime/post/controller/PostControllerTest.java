@@ -4,8 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prgrms.coretime.common.util.JwtService;
 import com.prgrms.coretime.post.domain.Board;
 import com.prgrms.coretime.post.domain.BoardType;
+import com.prgrms.coretime.post.domain.Post;
 import com.prgrms.coretime.post.domain.repository.BoardRepository;
+import com.prgrms.coretime.post.domain.repository.PostRepository;
 import com.prgrms.coretime.post.dto.request.PostCreateRequest;
+import com.prgrms.coretime.post.dto.request.PostUpdateRequest;
 import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.school.domain.respository.SchoolRepository;
 import com.prgrms.coretime.user.domain.LocalUser;
@@ -24,7 +27,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -46,6 +51,8 @@ class PostControllerTest {
   private JwtService jwtService;
   @Autowired
   ObjectMapper objectMapper;
+  @Autowired
+  PostRepository postRepository;
 
   User currentUser;
   Board board;
@@ -84,7 +91,9 @@ class PostControllerTest {
   @Test
   @DisplayName("게시판 별 게시글 조회 api 테스트")
   public void testShowPostsByBoard() throws Exception {
+    //Given //When //Then
     mockMvc.perform(get("/api/v1/boards/{boardId}/posts", board.getId())
+            .header("accessToken", accessToken)
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andDo(print());
@@ -93,7 +102,9 @@ class PostControllerTest {
   @Test
   @DisplayName("게시판 별 게시글 검색 api 테스트")
   public void testSearchPostsAtBoard() throws Exception {
+    //Given //When //Then
     mockMvc.perform(get("/api/v1/boards/{boardId}/posts/search", board.getId())
+            .header("accessToken", accessToken)
             .param("keyword", "테스트")
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -103,7 +114,9 @@ class PostControllerTest {
   @Test
   @DisplayName("게시판 별 게시글 검색 api 키워드 없이 검색 테스트")
   public void testSearchPostsAtBoardWithNoKeyword() throws Exception {
+    //Given //When //Then
     mockMvc.perform(get("/api/v1/boards/{boardId}/posts/search", board.getId())
+            .header("accessToken", accessToken)
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest())
         .andDo(print());
@@ -112,12 +125,14 @@ class PostControllerTest {
   @Test
   @DisplayName("게시글 생성 api 테스트")
   public void testCreatePost() throws Exception {
+    //Given
     PostCreateRequest createRequest = PostCreateRequest.builder()
         .content("내용")
         .title("제목")
         .isAnonymous(true)
         .build();
 
+    //When //Then
     mockMvc.perform(post("/api/v1/boards/{boardId}/posts", board.getId())
             .header("accessToken", accessToken)
             .contentType(MediaType.APPLICATION_JSON)
@@ -127,12 +142,253 @@ class PostControllerTest {
   }
 
   @Test
+  @DisplayName("빈 제목의 게시글 생성 api 테스트")
+  public void testCreatePostWithBlankTitle() throws Exception {
+    //Given
+    PostCreateRequest createRequest = PostCreateRequest.builder()
+        .content("내용")
+        .title("   ")
+        .isAnonymous(true)
+        .build();
+
+    //When //Then
+    mockMvc.perform(post("/api/v1/boards/{boardId}/posts", board.getId())
+            .header("accessToken", accessToken)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(createRequest)))
+        .andExpect(status().isBadRequest())
+        .andDo(print());
+  }
+
+  @Test
   @DisplayName("핫 게시판 게시글 조회 api 테스트")
   public void testShowHotPosts() throws Exception {
+    //Given //When //Then
     mockMvc.perform(get("/api/v1/posts/hot")
+            .header("accessToken", accessToken)
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andDo(print());
   }
 
+  @Test
+  @DisplayName("베스트 게시판 게시글 조회 api 테스트")
+  public void testShowBestPosts() throws Exception {
+    //Given //When //Then
+    mockMvc.perform(get("/api/v1/posts/best")
+            .header("accessToken", accessToken)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("내 게시글 조회 api 테스트")
+  public void testShowMyPosts() throws Exception {
+    //Given //When //Then
+    mockMvc.perform(get("/api/v1/posts/my")
+            .header("accessToken", accessToken)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("댓글 단 글 조회 api 테스트")
+  public void testShowMyCommentedPosts() throws Exception {
+    //Given //When //Then
+    mockMvc.perform(get("/api/v1/posts/mycomment")
+            .header("accessToken", accessToken)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("게시글 상세 조회 api 테스트")
+  public void testShowPost() throws Exception {
+    //Given
+    Post post = postRepository.save(Post.builder()
+        .user(currentUser)
+        .content("내용")
+        .title("제목")
+        .isAnonymous(true)
+        .board(board)
+        .build());
+
+    //When //Then
+    mockMvc.perform(get("/api/v1/posts/{postId}", post.getId())
+            .header("accessToken", accessToken)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("잘못된 게시글 상세 조회 api 테스트")
+  public void testShowInvalidPost() throws Exception {
+    //Given //When //Then
+    mockMvc.perform(get("/api/v1/posts/{postId}", 9999)
+            .header("accessToken", accessToken)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest())
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("게시글 수정 api 테스트")
+  public void testUpdatePost() throws Exception {
+    //Given
+    Post post = postRepository.save(Post.builder()
+        .user(currentUser)
+        .content("내용")
+        .title("제목")
+        .isAnonymous(true)
+        .board(board)
+        .build());
+    PostUpdateRequest updateRequest = new PostUpdateRequest("변경된 제목", "변경된 내용");
+
+    //When //Then
+    mockMvc.perform(patch("/api/v1/posts/{postId}", post.getId())
+            .header("accessToken", accessToken)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(updateRequest)))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("빈 제목의 게시글 수정 api 테스트")
+  public void testUpdatePostWithBlankTitle() throws Exception {
+    //Given
+    Post post = postRepository.save(Post.builder()
+        .user(currentUser)
+        .content("내용")
+        .title("제목")
+        .isAnonymous(true)
+        .board(board)
+        .build());
+    PostUpdateRequest updateRequest = new PostUpdateRequest("   ", "변경된 내용");
+
+    //When //Then
+    mockMvc.perform(patch("/api/v1/posts/{postId}", post.getId())
+            .header("accessToken", accessToken)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(updateRequest)))
+        .andExpect(status().isBadRequest())
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("게시글 삭제 api 테스트")
+  public void testDeletePost() throws Exception {
+    //Given
+    Post post = postRepository.save(Post.builder()
+        .user(currentUser)
+        .content("내용")
+        .title("제목")
+        .isAnonymous(true)
+        .board(board)
+        .build());
+
+    //When //Then
+    mockMvc.perform(delete("/api/v1/posts/{postId}", post.getId())
+            .header("accessToken", accessToken)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("전체 게시글 검색 api 테스트")
+  public void testSearchPost() throws Exception {
+    //Given //When //Then
+    mockMvc.perform(get("/api/v1/posts")
+            .header("accessToken", accessToken)
+            .param("keyword", "테스트")
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("전체 게시글 검색 api 키워드 없이 검색 테스트")
+  public void testSearchPostWithNoKeyword() throws Exception {
+    //Given //When //Then
+    mockMvc.perform(get("/api/v1/posts")
+            .header("accessToken", accessToken)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest())
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("게시글 좋아요 및 좋아요 취소 api 테스트")
+  public void testLikeAndUnlikePost() throws Exception {
+    //Given
+    Post post = postRepository.save(Post.builder()
+        .user(currentUser)
+        .content("내용")
+        .title("제목")
+        .isAnonymous(true)
+        .board(board)
+        .build());
+
+    //When //Then
+    mockMvc.perform(post("/api/v1/posts/{postId}/like", post.getId())
+            .header("accessToken", accessToken)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andDo(print());
+    mockMvc.perform(delete("/api/v1/posts/{postId}/like", post.getId())
+            .header("accessToken", accessToken)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("게시글 중복 좋아요 api 테스트")
+  public void testDuplicatedLikePost() throws Exception {
+    //Given
+    Post post = postRepository.save(Post.builder()
+        .user(currentUser)
+        .content("내용")
+        .title("제목")
+        .isAnonymous(true)
+        .board(board)
+        .build());
+
+    //When //Then
+    mockMvc.perform(post("/api/v1/posts/{postId}/like", post.getId())
+            .header("accessToken", accessToken)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andDo(print());
+    mockMvc.perform(post("/api/v1/posts/{postId}/like", post.getId())
+            .header("accessToken", accessToken)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest())
+        .andDo(print());
+  }
+
+  @Test
+  @DisplayName("게시글 잘못된 좋아요 취소 api 테스트")
+  public void testInvalidUnlikePost() throws Exception {
+    //Given
+    Post post = postRepository.save(Post.builder()
+        .user(currentUser)
+        .content("내용")
+        .title("제목")
+        .isAnonymous(true)
+        .board(board)
+        .build());
+
+    //When //Then
+    mockMvc.perform(delete("/api/v1/posts/{postId}/like", post.getId())
+            .header("accessToken", accessToken)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest())
+        .andDo(print());
+  }
 }
