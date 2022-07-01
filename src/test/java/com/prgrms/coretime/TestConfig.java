@@ -10,7 +10,8 @@ import org.springframework.context.annotation.Bean;
 public class TestConfig {
 
   @PersistenceContext
-  private EntityManager entityManager;
+
+  EntityManager entityManager;
 
   @Bean
   public JPAQueryFactory jpaQueryFactory() {
@@ -18,3 +19,4 @@ public class TestConfig {
   }
 
 }
+
