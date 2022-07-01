@@ -98,18 +98,14 @@ public class Comment extends BaseEntity {
 
   // Parent - Child 댓글 대댓글 양방향.
   public void setParent(Comment parent) {
-    if (Objects.nonNull((this.parent))) {
-      this.parent.getChildren().remove(this);
-    } else {
-      //생성시 parent가 null 진행 종료
+    if (Objects.isNull(parent)) {
       return;
     }
-
     this.parent = parent;
     parent.getChildren().add(this);
   }
 
-  public void addComment(Comment child) {
+  public void addChild(Comment child) {
     child.setParent(this);
   }
 

@@ -1,5 +1,7 @@
 package com.prgrms.coretime.comment.domain.repository;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 import com.prgrms.coretime.TestConfig;
 import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.post.domain.Board;
@@ -8,23 +10,35 @@ import com.prgrms.coretime.post.domain.BoardType;
 import com.prgrms.coretime.post.domain.Post;
 import com.prgrms.coretime.post.domain.PostRepository;
 import com.prgrms.coretime.school.domain.School;
+import com.prgrms.coretime.school.domain.respository.SchoolRepository;
 import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 @DataJpaTest
+@Transactional
+@Rollback(false) // query 확인하기 위해서
 @ActiveProfiles("test")
 @Import(TestConfig.class)
+@TestInstance(Lifecycle.PER_CLASS)
 class CommentRepositoryTest {
+
+  @PersistenceContext
+  EntityManager em;
 
   @Autowired
   private UserRepository userRepository;
@@ -38,15 +52,23 @@ class CommentRepositoryTest {
   @Autowired
   private CommentRepository commentRepository;
 
+  @Autowired
+  private SchoolRepository schoolRepository;
+
   private User user;
 
   private Board board;
 
   private Post anonyPost;
 
-  private Comment comment;
+  private Comment parent;
 
-  School testSchool = new School("university", "university@university.ac.kr");
+  private School school;
+
+  void setSchool() {
+    school = new School("university", "university@university.ac.kr");
+    school = schoolRepository.save(school);
+  }
 
   void setUser() {
     String localTestEmail = "local@university.ac.kr";
@@ -55,7 +77,7 @@ class CommentRepositoryTest {
         .profileImage("sample link")
         .email(localTestEmail)
         .name("student_local")
-        .school(testSchool)
+        .school(school)
         .password("test1234!")
         .build();
     user = userRepository.save(user);
@@ -65,7 +87,7 @@ class CommentRepositoryTest {
     board = Board.builder()
         .category(BoardType.BASIC)
         .name("게시판")
-        .school(testSchool)
+        .school(school)
         .build();
     board = boardRepository.save(board);
   }
@@ -81,19 +103,22 @@ class CommentRepositoryTest {
         .user(user)
         .board(board)
         .build();
+    anonyPost = postRepository.save(anonyPost);
   }
 
   void setComment() {
-    comment = Comment.builder()
+    parent = Comment.builder()
         .user(user)
         .post(anonyPost)
         .parent(null)
         .isAnonymous(true)
         .content("응 근데 테스트 안짜면 니 망해~")
         .build();
+
+    parent = commentRepository.save(parent);
   }
 
-  @BeforeEach
+  @BeforeAll
   void setup() {
     setUser();
     setBoard();
@@ -101,31 +126,33 @@ class CommentRepositoryTest {
     setComment();
   }
 
-  @AfterEach
-  void tearDown() {
-    userRepository.delete(user);
-    boardRepository.delete(board);
-    postRepository.delete(anonyPost);
-    commentRepository.delete(comment);
-  }
-
   @Nested
   @DisplayName("댓글을 저장할 때 ")
   class Describe_Save {
 
-    @Nested
-    @DisplayName("Happy Path 테스트 중에서 ")
-    class Describe_HappyPath {
+    @Test
+    @DisplayName("부모 댓글과 자식 댓글이 양방향으로 연결 되어 있는지")
+    public void testParentChild() {
+      Comment child = Comment.builder()
+          .user(user)
+          .post(anonyPost)
+          .parent(parent)
+          .isAnonymous(true)
+          .content("나는 자식댓글")
+          .build();
 
-      @Test
-      @DisplayName("값이 올바르게 저장되는지")
-      public void test() {
-        System.out.println(user.getId());
-        System.out.println(board.getId());
-        System.out.println(anonyPost.getId());
-        System.out.println(comment.getId());
-      }
+      Comment savedChild = commentRepository.save(child);
+
+      em.flush();
+      em.clear();
+
+      Comment calledChild = commentRepository.findById(savedChild.getId()).get();
+      Comment calledParent = commentRepository.findById(parent.getId()).get();
+
+      assertThat(calledChild.getParent()).isEqualTo(calledParent);
     }
+
+
   }
 
 
