@@ -2,13 +2,14 @@ package com.prgrms.coretime.post.dto.response;
 
 import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.post.domain.Post;
+import java.util.List;
 import lombok.Builder;
 import org.springframework.data.domain.Page;
 
 public record PostResponse(Long postId, BoardSimpleResponse board,
-                           UserSimpleResponse user, String title,
+                           Long userId, String nickname, String title,
                            String content, Boolean isAnonymous,
-                           Page<CommentResponse> comments,
+                           List<CommentResponse> comments,
                            Integer likeCount) {
 
   @Builder
@@ -19,11 +20,12 @@ public record PostResponse(Long postId, BoardSimpleResponse board,
     this(
         entity.getId(),
         new BoardSimpleResponse(entity.getBoard()),
-        new UserSimpleResponse(entity.getUser()),
+        entity.getUser().getId(),
+        entity.getIsAnonymous() ? "익명" : entity.getUser().getNickname(),
         entity.getTitle(),
         entity.getContent(),
         entity.getIsAnonymous(),
-        comments.map(CommentResponse::new),
+        comments.getContent().stream().map(CommentResponse::new).toList(),
         entity.getLikeCount()
     );
   }

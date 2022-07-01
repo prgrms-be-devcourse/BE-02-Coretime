@@ -2,6 +2,7 @@ package com.prgrms.coretime.post.domain;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.school.domain.School;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;

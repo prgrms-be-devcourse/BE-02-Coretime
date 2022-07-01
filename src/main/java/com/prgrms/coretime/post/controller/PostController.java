@@ -1,6 +1,7 @@
 package com.prgrms.coretime.post.controller;
 
 import com.prgrms.coretime.common.ApiResponse;
+import com.prgrms.coretime.common.jwt.JwtPrincipal;
 import com.prgrms.coretime.post.dto.request.PostUpdateRequest;
 import com.prgrms.coretime.post.dto.response.PostIdResponse;
 import com.prgrms.coretime.post.dto.response.PostResponse;
@@ -11,8 +12,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping("/api/v1/posts")
 @RestController
@@ -27,7 +37,7 @@ public class PostController {
   @GetMapping("/hot")
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showHotPosts(
       @RequestParam(required = false) @PageableDefault(
-          sort = {"created_at"},
+          sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable
   ) {
@@ -42,7 +52,7 @@ public class PostController {
   @GetMapping("/best")
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showBestPosts(
       @RequestParam(required = false) @PageableDefault(
-          sort = {"created_at"},
+          sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable
   ) {
@@ -57,15 +67,15 @@ public class PostController {
   @GetMapping("/my")
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showMyPosts(
       @RequestParam(required = false) @PageableDefault(
-          sort = {"created_at"},
+          sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable,
-      Long userId
+      @AuthenticationPrincipal JwtPrincipal principal
   ) {
     return ResponseEntity.ok(
         new ApiResponse<>(
             "내 게시글 목록",
-            postService.getPostsByUser(userId, pageable)
+            postService.getPostsByUser(principal.userId, pageable)
         )
     );
   }
@@ -73,15 +83,15 @@ public class PostController {
   @GetMapping("/mycomment")
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showMyCommentedPosts(
       @RequestParam(required = false) @PageableDefault(
-          sort = {"created_at"},
+          sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable,
-      Long userId
+      @AuthenticationPrincipal JwtPrincipal principal
   ) {
     return ResponseEntity.ok(
         new ApiResponse<>(
             "내 게시글 목록",
-            postService.getPostsThatUserCommentedAt(userId, pageable)
+            postService.getPostsThatUserCommentedAt(principal.userId, pageable)
         )
     );
   }
@@ -112,41 +122,56 @@ public class PostController {
   }
 
   @DeleteMapping("/{postId}")
-  public void deletePost(
+  public ResponseEntity<ApiResponse<Void>> deletePost(
       @PathVariable(name = "postId") Long postId
   ) {
     postService.deletePost(postId);
+    return ResponseEntity.ok(
+        new ApiResponse<>(
+            "게시글 삭제"
+        )
+    );
   }
 
   @GetMapping()
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> searchPosts(
       @RequestParam String keyword,
       @RequestParam(required = false) @PageableDefault(
-          sort = {"created_at"},
+          sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable
   ) {
     return ResponseEntity.ok(
         new ApiResponse<>(
-            "게시글 검색",
+            "전체 게시글 검색",
             postService.searchPosts(keyword, pageable)
         )
     );
   }
 
   @PostMapping("/{postId}/like")
-  public void likePost(
+  public ResponseEntity<ApiResponse<Void>> likePost(
       @PathVariable(name = "postId") Long postId,
-      Long userId
+      @AuthenticationPrincipal JwtPrincipal principal
   ) {
-    postService.likePost(userId, postId);
+    postService.likePost(principal.userId, postId);
+    return ResponseEntity.ok(
+        new ApiResponse<>(
+            "게시글 좋아요"
+        )
+    );
   }
 
   @DeleteMapping("/{postId}/like")
-  public void unlikePost(
+  public ResponseEntity<ApiResponse<Void>> unlikePost(
       @PathVariable(name = "postId") Long postId,
-      Long userId
+      @AuthenticationPrincipal JwtPrincipal principal
   ) {
-    postService.unlikePost(userId, postId);
+    postService.unlikePost(principal.userId, postId);
+    return ResponseEntity.ok(
+        new ApiResponse<>(
+            "게시글 좋아요 취소"
+        )
+    );
   }
 }

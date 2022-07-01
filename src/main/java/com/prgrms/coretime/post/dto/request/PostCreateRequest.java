@@ -1,5 +1,6 @@
 package com.prgrms.coretime.post.dto.request;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,4 +16,11 @@ public class PostCreateRequest {
   private String content;
   @NotNull
   private Boolean isAnonymous;
+
+  @Builder
+  public PostCreateRequest(String title, String content, Boolean isAnonymous) {
+    this.title = title;
+    this.content = content;
+    this.isAnonymous = isAnonymous;
+  }
 }
