@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.prgrms.coretime.TestConfig;
 import com.prgrms.coretime.comment.domain.Comment;
+import com.prgrms.coretime.comment.domain.CommentLike;
 import com.prgrms.coretime.post.domain.Board;
 import com.prgrms.coretime.post.domain.BoardRepository;
 import com.prgrms.coretime.post.domain.BoardType;
@@ -14,7 +15,6 @@ import com.prgrms.coretime.school.domain.respository.SchoolRepository;
 import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
-import java.nio.channels.IllegalChannelGroupException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,10 +33,13 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 @Import(TestConfig.class)
 @TestInstance(Lifecycle.PER_CLASS)
-class CommentRepositoryTest {
+class CommentLikeRepositoryTest {
 
   @PersistenceContext
   EntityManager em;
+
+  @Autowired
+  private SchoolRepository schoolRepository;
 
   @Autowired
   private UserRepository userRepository;
@@ -51,7 +54,9 @@ class CommentRepositoryTest {
   private CommentRepository commentRepository;
 
   @Autowired
-  private SchoolRepository schoolRepository;
+  private CommentLikeRepository commentLikeRepository;
+
+  private School school;
 
   private User user;
 
@@ -61,7 +66,7 @@ class CommentRepositoryTest {
 
   private Comment parent;
 
-  private School school;
+  private CommentLike commentLike;
 
   void setSchool() {
     school = new School("university", "university@university.ac.kr");
@@ -116,6 +121,11 @@ class CommentRepositoryTest {
     parent = commentRepository.save(parent);
   }
 
+  void setCommentLike() {
+    commentLike = new CommentLike(user, parent);
+    commentLike = commentLikeRepository.save(commentLike);
+  }
+
   @BeforeAll
   void setup() {
     setSchool();
@@ -123,76 +133,12 @@ class CommentRepositoryTest {
     setBoard();
     setPost();
     setComment();
+    setCommentLike();
   }
 
   @Test
-  @DisplayName("부모 댓글과 자식 댓글이 양방향으로 연결 되어 있는지")
-  public void testParentChild() {
-    Comment child = Comment.builder()
-        .user(user)
-        .post(anonyPost)
-        .parent(parent)
-        .isAnonymous(true)
-        .content("나는 자식댓글")
-        .build();
-
-    Comment savedChild = commentRepository.save(child);
-
-    em.flush();
-    em.clear();
-
-    Comment calledChild = commentRepository.findById(savedChild.getId())
-        .orElseThrow(IllegalArgumentException::new);
-    Comment calledParent = commentRepository.findById(parent.getId())
-        .orElseThrow(IllegalArgumentException::new);
-
-    assertThat(calledChild.getParent()).isEqualTo(calledParent);
-  }
-
-  @Test
-  @DisplayName("Post의 댓글 제대로 들어가있는지 파악하기")
-  public void testCommentOfPost() {
-    Comment realComment = Comment.builder()
-        .user(user)
-        .post(anonyPost)
-        .parent(null)
-        .isAnonymous(false)
-        .content("나는 실명댓글")
-        .build();
-
-    Comment child = Comment.builder()
-        .user(user)
-        .post(anonyPost)
-        .parent(parent)
-        .isAnonymous(true)
-        .content("나는 자식댓글")
-        .build();
-
-    Comment savedRealParent = commentRepository.save(realComment);
-    Comment savedChild = commentRepository.save(child);
-
-    em.flush();
-    em.clear();
-
-    Post masterPost = postRepository.findById(anonyPost.getId())
-        .orElseThrow(IllegalArgumentException::new);
-
-    assertThat(masterPost.getComments().size()).isEqualTo(3);
-  }
-
-  @Test
-  @DisplayName("update Delete 제대로 저장 되는지")
-  public void testDelete() {
-    Comment calledParent = commentRepository.findById(parent.getId())
-        .orElseThrow(IllegalChannelGroupException::new);
-    calledParent.updateDelete();
-
-    em.flush();
-    em.clear();
-
-    Comment updatedComment = commentRepository.findById(parent.getId())
-        .orElseThrow(IllegalArgumentException::new);
-
-    assertThat(updatedComment.getIsDelete()).isTrue();
+  @DisplayName("일단 테스트")
+  public void test() {
+    assertThat(commentLike.getComment().getId()).isEqualTo(parent.getId());
   }
 }
