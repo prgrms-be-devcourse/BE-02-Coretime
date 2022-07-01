@@ -1,6 +1,7 @@
 package com.prgrms.coretime.post.controller;
 
 import com.prgrms.coretime.common.ApiResponse;
+import com.prgrms.coretime.common.jwt.JwtPrincipal;
 import com.prgrms.coretime.post.dto.request.PostCreateRequest;
 import com.prgrms.coretime.post.dto.response.PostIdResponse;
 import com.prgrms.coretime.post.dto.response.PostSimpleResponse;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,13 +62,13 @@ public class BoardController {
   @PostMapping("/{boardId}/posts")
   public ResponseEntity<ApiResponse<PostIdResponse>> createPost(
       @PathVariable(name = "boardId") Long boardId,
-      Long userId,
+      @AuthenticationPrincipal JwtPrincipal principal,
       @RequestBody @Validated PostCreateRequest request
   ) {
     return ResponseEntity.created(URI.create("")).body(
         new ApiResponse<>(
             "게시글 생성",
-            postService.createPost(boardId, userId, request)
+            postService.createPost(boardId, principal.userId, request)
         )
     );
   }

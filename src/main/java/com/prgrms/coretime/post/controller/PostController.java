@@ -1,6 +1,7 @@
 package com.prgrms.coretime.post.controller;
 
 import com.prgrms.coretime.common.ApiResponse;
+import com.prgrms.coretime.common.jwt.JwtPrincipal;
 import com.prgrms.coretime.post.dto.request.PostUpdateRequest;
 import com.prgrms.coretime.post.dto.response.PostIdResponse;
 import com.prgrms.coretime.post.dto.response.PostResponse;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -68,12 +70,12 @@ public class PostController {
           sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable,
-      Long userId
+      @AuthenticationPrincipal JwtPrincipal principal
   ) {
     return ResponseEntity.ok(
         new ApiResponse<>(
             "내 게시글 목록",
-            postService.getPostsByUser(userId, pageable)
+            postService.getPostsByUser(principal.userId, pageable)
         )
     );
   }
@@ -84,12 +86,12 @@ public class PostController {
           sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable,
-      Long userId
+      @AuthenticationPrincipal JwtPrincipal principal
   ) {
     return ResponseEntity.ok(
         new ApiResponse<>(
             "내 게시글 목록",
-            postService.getPostsThatUserCommentedAt(userId, pageable)
+            postService.getPostsThatUserCommentedAt(principal.userId, pageable)
         )
     );
   }
@@ -145,16 +147,16 @@ public class PostController {
   @PostMapping("/{postId}/like")
   public void likePost(
       @PathVariable(name = "postId") Long postId,
-      Long userId
+      @AuthenticationPrincipal JwtPrincipal principal
   ) {
-    postService.likePost(userId, postId);
+    postService.likePost(principal.userId, postId);
   }
 
   @DeleteMapping("/{postId}/like")
   public void unlikePost(
       @PathVariable(name = "postId") Long postId,
-      Long userId
+      @AuthenticationPrincipal JwtPrincipal principal
   ) {
-    postService.unlikePost(userId, postId);
+    postService.unlikePost(principal.userId, postId);
   }
 }
