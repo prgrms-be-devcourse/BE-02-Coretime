@@ -22,7 +22,6 @@ import com.prgrms.coretime.timetable.dto.response.TimetableResponse;
 import com.prgrms.coretime.timetable.dto.response.TimetablesResponse;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
-import java.sql.Time;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -82,35 +81,30 @@ public class TimetableService {
   }
 
   @Transactional(readOnly = true)
+  public TimetableResponse getDefaultTimetable(Integer year, Semester semester) {
+    // TODO : 사용자 ID 가져오는 로직이 필요하다.
+
+    Long userId = 1L;
+    Timetable defaultTimetable = timetableRepository.getDefaultTimetable(userId, year, semester).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+    List<LectureInfo> enrollmentedLectures = getEnrollmentedLecturesByTimetableId(defaultTimetable.getId());
+
+    return TimetableResponse.builder()
+        .timetableId(defaultTimetable.getId())
+        .name(defaultTimetable.getName())
+        .year(defaultTimetable.getYear())
+        .semester(defaultTimetable.getSemester())
+        .isDefault(defaultTimetable.getIsDefault())
+        .lectures(enrollmentedLectures)
+        .build();
+  }
+
+  @Transactional(readOnly = true)
   public TimetableResponse getTimetable(Long timetableId) {
     // TODO : 사용자 ID 가져오는 로직이 필요하다.
 
     Long userId = 1L;
     Timetable timetable = getTimetableOfUser(userId, timetableId);
-
-    List<LectureInfo> lectures = enrollmentRepository.getEnrollmentsWithLectureByTimetableId(timetableId, ALL).stream()
-        .map(enrollment -> {
-          Lecture lecture = enrollment.getLecture();
-
-          List<LectureDetailInfo> lectureDetails = lecture.getLectureDetails().stream()
-              .map(lectureDetail ->
-                  LectureDetailInfo.builder()
-                      .day(lectureDetail.getDay())
-                      .startTime(lectureDetail.getStartTime())
-                      .endTime(lectureDetail.getEndTime())
-                      .build()
-              )
-              .collect(Collectors.toList());
-
-          return LectureInfo.builder()
-              .lectureId(lecture.getId())
-              .name(lecture.getName())
-              .professor(lecture.getProfessor())
-              .classroom(lecture.getClassroom())
-              .lectureDetails(lectureDetails)
-              .build();
-        })
-        .collect(Collectors.toList());
+    List<LectureInfo> enrollmentedLectures = getEnrollmentedLecturesByTimetableId(timetableId);
 
     return TimetableResponse.builder()
         .timetableId(timetable.getId())
@@ -118,15 +112,13 @@ public class TimetableService {
         .year(timetable.getYear())
         .semester(timetable.getSemester())
         .isDefault(timetable.getIsDefault())
-        .lectures(lectures)
+        .lectures(enrollmentedLectures)
         .build();
   }
 
-  // TODO : 기본 시간표 조회
-  // 기본 시간표 조회
-
   // TODO : 친구 시간표 조회
   // (userId = 사용자의 ID) or (userId != 사용자의 ID and userId와 사용자의 Id 친구)
+  // 친구의 default 시간표를 조회 해야한다.
 
   @Transactional
   public void updateTimetable(Long timetableId, TimetableUpdateRequest timetableUpdateRequest) {
@@ -170,12 +162,38 @@ public class TimetableService {
     enrollmentRepository.deleteByTimetableId(timetableId);
     lectureDetailRepository.deleteLectureDetailsByLectureIds(customLectureIds);
     lectureRepository.deleteLectureByLectureIds(customLectureIds);
-
-    // timetableRepository.delete(getTimetableOfUser(userId, timetableId)); ? 왜 안되지?
     timetableRepository.deleteByTimetableId(timetable.getId());
+
+    // 기본 시간표 권한 넘겨 주기
   }
 
   private Timetable getTimetableOfUser(Long userId, Long timetableId) {
     return timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+  }
+
+  private List<LectureInfo> getEnrollmentedLecturesByTimetableId(Long timetableId) {
+    return enrollmentRepository.getEnrollmentsWithLectureByTimetableId(timetableId, ALL).stream()
+        .map(enrollment -> {
+          Lecture lecture = enrollment.getLecture();
+
+          List<LectureDetailInfo> lectureDetails = lecture.getLectureDetails().stream()
+              .map(lectureDetail ->
+                  LectureDetailInfo.builder()
+                      .day(lectureDetail.getDay())
+                      .startTime(lectureDetail.getStartTime())
+                      .endTime(lectureDetail.getEndTime())
+                      .build()
+              )
+              .collect(Collectors.toList());
+
+          return LectureInfo.builder()
+              .lectureId(lecture.getId())
+              .name(lecture.getName())
+              .professor(lecture.getProfessor())
+              .classroom(lecture.getClassroom())
+              .lectureDetails(lectureDetails)
+              .build();
+        })
+        .collect(Collectors.toList());
   }
 }
