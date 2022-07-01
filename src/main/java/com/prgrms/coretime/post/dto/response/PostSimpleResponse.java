@@ -5,7 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record PostSimpleResponse(Long postId, BoardSimpleResponse board,
-                                 UserSimpleResponse user, String title,
+                                 Long userId, String nickname, String title,
                                  String content, Boolean isAnonymous,
                                  Integer commentCount, Integer likeCount) {
 
@@ -13,7 +13,8 @@ public record PostSimpleResponse(Long postId, BoardSimpleResponse board,
     this(
         entity.getId(),
         new BoardSimpleResponse(entity.getBoard()),
-        new UserSimpleResponse(entity.getUser()),
+        entity.getUser().getId(),
+        entity.getIsAnonymous() ? "익명" : entity.getUser().getNickname(),
         entity.getTitle(),
         entity.getContent(),
         entity.getIsAnonymous(),

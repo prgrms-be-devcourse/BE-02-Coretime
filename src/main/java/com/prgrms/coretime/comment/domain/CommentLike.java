@@ -1,5 +1,7 @@
 package com.prgrms.coretime.comment.domain;
 
+import static javax.persistence.FetchType.LAZY;
+
 import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.user.domain.User;
 import javax.persistence.EmbeddedId;
@@ -31,7 +33,7 @@ public class CommentLike extends BaseEntity {
   private User user;
 
   @MapsId("commentId")
-  @ManyToOne
+  @ManyToOne(fetch = LAZY)
   @JoinColumnOrFormula(
       column = @JoinColumn(name = "comment_id", referencedColumnName = "comment_id")
   )
@@ -42,6 +44,11 @@ public class CommentLike extends BaseEntity {
     Assert.notNull(comment, "댓글은 필수입니다.");
     this.id = new CommentLikeId(user.getId(), comment.getId());
     this.user = user;
+    setComment(comment);
+  }
+
+  public void setComment(Comment comment) {
     this.comment = comment;
+    comment.getLikes().add(this);
   }
 }

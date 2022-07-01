@@ -4,6 +4,7 @@ package com.prgrms.coretime.common.error;
 import com.prgrms.coretime.common.error.exception.DuplicateFriendRequestException;
 import com.prgrms.coretime.common.error.exception.FriendAlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.InvalidRequestException;
+import com.prgrms.coretime.common.error.exception.LikeAlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.ErrorResponse;
@@ -126,6 +127,13 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(InvalidRequestException.class)
   public ResponseEntity<ErrorResponse> handleInvalidRequestException(InvalidRequestException e) {
+    log.warn(e.getMessage(), e);
+    ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
+    return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+  }
+
+  @ExceptionHandler(LikeAlreadyExistsException.class)
+  public ResponseEntity<ErrorResponse> handleLikeAlreadyExistsException(LikeAlreadyExistsException e) {
     log.warn(e.getMessage(), e);
     ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);

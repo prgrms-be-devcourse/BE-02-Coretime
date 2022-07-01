@@ -1,5 +1,6 @@
-package com.prgrms.coretime.post.domain;
+package com.prgrms.coretime.post.domain.repository;
 
+import com.prgrms.coretime.post.domain.PostLike;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
