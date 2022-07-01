@@ -10,10 +10,13 @@ import org.springframework.context.annotation.Bean;
 public class TestConfig {
 
   @PersistenceContext
+
   EntityManager entityManager;
 
   @Bean
   public JPAQueryFactory jpaQueryFactory() {
     return new JPAQueryFactory(entityManager);
   }
+
 }
+
