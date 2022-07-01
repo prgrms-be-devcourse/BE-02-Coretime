@@ -48,6 +48,9 @@ public class Timetable extends BaseEntity {
   @Column(name = "year", nullable = false)
   private Integer year;
 
+  @Column(name = "isDefault", nullable = false)
+  private Boolean isDefault;
+
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "user_id", referencedColumnName = "user_id")
   private User user;
@@ -56,12 +59,13 @@ public class Timetable extends BaseEntity {
   private List<Enrollment> enrollments = new ArrayList<>();
 
   @Builder
-  public Timetable(String name, Semester semester, Integer year, User user) {
-    validateTimetableField(name, semester, year, user);
+  public Timetable(String name, Semester semester, Integer year, User user, Boolean isDefault) {
+    validateTimetableField(name, semester, year, user, isDefault);
     this.name = name;
     this.semester = semester;
     this.year = year;
     this.user = user;
+    this.isDefault = isDefault;
   }
 
   public void updateName(String name) {
@@ -69,10 +73,19 @@ public class Timetable extends BaseEntity {
     this.name = name;
   }
 
-  private void validateTimetableField(String name, Semester semester, Integer year, User user) {
+  public void makeDefault() {
+    this.isDefault = true;
+  }
+
+  public void makeNonDefault() {
+    this.isDefault = false;
+  }
+
+  private void validateTimetableField(String name, Semester semester, Integer year, User user, Boolean isDefault) {
     validateTimetableName(name);
     notNull(semester, "semester는 null일 수 없습니다.");
     notNull(year, "year는 null일 수 없습니다.");
+    validateIsDefault(isDefault);
     notNull(user, "user는 null일 수 없습니다.");
   }
 
@@ -81,5 +94,9 @@ public class Timetable extends BaseEntity {
     if(1 > name.length() || name.length() > 10) {
       throw new IllegalArgumentException("name의 길이는 1 ~ 10 입니다.");
     }
+  }
+
+  private void validateIsDefault(Boolean isDefault) {
+    notNull(isDefault, "isDefault는 null일 수 없습니다.");
   }
 }
