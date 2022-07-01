@@ -41,6 +41,9 @@ public class Comment extends BaseEntity {
   @OneToMany(mappedBy = "parent", orphanRemoval = false)
   private List<Comment> children = new ArrayList<>();
 
+  @OneToMany(mappedBy = "comment")
+  private List<CommentLike> likes = new ArrayList<>();
+
   // temp column : user
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "user_id")
@@ -82,11 +85,7 @@ public class Comment extends BaseEntity {
     this.content = content;
   }
 
-  /**
-   * TODO : 양방향 캡슐화 고민 해볼 것.
-   */
-
-  // Post - Comment 양방향 연관관계 메서드
+  // 1. Post - Comment 양방향 연관관계 메서드
   public void setPost(Post post) {
     if (Objects.nonNull(this.post)) {
       this.post.getComments().remove(this);
@@ -96,22 +95,24 @@ public class Comment extends BaseEntity {
     post.getComments().add(this);
   }
 
-  // Parent - Child 댓글 대댓글 양방향.
+  // 2. Parent - Child 댓글 대댓글 양방향 연관관계.
   public void setParent(Comment parent) {
-    if (Objects.nonNull((this.parent))) {
-      this.parent.getChildren().remove(this);
-    } else {
-      //생성시 parent가 null 진행 종료
+    if (Objects.isNull(parent)) {
       return;
     }
-
     this.parent = parent;
     parent.getChildren().add(this);
   }
 
-  public void addComment(Comment child) {
+  public void addChild(Comment child) {
     child.setParent(this);
   }
+
+  // 3. 댓글과 좋아요 양방향 연관관계.
+  public void addLike(CommentLike commentLike) {
+    commentLike.setComment(this);
+  }
+
 
   /**
    * TODO : USER 1:N 양방향 필요하면!

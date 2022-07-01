@@ -165,24 +165,51 @@ class CommentTest {
   @DisplayName("Happy path 중에서")
   class Descirbe_HappyPath {
 
-    Comment comment = Comment.builder()
-        .user(user)
-        .post(post)
-        .parent(null)
-        .isAnonymous(true)
-        .content(_300BytesString)
-        .build();
-
-
     @Test
     @DisplayName("content의 길이가 0보다 크고 300이하인지")
     public void testContentLength() {
+      Comment comment = Comment.builder()
+          .user(user)
+          .post(post)
+          .parent(null)
+          .isAnonymous(true)
+          .content(_300BytesString)
+          .build();
       assertThat(comment.getContent().length()).isGreaterThan(0).isLessThanOrEqualTo(300);
     }
 
-    /**
-     * TODO : 조회 기능 만들기 전에 연관관계 테스트 해보기
-     * */
+    @Test
+    @DisplayName("댓글 익명순서가 올바르게 들어가는지")
+    public void testAnonymousSeq() {
+      //given
+      Comment anonymousComment1 = Comment.builder()
+          .user(user)
+          .post(post)
+          .parent(null)
+          .isAnonymous(true)
+          .content(_300BytesString)
+          .build();
+
+      Comment realComment = Comment.builder()
+          .user(user)
+          .post(post)
+          .parent(anonymousComment1)
+          .isAnonymous(false)
+          .content(_300BytesString)
+          .build();
+
+      Comment anonymousComment2 = Comment.builder()
+          .user(user)
+          .post(post)
+          .parent(null)
+          .isAnonymous(true)
+          .content(_300BytesString)
+          .build();
+
+      assertThat(post.getNextAnonymousSeq()).isEqualTo(3);
+      assertThat(realComment.getAnonymousSeq()).isNull();
+      assertThat(anonymousComment2.getAnonymousSeq()).isEqualTo(2);
+    }
 
   }
 
