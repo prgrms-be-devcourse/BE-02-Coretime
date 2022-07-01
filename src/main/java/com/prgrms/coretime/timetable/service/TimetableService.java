@@ -163,7 +163,7 @@ public class TimetableService {
     lectureDetailRepository.deleteLectureDetailsByLectureIds(customLectureIds);
     lectureRepository.deleteLectureByLectureIds(customLectureIds);
     timetableRepository.deleteByTimetableId(timetable.getId());
-    
+
     if(timetable.getIsDefault()) {
       timetableRepository.getRecentlyAddedTimetable(userId, timetable.getYear(), timetable.getSemester())
           .ifPresent(newDefaultTimetable -> newDefaultTimetable.makeDefault());

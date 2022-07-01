@@ -91,7 +91,7 @@ public class TimetableController {
   public ResponseEntity<ApiResponse> updateTimetableName(@PathVariable Long timetableId, @RequestBody @Valid TimetableUpdateRequest timetableUpdateRequest) {
     timetableService.updateTimetable(timetableId, timetableUpdateRequest);
 
-    ApiResponse apiResponse = new ApiResponse("시간표 이름 수정 완료");
+    ApiResponse apiResponse = new ApiResponse("시간표 정보 변경 완료");
 
     return ResponseEntity
         .ok()
