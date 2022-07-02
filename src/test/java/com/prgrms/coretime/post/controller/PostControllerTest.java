@@ -71,9 +71,9 @@ class PostControllerTest {
         .build());
 
     currentUser = userRepository.save(LocalUser.builder()
-        .nickname("테스트1")
-        .email("test1@test1")
-        .name("테식이1")
+        .nickname("테스트")
+        .email("test@sangsang.ac.kr")
+        .name("김테스트")
         .school(school)
         .password("1q2w3e")
         .build());

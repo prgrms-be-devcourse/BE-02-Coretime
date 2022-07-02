@@ -78,25 +78,25 @@ class PostServiceTest {
         .build());
 
     user1 = userRepository.save(LocalUser.builder()
-        .nickname("테스트1")
-        .email("test1@test1")
-        .name("테식이1")
+        .nickname("일식이")
+        .email("test1@sangsang.ac.kr")
+        .name("일식이")
         .school(school)
         .password("1q2w3e")
         .build());
 
     user2 = userRepository.save(LocalUser.builder()
-        .nickname("테스트2")
-        .email("test2@test2")
-        .name("테식이2")
+        .nickname("이식이")
+        .email("test2@sangsang.ac.kr")
+        .name("이식이")
         .school(school)
         .password("1q2w3e")
         .build());
 
     user3 = userRepository.save(LocalUser.builder()
-        .nickname("테스트3")
-        .email("test3@test3")
-        .name("테식이3")
+        .nickname("삼식이")
+        .email("test3@sangsang.ac.kr")
+        .name("삼식이")
         .school(school)
         .password("1q2w3e")
         .build());
