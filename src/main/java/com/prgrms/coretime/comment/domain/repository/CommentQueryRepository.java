@@ -12,10 +12,8 @@ import javax.persistence.EntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public class CommentQueryRepository {
+public class CommentQueryRepository implements CommentRepositoryCustom {
 
   private final JPAQueryFactory queryFactory;
 
@@ -23,7 +21,7 @@ public class CommentQueryRepository {
     this.queryFactory = new JPAQueryFactory(entityManager);
   }
 
-  public Page<CommentsResponse> findSearchComments(Long postId, Pageable pageable) {
+  public Page<CommentsResponse> findByPostId(Long postId, Pageable pageable) {
 
     // 부모 댓글
     List<CommentsResponse> response = queryFactory
@@ -38,7 +36,8 @@ public class CommentQueryRepository {
         .from(comment)
         .leftJoin(comment, commentLike.comment)
         .where(comment.post.id.eq(postId),
-            comment.parent.isNull())
+            comment.parent.isNull(),
+            comment.isDelete.isFalse())
         .orderBy(comment.createdAt.asc())
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())

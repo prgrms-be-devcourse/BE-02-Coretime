@@ -5,13 +5,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import com.prgrms.coretime.TestConfig;
 import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.post.domain.Board;
-import com.prgrms.coretime.post.domain.repository.BoardRepository;
 import com.prgrms.coretime.post.domain.BoardType;
 import com.prgrms.coretime.post.domain.Post;
+import com.prgrms.coretime.post.domain.repository.BoardRepository;
 import com.prgrms.coretime.post.domain.repository.PostRepository;
 import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.school.domain.respository.SchoolRepository;
 import com.prgrms.coretime.user.domain.LocalUser;
+import com.prgrms.coretime.user.domain.OAuthUser;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
 import java.nio.channels.IllegalChannelGroupException;
@@ -53,7 +54,9 @@ class CommentRepositoryTest {
   @Autowired
   private SchoolRepository schoolRepository;
 
-  private User user;
+  private User localUser;
+
+  private User oauthUser;
 
   private Board board;
 
@@ -70,15 +73,29 @@ class CommentRepositoryTest {
 
   void setUser() {
     String localTestEmail = "local@university.ac.kr";
-    user = LocalUser.builder()
-        .nickname("local_user")
-        .profileImage("sample link")
+    String oauthTestEmail = "oauth@ajou.ac.kr";
+
+    localUser = LocalUser.builder()
+        .nickname("local유저")
+        .profileImage("예시 링크")
         .email(localTestEmail)
-        .name("student_local")
+        .name("김승은로컬")
         .school(school)
         .password("test1234!")
         .build();
-    user = userRepository.save(user);
+
+    oauthUser = OAuthUser.builder()
+        .nickname("oauth유저")
+        .profileImage("예시 링크")
+        .email(oauthTestEmail)
+        .name("김승은oauth")
+        .school(school)
+        .provider("카카오")
+        .providerId("카카오id")
+        .build();
+
+    localUser = userRepository.save(localUser);
+    oauthUser = userRepository.save(oauthUser);
   }
 
   void setBoard() {
@@ -98,7 +115,7 @@ class CommentRepositoryTest {
         .title("아 테스트 세팅하는데 손아파 죽겠다")
         .content("ㅈㄱㄴ")
         .isAnonymous(true)
-        .user(user)
+        .user(localUser)
         .board(board)
         .build();
     anonyPost = postRepository.save(anonyPost);
@@ -106,7 +123,7 @@ class CommentRepositoryTest {
 
   void setComment() {
     parent = Comment.builder()
-        .user(user)
+        .user(localUser)
         .post(anonyPost)
         .parent(null)
         .isAnonymous(true)
@@ -129,7 +146,7 @@ class CommentRepositoryTest {
   @DisplayName("부모 댓글과 자식 댓글이 양방향으로 연결 되어 있는지")
   public void testParentChild() {
     Comment child = Comment.builder()
-        .user(user)
+        .user(localUser)
         .post(anonyPost)
         .parent(parent)
         .isAnonymous(true)
@@ -153,7 +170,7 @@ class CommentRepositoryTest {
   @DisplayName("Post의 댓글 제대로 들어가있는지 파악하기")
   public void testCommentOfPost() {
     Comment realComment = Comment.builder()
-        .user(user)
+        .user(localUser)
         .post(anonyPost)
         .parent(null)
         .isAnonymous(false)
@@ -161,7 +178,7 @@ class CommentRepositoryTest {
         .build();
 
     Comment child = Comment.builder()
-        .user(user)
+        .user(localUser)
         .post(anonyPost)
         .parent(parent)
         .isAnonymous(true)
@@ -195,4 +212,12 @@ class CommentRepositoryTest {
 
     assertThat(updatedComment.getIsDelete()).isTrue();
   }
+
+
+  @Test
+  @DisplayName("계층형 댓글 불러오는지 테스트")
+  public void testFindComments() {
+
+  }
+
 }
