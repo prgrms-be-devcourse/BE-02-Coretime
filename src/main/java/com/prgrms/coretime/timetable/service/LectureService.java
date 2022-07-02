@@ -31,10 +31,7 @@ public class LectureService {
   private final LectureRepository lectureRepository;
 
   @Transactional(readOnly = true)
-  public Page<OfficialLectureInfo> getOfficialLectures(OfficialLectureSearchRequest officialLectureSearchRequest, Pageable pageable) {
-    // TODO : 사용자의 school_id를 가져오는 로직이 필요하다
-
-    Long schoolId = 1L;
+  public Page<OfficialLectureInfo> getOfficialLectures(Long schoolId, OfficialLectureSearchRequest officialLectureSearchRequest, Pageable pageable) {
     Page<OfficialLecture> officialLecturesPagingResult = lectureRepository.getOfficialLectures(
         createOfficialLectureSearchCondition(schoolId, officialLectureSearchRequest),
         pageable
@@ -56,6 +53,7 @@ public class LectureService {
           .name(officialLecture.getName())
           .professor(officialLecture.getProfessor())
           .classroom(officialLecture.getClassroom())
+          .grade(officialLecture.getGrade())
           .code(officialLecture.getCode())
           .credit(officialLecture.getCredit())
           .lectureType(officialLecture.getLectureType())
@@ -66,8 +64,7 @@ public class LectureService {
 
 
   private OfficialLectureSearchCondition createOfficialLectureSearchCondition(Long schoolId, OfficialLectureSearchRequest officialLectureSearchRequest) {
-    // TODO : time 조건 추가
-
+    // TODO : time 조건 필요
     validateSchoolId(schoolId);
     validateYear(officialLectureSearchRequest.getYear());
     validateSemster(officialLectureSearchRequest.getSemester());
@@ -105,14 +102,18 @@ public class LectureService {
 
   private void validateGrades(List<Grade> grades) {
     notEmpty(grades, "grades는 null일 수 없고 최소 1개의 요소를 가져야 합니다.");
+    grades.forEach(grade -> notNull(grade, "grades는 null 요소를 허용하지 않습니다."));
   }
 
   private void validateLectureTypes(List<LectureType> lectureTypes) {
     notEmpty(lectureTypes, "lectureTypes는 null일 수 없고 최소 1개의 요소를 가져야 합니다.");
+    lectureTypes.forEach(lectureType -> notNull(lectureType, "lectureTypes는 null 요소를 허용하지 않습니다."));
   }
 
   private void validateCredits(List<Double> credits) {
     notEmpty(credits, "credits는 null일 수 없고 최소 1개의 요소를 가져야 합니다.");
+
+    credits.forEach(credit -> notNull(credit, "credits는 null 요소를 허용하지 않습니다."));
 
     if(!allowedCreditValues.containsAll(credits)) {
       throw new IllegalArgumentException("credit은 0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0 값만 허용합니다.");

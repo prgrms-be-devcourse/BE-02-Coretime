@@ -10,7 +10,6 @@ import static java.util.Objects.nonNull;
 
 import com.prgrms.coretime.timetable.domain.lecture.Grade;
 import com.prgrms.coretime.timetable.domain.lecture.Lecture;
-import com.prgrms.coretime.timetable.domain.lecture.LectureType;
 import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.domain.lectureDetail.Day;
 import com.prgrms.coretime.timetable.domain.lectureDetail.LectureDetail;
@@ -26,14 +25,12 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.support.PageableExecutionUtils;
 
-@Slf4j
 @RequiredArgsConstructor
 public class LectureRepositoryImpl implements LectureCustomRepository {
   private final JPAQueryFactory queryFactory;
