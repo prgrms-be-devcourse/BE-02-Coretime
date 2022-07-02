@@ -4,11 +4,11 @@ import com.prgrms.coretime.common.ErrorCode;
 import lombok.Getter;
 
 @Getter
-public class FriendAlreadyExistsException extends RuntimeException{
+public class DuplicateRequestException extends RuntimeException{
 
   private final ErrorCode errorCode;
 
-  public FriendAlreadyExistsException(ErrorCode errorCode) {
+  public DuplicateRequestException(ErrorCode errorCode) {
     super(errorCode.getMessage());
     this.errorCode = errorCode;
   }

@@ -2,7 +2,7 @@ package com.prgrms.coretime.post.service;
 
 import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.common.ErrorCode;
-import com.prgrms.coretime.common.error.exception.LikeAlreadyExistsException;
+import com.prgrms.coretime.common.error.exception.AlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.post.domain.Board;
 import com.prgrms.coretime.post.domain.repository.BoardRepository;
@@ -128,7 +128,7 @@ public class PostService {
   public void likePost(Long userId, Long postId) {
     Optional<PostLike> postLike = postLikeRepository.findByUserIdAndPostId(userId, postId);
     if (postLike.isPresent()) {
-      throw new LikeAlreadyExistsException(ErrorCode.POST_LIKE_ALREADY_EXISTS);
+      throw new AlreadyExistsException(ErrorCode.POST_LIKE_ALREADY_EXISTS);
     }
     Post post = findPost(postId);
     User user = findUser(userId);

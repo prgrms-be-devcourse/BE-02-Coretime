@@ -6,6 +6,7 @@ import static com.prgrms.coretime.timetable.domain.repository.enrollment.Lecture
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.CUSTOM;
 
 import com.prgrms.coretime.common.error.exception.NotFoundException;
+import com.prgrms.coretime.friend.domain.FriendRepository;
 import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.lecture.Lecture;
 import com.prgrms.coretime.timetable.domain.repository.enrollment.EnrollmentRepository;
@@ -15,6 +16,7 @@ import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableReposi
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
 import com.prgrms.coretime.timetable.dto.request.TimetableUpdateRequest;
+import com.prgrms.coretime.timetable.dto.response.FriendDefaultTimetableInfo;
 import com.prgrms.coretime.timetable.dto.response.LectureDetailInfo;
 import com.prgrms.coretime.timetable.dto.response.LectureInfo;
 import com.prgrms.coretime.timetable.dto.response.TimetableInfo;
@@ -40,6 +42,7 @@ public class TimetableService {
   private final LectureDetailRepository lectureDetailRepository;
   private final LectureRepository lectureRepository;
   private final UserRepository userRepository;
+  private final FriendRepository friendRepository;
 
   @Transactional
   public Long createTimetable(@RequestBody @Valid TimetableCreateRequest timetableCreateRequest) {
@@ -52,7 +55,7 @@ public class TimetableService {
     Integer year = timetableCreateRequest.getYear();
     Semester semester = timetableCreateRequest.getSemester();
 
-    if(timetableRepository.isDuplicateTimetableName(userId, timetableName, year, semester)) {
+    if(timetableRepository.getTimetableBySameName(userId, timetableName, year, semester).isPresent()) {
       throw new IllegalArgumentException("이미 사용중인 이름입니다.");
     }
 
@@ -61,6 +64,7 @@ public class TimetableService {
         .year(year)
         .semester(semester)
         .user(user)
+        .isDefault(timetableRepository.isFirstTimetable(userId, year, semester))
         .build();
 
     Timetable createdTimetable = timetableRepository.save(newTimetable);
@@ -73,10 +77,28 @@ public class TimetableService {
 
     Long userId = 1L;
     List<TimetableInfo> timetables = timetableRepository.getTimetables(userId, year, semester).stream()
-        .map(timetable -> new TimetableInfo(timetable.getId(), timetable.getName()))
+        .map(timetable -> new TimetableInfo(timetable.getId(), timetable.getName(), timetable.getIsDefault()))
         .collect(Collectors.toList());
 
     return new TimetablesResponse(timetables);
+  }
+
+  @Transactional(readOnly = true)
+  public TimetableResponse getDefaultTimetable(Integer year, Semester semester) {
+    // TODO : 사용자 ID 가져오는 로직이 필요하다.
+
+    Long userId = 1L;
+    Timetable defaultTimetable = getDefaultTimetable(userId, year, semester);
+    List<LectureInfo> enrollmentedLectures = getEnrollmentedLectures(defaultTimetable.getId());
+
+    return TimetableResponse.builder()
+        .timetableId(defaultTimetable.getId())
+        .name(defaultTimetable.getName())
+        .year(defaultTimetable.getYear())
+        .semester(defaultTimetable.getSemester())
+        .isDefault(defaultTimetable.getIsDefault())
+        .lectures(enrollmentedLectures)
+        .build();
   }
 
   @Transactional(readOnly = true)
@@ -85,8 +107,101 @@ public class TimetableService {
 
     Long userId = 1L;
     Timetable timetable = getTimetableOfUser(userId, timetableId);
+    List<LectureInfo> enrollmentedLectures = getEnrollmentedLectures(timetableId);
 
-    List<LectureInfo> lectures = enrollmentRepository.getEnrollmentsWithLectureByTimetableId(timetableId, ALL).stream()
+    return TimetableResponse.builder()
+        .timetableId(timetable.getId())
+        .name(timetable.getName())
+        .year(timetable.getYear())
+        .semester(timetable.getSemester())
+        .isDefault(timetable.getIsDefault())
+        .lectures(enrollmentedLectures)
+        .build();
+  }
+
+  @Transactional
+  public List<FriendDefaultTimetableInfo> getFriendDefaultTimetableInfos(Long userId, Long friendId) {
+    validateFriendRelationship(userId, friendId);
+
+    return timetableRepository.getDefaultTimetables(
+            friendId).stream()
+        .map(timetable -> new FriendDefaultTimetableInfo(timetable.getYear(), timetable.getSemester()))
+        .sorted((o1, o2) -> compare(o1, o2))
+        .toList();
+  }
+
+  @Transactional
+  public List<LectureInfo> getDefaultTimetableOfFriend(Long userId, Long friendId, int year, Semester semester) {
+    validateFriendRelationship(userId, friendId);
+
+    Timetable friendDefaultTimetable = getDefaultTimetable(userId, year, semester);
+
+    return getEnrollmentedLectures(friendDefaultTimetable.getId());
+  }
+
+  @Transactional
+  public void updateTimetable(Long timetableId, TimetableUpdateRequest timetableUpdateRequest) {
+    // TODO : 사용자 ID 가져오는 로직이 필요하다.
+    Long userId = 1L;
+    Timetable timetable = getTimetableOfUser(userId, timetableId);
+
+    String updatedTimetableName = timetableUpdateRequest.getName().trim();
+    Integer year = timetable.getYear();
+    Semester semester = timetable.getSemester();
+    Boolean updatedIsDefault = timetableUpdateRequest.getIsDefault();
+
+    Timetable sameNameTable = timetableRepository.getTimetableBySameName(userId, updatedTimetableName, year, semester).orElse(timetable);
+    if(timetable != sameNameTable) {
+      throw new IllegalArgumentException("이미 사용중인 이름입니다.");
+    }
+
+    timetable.updateName(updatedTimetableName.trim());
+
+    if(updatedIsDefault) {
+      Timetable preDefaultTimetable = getDefaultTimetable(userId, timetable.getYear(), timetable.getSemester());
+      preDefaultTimetable.makeNonDefault();
+      timetable.makeDefault();
+    }
+  }
+
+  @Transactional
+  public void deleteTimetable(Long timetableId) {
+    // TODO : 사용자 ID 가져오는 로직이 필요하다.
+
+    Long userId = 1L;
+    Timetable timetable = getTimetableOfUser(userId, timetableId);
+
+    List<Long> customLectureIds = enrollmentRepository.getEnrollmentsWithLectureByTimetableId(timetableId, CUSTOM).stream()
+        .map(enrollment -> enrollment.getLecture().getId())
+        .collect(Collectors.toList());
+
+    enrollmentRepository.deleteByTimetableId(timetableId);
+    lectureDetailRepository.deleteLectureDetailsByLectureIds(customLectureIds);
+    lectureRepository.deleteLectureByLectureIds(customLectureIds);
+    timetableRepository.deleteByTimetableId(timetable.getId());
+
+    if(timetable.getIsDefault()) {
+      timetableRepository.getRecentlyAddedTimetable(userId, timetable.getYear(), timetable.getSemester())
+          .ifPresent(newDefaultTimetable -> newDefaultTimetable.makeDefault());
+    }
+  }
+
+  private Timetable getDefaultTimetable(Long userId, Integer year, Semester semester) {
+    return timetableRepository.getDefaultTimetable(userId, year, semester).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+  }
+
+  private Timetable getTimetableOfUser(Long userId, Long timetableId) {
+    return timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+  }
+
+  private void validateFriendRelationship(Long userId, Long friendId) {
+    if(!friendRepository.existsFriendRelationship(userId, friendId)) {
+      throw new IllegalArgumentException("친구 관계가 아닙니다.");
+    }
+  }
+
+  private List<LectureInfo> getEnrollmentedLectures(Long timetableId) {
+    return enrollmentRepository.getEnrollmentsWithLectureByTimetableId(timetableId, ALL).stream()
         .map(enrollment -> {
           Lecture lecture = enrollment.getLecture();
 
@@ -109,49 +224,13 @@ public class TimetableService {
               .build();
         })
         .collect(Collectors.toList());
-
-    return TimetableResponse.builder()
-        .timetableId(timetable.getId())
-        .name(timetable.getName())
-        .year(timetable.getYear())
-        .semester(timetable.getSemester())
-        .lectures(lectures)
-        .build();
   }
 
-  // TODO : 친구 시간표 조회
-  // (userId = 사용자의 ID) or (userId != 사용자의 ID and userId와 사용자의 Id 친구)
-
-  @Transactional
-  public void updateTimetableName(Long timetableId, TimetableUpdateRequest timetableUpdateRequest) {
-    // TODO : 사용자 ID 가져오는 로직이 필요하다.
-
-    Long userId = 1L;
-    Timetable timetable = getTimetableOfUser(userId, timetableId);
-
-    timetable.updateName(timetableUpdateRequest.getName().trim());
-  }
-
-  @Transactional
-  public void deleteTimetable(Long timetableId) {
-    // TODO : 사용자 ID 가져오는 로직이 필요하다.
-
-    Long userId = 1L;
-    Timetable timetable = getTimetableOfUser(userId, timetableId);
-
-    List<Long> customLectureIds = enrollmentRepository.getEnrollmentsWithLectureByTimetableId(timetableId, CUSTOM).stream()
-        .map(enrollment -> enrollment.getLecture().getId())
-        .collect(Collectors.toList());
-
-    enrollmentRepository.deleteByTimetableId(timetableId);
-    lectureDetailRepository.deleteLectureDetailsByLectureIds(customLectureIds);
-    lectureRepository.deleteLectureByLectureIds(customLectureIds);
-
-    // timetableRepository.delete(getTimetableOfUser(userId, timetableId)); ? 왜 안되지?
-    timetableRepository.deleteByTimetableId(timetable.getId());
-  }
-
-  private Timetable getTimetableOfUser(Long userId, Long timetableId) {
-    return timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+  private int compare(FriendDefaultTimetableInfo o1, FriendDefaultTimetableInfo o2) {
+    if (o1.getYear() == o2.getYear()) {
+      return o2.getSemester().getOrder() - o1.getSemester().getOrder() ;
+    } else {
+      return o2.getYear() - o1.getYear();
+    }
   }
 }

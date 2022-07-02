@@ -4,11 +4,11 @@ import com.prgrms.coretime.common.ErrorCode;
 import lombok.Getter;
 
 @Getter
-public class LikeAlreadyExistsException extends RuntimeException {
+public class AlreadyExistsException extends RuntimeException{
 
   private final ErrorCode errorCode;
 
-  public LikeAlreadyExistsException(ErrorCode errorCode) {
+  public AlreadyExistsException(ErrorCode errorCode) {
     super(errorCode.getMessage());
     this.errorCode = errorCode;
   }

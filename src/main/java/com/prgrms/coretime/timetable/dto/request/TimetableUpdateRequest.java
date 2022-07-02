@@ -10,7 +10,11 @@ public class TimetableUpdateRequest {
   @NotNull
   private String name;
 
-  public TimetableUpdateRequest(String name) {
+  @NotNull
+  private Boolean isDefault;
+
+  public TimetableUpdateRequest(String name, Boolean isDefault) {
     this.name = name;
+    this.isDefault = isDefault;
   }
 }

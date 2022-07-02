@@ -1,15 +1,13 @@
 package com.prgrms.coretime.common.error;
 
 
-import com.prgrms.coretime.common.error.exception.DuplicateFriendRequestException;
-import com.prgrms.coretime.common.error.exception.FriendAlreadyExistsException;
+import com.prgrms.coretime.common.error.exception.DuplicateRequestException;
+import com.prgrms.coretime.common.error.exception.AlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.InvalidRequestException;
-import com.prgrms.coretime.common.error.exception.LikeAlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
@@ -111,15 +109,16 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
 
-  @ExceptionHandler(FriendAlreadyExistsException.class)
-  public ResponseEntity<ErrorResponse> handleFriendExistsException(FriendAlreadyExistsException e) {
+  @ExceptionHandler(AlreadyExistsException.class)
+  public ResponseEntity<ErrorResponse> handleFriendExistsException(AlreadyExistsException e) {
     log.warn(e.getMessage(), e);
     ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
 
-  @ExceptionHandler(DuplicateFriendRequestException.class)
-  public ResponseEntity<ErrorResponse> handleDuplicateFriendRequestException(DuplicateFriendRequestException e) {
+  @ExceptionHandler(DuplicateRequestException.class)
+  public ResponseEntity<ErrorResponse> handleDuplicateFriendRequestException(
+      DuplicateRequestException e) {
     log.warn(e.getMessage(), e);
     ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
@@ -131,12 +130,4 @@ public class GlobalExceptionHandler {
     ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
-
-  @ExceptionHandler(LikeAlreadyExistsException.class)
-  public ResponseEntity<ErrorResponse> handleLikeAlreadyExistsException(LikeAlreadyExistsException e) {
-    log.warn(e.getMessage(), e);
-    ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
-    return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
-  }
-
 }

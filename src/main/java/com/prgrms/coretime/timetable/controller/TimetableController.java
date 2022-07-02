@@ -61,6 +61,19 @@ public class TimetableController {
         .body(apiResponse);
   }
 
+  // 기본 시간표 조회
+  @ApiOperation(value = "기본 시간표 조회", notes = "연도와 학기에 해당하는 사용자의 기본 시간표를 조회합니다.")
+  @GetMapping("/default")
+  public ResponseEntity<ApiResponse<TimetableResponse>> getDefaultTimetable(@RequestParam Integer year, @RequestParam Semester semester) {
+    TimetableResponse timetableResponse = timetableService.getDefaultTimetable(year, semester);
+
+    ApiResponse apiResponse = new ApiResponse("기본 시간표 조회 완료", timetableResponse);
+
+    return ResponseEntity
+        .ok()
+        .body(apiResponse);
+  }
+
   @ApiOperation(value = "시간표 조회", notes = "전달된 timetableId에 따라 시간표를 전달합니다.")
   @GetMapping("/{timetableId}")
   public ResponseEntity<ApiResponse<TimetableResponse>> getTimetable(@PathVariable Long timetableId) {
@@ -73,12 +86,12 @@ public class TimetableController {
         .body(apiResponse);
   }
 
-  @ApiOperation(value = "시간표 이름 변경", notes = "시간표의 이름을 변경합니다.")
+  @ApiOperation(value = "시간표 정보 변경", notes = "시간표의 이름과 기본 시간표 여부를 변경합니다.")
   @PatchMapping("/{timetableId}")
   public ResponseEntity<ApiResponse> updateTimetableName(@PathVariable Long timetableId, @RequestBody @Valid TimetableUpdateRequest timetableUpdateRequest) {
-    timetableService.updateTimetableName(timetableId, timetableUpdateRequest);
+    timetableService.updateTimetable(timetableId, timetableUpdateRequest);
 
-    ApiResponse apiResponse = new ApiResponse("시간표 이름 수정 완료");
+    ApiResponse apiResponse = new ApiResponse("시간표 정보 변경 완료");
 
     return ResponseEntity
         .ok()

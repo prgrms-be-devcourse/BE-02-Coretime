@@ -8,9 +8,11 @@ import lombok.NoArgsConstructor;
 public class TimetableInfo {
   private Long timetableId;
   private String name;
+  private Boolean isDefault;
 
-  public TimetableInfo(Long timetableId, String name) {
+  public TimetableInfo(Long timetableId, String name, Boolean isDefault) {
     this.timetableId = timetableId;
     this.name = name;
+    this.isDefault = isDefault;
   }
 }

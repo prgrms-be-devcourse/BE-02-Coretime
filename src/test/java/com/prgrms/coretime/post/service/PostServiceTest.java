@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.comment.domain.repository.CommentRepository;
 import com.prgrms.coretime.common.ErrorCode;
-import com.prgrms.coretime.common.error.exception.LikeAlreadyExistsException;
+import com.prgrms.coretime.common.error.exception.AlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.post.domain.Board;
 import com.prgrms.coretime.post.domain.BoardType;
@@ -314,13 +314,13 @@ class PostServiceTest {
 
     //Then
     assertThatThrownBy(() -> postService.likePost(user1.getId(), post.getId()))
-        .isInstanceOf(LikeAlreadyExistsException.class)
+        .isInstanceOf(AlreadyExistsException.class)
         .hasMessage(ErrorCode.POST_LIKE_ALREADY_EXISTS.getMessage());
     assertThatThrownBy(() -> postService.likePost(user2.getId(), post.getId()))
-        .isInstanceOf(LikeAlreadyExistsException.class)
+        .isInstanceOf(AlreadyExistsException.class)
         .hasMessage(ErrorCode.POST_LIKE_ALREADY_EXISTS.getMessage());
     assertThatThrownBy(() -> postService.likePost(user3.getId(), post.getId()))
-        .isInstanceOf(LikeAlreadyExistsException.class)
+        .isInstanceOf(AlreadyExistsException.class)
         .hasMessage(ErrorCode.POST_LIKE_ALREADY_EXISTS.getMessage());
   }
 
