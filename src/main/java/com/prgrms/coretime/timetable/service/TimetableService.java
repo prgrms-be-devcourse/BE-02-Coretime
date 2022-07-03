@@ -155,10 +155,7 @@ public class TimetableService {
   }
 
   @Transactional
-  public void deleteTimetable(Long timetableId) {
-    // TODO : 사용자 ID 가져오는 로직이 필요하다.
-
-    Long userId = 1L;
+  public void deleteTimetable(Long userId, Long timetableId) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
 
     List<Long> customLectureIds = enrollmentRepository.getEnrollmentsWithLectureByTimetableId(timetableId, CUSTOM).stream()

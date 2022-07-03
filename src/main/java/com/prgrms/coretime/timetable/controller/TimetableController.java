@@ -92,14 +92,12 @@ public class TimetableController {
 
   @ApiOperation(value = "시간표 삭제", notes = "전달된 timetableId에 따라 시간표를 삭제합니다.")
   @DeleteMapping("/{timetableId}")
-  public ResponseEntity<ApiResponse> deleteTimetable(@PathVariable Long timetableId) {
-    timetableService.deleteTimetable(timetableId);
-
-    ApiResponse apiResponse = new ApiResponse("시간표 삭제 완료");
+  public ResponseEntity<ApiResponse> deleteTimetable(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @PathVariable Long timetableId) {
+    timetableService.deleteTimetable(jwtPrincipal.userId, timetableId);
 
     return ResponseEntity
         .ok()
-        .body(apiResponse);
+        .body(new ApiResponse("시간표 삭제 완료"));
   }
 
   @ApiOperation(value = "시간표에 official 강의 추가", notes = "시간표에 official 강의를 추가합니다.")
