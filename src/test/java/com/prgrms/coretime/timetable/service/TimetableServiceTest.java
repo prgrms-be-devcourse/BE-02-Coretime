@@ -7,6 +7,7 @@ import static com.prgrms.coretime.timetable.domain.Semester.SECOND;
 import static com.prgrms.coretime.timetable.domain.Semester.SUMMER;
 import static com.prgrms.coretime.timetable.domain.Semester.WINTER;
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.ALL;
+import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.CUSTOM;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -20,6 +21,8 @@ import com.prgrms.coretime.friend.domain.FriendRepository;
 import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
 import com.prgrms.coretime.timetable.domain.repository.enrollment.EnrollmentRepository;
+import com.prgrms.coretime.timetable.domain.repository.lecture.LectureRepository;
+import com.prgrms.coretime.timetable.domain.repository.lectureDetail.LectureDetailRepository;
 import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
@@ -48,6 +51,10 @@ class TimetableServiceTest {
   private FriendRepository friendRepository;
   @Mock
   private EnrollmentRepository enrollmentRepository;
+  @Mock
+  LectureRepository lectureRepository;
+  @Mock
+  LectureDetailRepository lectureDetailRepository;
   @InjectMocks
   private TimetableService timetableService;
 
@@ -331,7 +338,7 @@ class TimetableServiceTest {
 
     @Test
     @DisplayName("default 테이블 변경하는 경우")
-    void updateDefaultTable() {
+    void testUpdateDefaultTable() {
       when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
       when(timetableRepository.getTimetableBySameName(userId, timetableDefaultTableUpdateRequest.getName(), timetable.getYear(), timetable.getSemester())).thenReturn(Optional.empty());
       when(timetableRepository.getDefaultTimetable(userId, timetable.getYear(), timetable.getSemester())).thenReturn(Optional.of(defaultTimetable));
@@ -341,6 +348,64 @@ class TimetableServiceTest {
       verify(timetableRepository).getTimetableByUserIdAndTimetableId(userId, timetableId);
       verify(timetableRepository).getTimetableBySameName(userId, timetableDefaultTableUpdateRequest.getName(), timetable.getYear(), timetable.getSemester());
       verify(timetableRepository).getDefaultTimetable(userId, timetable.getYear(), timetable.getSemester());
+    }
+  }
+
+  @Nested
+  @DisplayName("deleteTimetable() 테스트")
+  class DeleteTimetableTest {
+    private Timetable notDefaultTable = Timetable.builder()
+        .name("시간표1")
+        .year(2022)
+        .semester(FIRST)
+        .user(user)
+        .isDefault(false)
+        .build();
+
+    @Test
+    @DisplayName("시간표가 존재하지 않는 경우 테스트")
+    void testTimetableNotFound() {
+      when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenThrow(new NotFoundException(TIMETABLE_NOT_FOUND));
+
+      try {
+        timetableService.deleteTimetable(userId, timetableId);
+      }catch (NotFoundException e) {
+        verify(enrollmentRepository, never()).getEnrollmentsWithLectureByTimetableId(timetable.getId(), CUSTOM);
+        verify(enrollmentRepository, never()).deleteByTimetableId(timetable.getId());
+        verify(lectureDetailRepository, never()).deleteLectureDetailsByLectureIds(any());
+        verify(lectureRepository, never()).deleteLectureByLectureIds(any());
+        verify(timetableRepository, never()).deleteByTimetableId(timetable.getId());
+      }
+    }
+
+    @Test
+    @DisplayName("삭제된 시간표가 기본 시간표가 아닌 경우 테스트")
+    void testDeleteNotDefaultTimetable() {
+      when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(notDefaultTable));
+      when(enrollmentRepository.getEnrollmentsWithLectureByTimetableId(notDefaultTable.getId(), CUSTOM)).thenReturn(new ArrayList<Enrollment>());
+
+      timetableService.deleteTimetable(userId, timetableId);
+
+      verify(enrollmentRepository).deleteByTimetableId(notDefaultTable.getId());
+      verify(lectureDetailRepository).deleteLectureDetailsByLectureIds(any());
+      verify(lectureRepository).deleteLectureByLectureIds(any());
+      verify(timetableRepository).deleteByTimetableId(notDefaultTable.getId());
+      verify(timetableRepository, never()).getRecentlyAddedTimetable(userId, notDefaultTable.getYear(), notDefaultTable.getSemester());
+    }
+
+    @Test
+    @DisplayName("삭제된 시간표가 기본 시간표인 경우 테스트")
+    void testDeleteDefaultTimetable() {
+      when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
+      when(enrollmentRepository.getEnrollmentsWithLectureByTimetableId(timetable.getId(), CUSTOM)).thenReturn(new ArrayList<Enrollment>());
+
+      timetableService.deleteTimetable(userId, timetableId);
+
+      verify(enrollmentRepository).deleteByTimetableId(timetable.getId());
+      verify(lectureDetailRepository).deleteLectureDetailsByLectureIds(any());
+      verify(lectureRepository).deleteLectureByLectureIds(any());
+      verify(timetableRepository).deleteByTimetableId(timetable.getId());
+      verify(timetableRepository).getRecentlyAddedTimetable(userId, timetable.getYear(), timetable.getSemester());
     }
   }
 }

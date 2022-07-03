@@ -158,11 +158,11 @@ public class TimetableService {
   public void deleteTimetable(Long userId, Long timetableId) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
 
-    List<Long> customLectureIds = enrollmentRepository.getEnrollmentsWithLectureByTimetableId(timetableId, CUSTOM).stream()
+    List<Long> customLectureIds = enrollmentRepository.getEnrollmentsWithLectureByTimetableId(timetable.getId(), CUSTOM).stream()
         .map(enrollment -> enrollment.getLecture().getId())
         .collect(Collectors.toList());
 
-    enrollmentRepository.deleteByTimetableId(timetableId);
+    enrollmentRepository.deleteByTimetableId(timetable.getId());
     lectureDetailRepository.deleteLectureDetailsByLectureIds(customLectureIds);
     lectureRepository.deleteLectureByLectureIds(customLectureIds);
     timetableRepository.deleteByTimetableId(timetable.getId());
