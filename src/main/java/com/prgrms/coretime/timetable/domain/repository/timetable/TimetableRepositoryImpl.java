@@ -67,7 +67,7 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
 
   @Override
   public List<Timetable> getDefaultTimetables(Long userId) {
-    return  queryFactory
+    return queryFactory
         .selectFrom(timetable)
         .where(
             getDefaultTimetablesCondition(userId)
