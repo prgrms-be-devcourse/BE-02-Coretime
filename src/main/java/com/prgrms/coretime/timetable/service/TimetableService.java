@@ -132,9 +132,7 @@ public class TimetableService {
   }
 
   @Transactional
-  public void updateTimetable(Long timetableId, TimetableUpdateRequest timetableUpdateRequest) {
-    // TODO : 사용자 ID 가져오는 로직이 필요하다.
-    Long userId = 1L;
+  public void updateTimetable(Long userId, Long timetableId, TimetableUpdateRequest timetableUpdateRequest) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
 
     String updatedTimetableName = timetableUpdateRequest.getName().trim();
