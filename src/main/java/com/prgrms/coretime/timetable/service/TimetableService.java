@@ -70,10 +70,7 @@ public class TimetableService {
   }
 
   @Transactional(readOnly = true)
-  public TimetablesResponse getTimetables(Integer year, Semester semester) {
-    // TODO : 사용자 ID 가져오는 로직이 필요하다.
-
-    Long userId = 1L;
+  public TimetablesResponse getTimetables(Long userId, Integer year, Semester semester) {
     List<TimetableInfo> timetables = timetableRepository.getTimetables(userId, year, semester).stream()
         .map(timetable -> new TimetableInfo(timetable.getId(), timetable.getName(), timetable.getIsDefault()))
         .collect(Collectors.toList());

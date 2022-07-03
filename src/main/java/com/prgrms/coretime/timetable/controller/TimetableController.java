@@ -51,14 +51,12 @@ public class TimetableController {
 
   @ApiOperation(value = "시간표 목록 조회", notes = "연도와 학기에 따른 시간표 목록을 조회합니다.")
   @GetMapping
-  public ResponseEntity<ApiResponse<TimetablesResponse>> getTimetables(@RequestParam Integer year, @RequestParam Semester semester) {
-    TimetablesResponse timetablesResponse = timetableService.getTimetables(year, semester);
-
-    ApiResponse apiResponse = new ApiResponse("시간표 목록 조회 완료", timetablesResponse);
+  public ResponseEntity<ApiResponse<TimetablesResponse>> getTimetables(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @RequestParam Integer year, @RequestParam Semester semester) {
+    TimetablesResponse timetablesResponse = timetableService.getTimetables(jwtPrincipal.userId, year, semester);
 
     return ResponseEntity
         .ok()
-        .body(apiResponse);
+        .body(new ApiResponse("시간표 목록 조회 완료", timetablesResponse));
   }
 
   // 기본 시간표 조회
