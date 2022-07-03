@@ -142,7 +142,7 @@ public class TimetableService {
 
     Timetable sameNameTable = timetableRepository.getTimetableBySameName(userId, updatedTimetableName, year, semester).orElse(timetable);
     if(timetable != sameNameTable) {
-      throw new IllegalArgumentException("이미 사용중인 이름입니다.");
+      throw new DuplicateRequestException(DUPLICATE_TIMETABLE_NAME);
     }
 
     timetable.updateName(updatedTimetableName.trim());
