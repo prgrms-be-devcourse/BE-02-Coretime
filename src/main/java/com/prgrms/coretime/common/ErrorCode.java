@@ -44,7 +44,13 @@ public enum ErrorCode {
   BOARD_NOT_FOUND(400, "B001", "해당 Board 리소스를 찾을 수 없습니다."),
   PHOTO_NOT_FOUND(400, "PH001", "해당 Photo 리소스를 찾을 수 없습니다."),
   POST_LIKE_NOT_FOUND(400, "PL001", "해당 User 와 Post 의 좋아요가 존재하지 않습니다."),
-  POST_LIKE_ALREADY_EXISTS(400, "PL002", "해당 User 와 Post 의 좋아요가 이미 존재합니다.");
+  POST_LIKE_ALREADY_EXISTS(400, "PL002", "해당 User 와 Post 의 좋아요가 이미 존재합니다."),
+
+
+  /**
+   * Timetable Domain
+   * */
+  DUPLICATE_TIMETABLE_NAME(400, "T001", "이미 사용중인 이름입니다.");
 
   private final int status;
   private final String code;

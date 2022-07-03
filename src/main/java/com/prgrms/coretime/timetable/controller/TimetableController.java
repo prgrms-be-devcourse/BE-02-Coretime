@@ -2,6 +2,7 @@ package com.prgrms.coretime.timetable.controller;
 
 import com.prgrms.coretime.common.ApiResponse;
 import com.prgrms.coretime.common.entity.BaseEntity;
+import com.prgrms.coretime.common.jwt.JwtPrincipal;
 import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
 import com.prgrms.coretime.timetable.dto.request.CustomLectureRequest;
@@ -18,6 +19,7 @@ import java.net.URI;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,14 +41,12 @@ public class TimetableController {
 
   @ApiOperation(value = "시간표 생성", notes = "시간표를 생성합니다.")
   @PostMapping
-  public ResponseEntity<ApiResponse> createTimetable(@RequestBody @Valid TimetableCreateRequest timetableCreateRequest) {
-    Long createTimetableId = timetableService.createTimetable(timetableCreateRequest);
-
-    ApiResponse apiResponse = new ApiResponse("시간표 생성 완료");
+  public ResponseEntity<ApiResponse> createTimetable(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @RequestBody @Valid TimetableCreateRequest timetableCreateRequest) {
+    Long createTimetableId = timetableService.createTimetable(jwtPrincipal.userId, timetableCreateRequest);
 
     return ResponseEntity
         .created(URI.create("/timetables/" + createTimetableId))
-        .body(apiResponse);
+        .body(new ApiResponse("시간표 생성 완료"));
   }
 
   @ApiOperation(value = "시간표 목록 조회", notes = "연도와 학기에 따른 시간표 목록을 조회합니다.")

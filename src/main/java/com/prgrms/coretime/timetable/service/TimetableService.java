@@ -1,10 +1,13 @@
 
 package com.prgrms.coretime.timetable.service;
 
+import static com.prgrms.coretime.common.ErrorCode.DUPLICATE_TIMETABLE_NAME;
 import static com.prgrms.coretime.common.ErrorCode.NOT_FOUND;
+import static com.prgrms.coretime.common.ErrorCode.USER_NOT_FOUND;
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.ALL;
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.CUSTOM;
 
+import com.prgrms.coretime.common.error.exception.DuplicateRequestException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.friend.domain.FriendRepository;
 import com.prgrms.coretime.timetable.domain.Semester;
@@ -26,12 +29,10 @@ import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Slf4j
 @Service
@@ -45,18 +46,15 @@ public class TimetableService {
   private final FriendRepository friendRepository;
 
   @Transactional
-  public Long createTimetable(@RequestBody @Valid TimetableCreateRequest timetableCreateRequest) {
-    // TODO : 사용자 ID 가져오는 로직이 필요하다.
-
-    Long userId = 1L;
-    User user  = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+  public Long createTimetable(Long userId, TimetableCreateRequest timetableCreateRequest) {
+    User user  = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
 
     String timetableName = timetableCreateRequest.getName().trim();
     Integer year = timetableCreateRequest.getYear();
     Semester semester = timetableCreateRequest.getSemester();
 
     if(timetableRepository.getTimetableBySameName(userId, timetableName, year, semester).isPresent()) {
-      throw new IllegalArgumentException("이미 사용중인 이름입니다.");
+      throw new DuplicateRequestException(DUPLICATE_TIMETABLE_NAME);
     }
 
     Timetable newTimetable = Timetable.builder()
