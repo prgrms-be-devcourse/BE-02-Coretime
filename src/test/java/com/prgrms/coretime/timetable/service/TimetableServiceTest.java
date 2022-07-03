@@ -1,13 +1,16 @@
 package com.prgrms.coretime.timetable.service;
 
 import static com.prgrms.coretime.common.ErrorCode.NOT_FOUND;
+import static com.prgrms.coretime.common.ErrorCode.TIMETABLE_NOT_FOUND;
 import static com.prgrms.coretime.common.ErrorCode.USER_NOT_FOUND;
 import static com.prgrms.coretime.timetable.domain.Semester.FIRST;
 import static com.prgrms.coretime.timetable.domain.Semester.SECOND;
 import static com.prgrms.coretime.timetable.domain.Semester.SUMMER;
 import static com.prgrms.coretime.timetable.domain.Semester.WINTER;
+import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.ALL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,6 +20,9 @@ import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.friend.domain.FriendRepository;
 import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.timetable.domain.Semester;
+import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
+import com.prgrms.coretime.timetable.domain.repository.enrollment.EnrollmentRepository;
+import com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType;
 import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
@@ -44,10 +50,14 @@ class TimetableServiceTest {
   private UserRepository userRepository;
   @Mock
   private FriendRepository friendRepository;
+  @Mock
+  private EnrollmentRepository enrollmentRepository;
   @InjectMocks
   private TimetableService timetableService;
 
+  private Long userId = 1L;
   private User user = new User("a@school.com", "testerA");
+  private Long timetableId = 2L;
   private Timetable timetable = Timetable.builder()
       .name("시간표1")
       .year(2022)
@@ -66,7 +76,7 @@ class TimetableServiceTest {
       timetableCreateRequest = TimetableCreateRequest.builder()
           .name("시간표1")
           .year(2022)
-          .semester(SECOND)
+          .semester(FIRST)
           .build();
     }
 
@@ -76,9 +86,9 @@ class TimetableServiceTest {
       when(userRepository.findById(any())).thenThrow(new NotFoundException(USER_NOT_FOUND));
 
       try {
-        timetableService.createTimetable(1L, timetableCreateRequest);
+        timetableService.createTimetable(userId, timetableCreateRequest);
       }catch (Exception e) {
-        verify(timetableRepository, never()).getTimetableBySameName(any(), any(), any(), any());
+        verify(timetableRepository, never()).getTimetableBySameName(userId, timetableCreateRequest.getName(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester());
         verify(timetableRepository, never()).save(any());
       }
     }
@@ -87,10 +97,10 @@ class TimetableServiceTest {
     @DisplayName("시간표 이름이 중복되는 경우 테스트")
     void testCreateTimetableNameDuplicate() {
       when(userRepository.findById(any())).thenReturn(Optional.of(user));
-      when(timetableRepository.getTimetableBySameName(any(), any(), any(), any())).thenReturn(Optional.of(timetable));
+      when(timetableRepository.getTimetableBySameName(userId, timetableCreateRequest.getName(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester())).thenReturn(Optional.of(timetable));
 
       try {
-        timetableService.createTimetable(1L, timetableCreateRequest);
+        timetableService.createTimetable(userId, timetableCreateRequest);
       }catch (DuplicateRequestException e) {
         verify(timetableRepository, never()).save(any());
       }
@@ -100,12 +110,39 @@ class TimetableServiceTest {
     @DisplayName("정상적으로 시간표를 생성하는 경우 테스트")
     void testCreateTimetable() {
       when(userRepository.findById(any())).thenReturn(Optional.of(user));
-      when(timetableRepository.getTimetableBySameName(any(), any(), any(), any())).thenReturn(Optional.empty());
+      when(timetableRepository.getTimetableBySameName(userId, timetableCreateRequest.getName(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester())).thenReturn(Optional.empty());
       when(timetableRepository.save(any())).thenReturn(timetable);
 
-      timetableService.createTimetable(1L, timetableCreateRequest);
+      timetableService.createTimetable(userId, timetableCreateRequest);
 
       verify(timetableRepository).save(any());
+    }
+  }
+
+  @Nested
+  @DisplayName("getDefaultTimetable() 테스트")
+  class GetDefaultTimetableTest {
+    @Test
+    @DisplayName("기본 시간표를 가져오지 못하는 경우 테스트")
+    void testDefaultTimetableNotFoundException() {
+      when(timetableRepository.getDefaultTimetable(userId, 2022, FIRST)).thenThrow(new NotFoundException(TIMETABLE_NOT_FOUND));
+
+      try {
+        timetableService.getDefaultTimetable(userId, 2022, FIRST);
+      } catch (NotFoundException e) {
+        verify(enrollmentRepository, never()).getEnrollmentsWithLectureByTimetableId(any(), eq(ALL));
+      }
+    }
+
+    @Test
+    @DisplayName("기본 시간표를 가져올 수 있는 경우 테스트")
+    void testGetDefaultTimetable() {
+      when(timetableRepository.getDefaultTimetable(userId, 2022, FIRST)).thenReturn(Optional.of(timetable));
+      when(enrollmentRepository.getEnrollmentsWithLectureByTimetableId(any(), eq(ALL))).thenReturn(new ArrayList<Enrollment>());
+
+      timetableService.getDefaultTimetable(userId, 2022, FIRST);
+
+      verify(enrollmentRepository).getEnrollmentsWithLectureByTimetableId(any(), eq(ALL));
     }
   }
 
