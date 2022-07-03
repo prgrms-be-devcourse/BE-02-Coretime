@@ -62,8 +62,8 @@ public class TimetableController {
   // 기본 시간표 조회
   @ApiOperation(value = "기본 시간표 조회", notes = "연도와 학기에 해당하는 사용자의 기본 시간표를 조회합니다.")
   @GetMapping("/default")
-  public ResponseEntity<ApiResponse<TimetableResponse>> getDefaultTimetable(@RequestParam Integer year, @RequestParam Semester semester) {
-    TimetableResponse timetableResponse = timetableService.getDefaultTimetable(year, semester);
+  public ResponseEntity<ApiResponse<TimetableResponse>> getDefaultTimetable(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @RequestParam Integer year, @RequestParam Semester semester) {
+    TimetableResponse timetableResponse = timetableService.getDefaultTimetable(jwtPrincipal.userId, year, semester);
 
     ApiResponse apiResponse = new ApiResponse("기본 시간표 조회 완료", timetableResponse);
 

@@ -3,6 +3,7 @@ package com.prgrms.coretime.timetable.service;
 
 import static com.prgrms.coretime.common.ErrorCode.DUPLICATE_TIMETABLE_NAME;
 import static com.prgrms.coretime.common.ErrorCode.NOT_FOUND;
+import static com.prgrms.coretime.common.ErrorCode.TIMETABLE_NOT_FOUND;
 import static com.prgrms.coretime.common.ErrorCode.USER_NOT_FOUND;
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.ALL;
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.CUSTOM;
@@ -79,11 +80,8 @@ public class TimetableService {
   }
 
   @Transactional(readOnly = true)
-  public TimetableResponse getDefaultTimetable(Integer year, Semester semester) {
-    // TODO : 사용자 ID 가져오는 로직이 필요하다.
-
-    Long userId = 1L;
-    Timetable defaultTimetable = getDefaultTimetable(userId, year, semester);
+  public TimetableResponse getDefaultTimetable(Long userId, Integer year, Semester semester) {
+    Timetable defaultTimetable = getDefaultTimetableOfUser(userId, year, semester);
     List<LectureInfo> enrollmentedLectures = getEnrollmentedLectures(defaultTimetable.getId());
 
     return TimetableResponse.builder()
@@ -129,7 +127,7 @@ public class TimetableService {
   public List<LectureInfo> getDefaultTimetableOfFriend(Long userId, Long friendId, int year, Semester semester) {
     validateFriendRelationship(userId, friendId);
 
-    Timetable friendDefaultTimetable = getDefaultTimetable(userId, year, semester);
+    Timetable friendDefaultTimetable = getDefaultTimetableOfUser(userId, year, semester);
 
     return getEnrollmentedLectures(friendDefaultTimetable.getId());
   }
@@ -153,7 +151,7 @@ public class TimetableService {
     timetable.updateName(updatedTimetableName.trim());
 
     if(updatedIsDefault) {
-      Timetable preDefaultTimetable = getDefaultTimetable(userId, timetable.getYear(), timetable.getSemester());
+      Timetable preDefaultTimetable = getDefaultTimetableOfUser(userId, timetable.getYear(), timetable.getSemester());
       preDefaultTimetable.makeNonDefault();
       timetable.makeDefault();
     }
@@ -181,8 +179,8 @@ public class TimetableService {
     }
   }
 
-  private Timetable getDefaultTimetable(Long userId, Integer year, Semester semester) {
-    return timetableRepository.getDefaultTimetable(userId, year, semester).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+  private Timetable getDefaultTimetableOfUser(Long userId, Integer year, Semester semester) {
+    return timetableRepository.getDefaultTimetable(userId, year, semester).orElseThrow(() -> new NotFoundException(TIMETABLE_NOT_FOUND));
   }
 
   private Timetable getTimetableOfUser(Long userId, Long timetableId) {
