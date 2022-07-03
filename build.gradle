@@ -46,6 +46,9 @@ dependencies {
 
 	//jwt setting
 	implementation 'com.auth0:java-jwt:3.19.2'
+
+	//aws
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-aws', version: '2.2.6.RELEASE'
 }
 
 tasks.named('test') {
