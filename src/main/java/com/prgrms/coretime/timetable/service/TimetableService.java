@@ -99,7 +99,7 @@ public class TimetableService {
   @Transactional(readOnly = true)
   public TimetableResponse getTimetable(Long userId, Long timetableId) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
-    List<LectureInfo> enrollmentedLectures = getEnrollmentedLectures(timetableId);
+    List<LectureInfo> enrollmentedLectures = getEnrollmentedLectures(timetable.getId());
 
     return TimetableResponse.builder()
         .timetableId(timetable.getId())
