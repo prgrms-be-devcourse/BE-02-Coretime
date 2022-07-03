@@ -65,23 +65,19 @@ public class TimetableController {
   public ResponseEntity<ApiResponse<TimetableResponse>> getDefaultTimetable(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @RequestParam Integer year, @RequestParam Semester semester) {
     TimetableResponse timetableResponse = timetableService.getDefaultTimetable(jwtPrincipal.userId, year, semester);
 
-    ApiResponse apiResponse = new ApiResponse("기본 시간표 조회 완료", timetableResponse);
-
     return ResponseEntity
         .ok()
-        .body(apiResponse);
+        .body(new ApiResponse("기본 시간표 조회 완료", timetableResponse));
   }
 
   @ApiOperation(value = "시간표 조회", notes = "전달된 timetableId에 따라 시간표를 전달합니다.")
   @GetMapping("/{timetableId}")
-  public ResponseEntity<ApiResponse<TimetableResponse>> getTimetable(@PathVariable Long timetableId) {
-    TimetableResponse timetableResponse = timetableService.getTimetable(timetableId);
-
-    ApiResponse apiResponse = new ApiResponse("시간표 조회 완료", timetableResponse);
+  public ResponseEntity<ApiResponse<TimetableResponse>> getTimetable(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @PathVariable Long timetableId) {
+    TimetableResponse timetableResponse = timetableService.getTimetable(jwtPrincipal.userId, timetableId);
 
     return ResponseEntity
         .ok()
-        .body(apiResponse);
+        .body(new ApiResponse("시간표 조회 완료", timetableResponse));
   }
 
   @ApiOperation(value = "시간표 정보 변경", notes = "시간표의 이름과 기본 시간표 여부를 변경합니다.")

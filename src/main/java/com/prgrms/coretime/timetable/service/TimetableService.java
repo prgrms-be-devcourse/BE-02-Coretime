@@ -95,10 +95,7 @@ public class TimetableService {
   }
 
   @Transactional(readOnly = true)
-  public TimetableResponse getTimetable(Long timetableId) {
-    // TODO : 사용자 ID 가져오는 로직이 필요하다.
-
-    Long userId = 1L;
+  public TimetableResponse getTimetable(Long userId, Long timetableId) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
     List<LectureInfo> enrollmentedLectures = getEnrollmentedLectures(timetableId);
 
@@ -184,7 +181,7 @@ public class TimetableService {
   }
 
   private Timetable getTimetableOfUser(Long userId, Long timetableId) {
-    return timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+    return timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId).orElseThrow(() -> new NotFoundException(TIMETABLE_NOT_FOUND));
   }
 
   private void validateFriendRelationship(Long userId, Long friendId) {
