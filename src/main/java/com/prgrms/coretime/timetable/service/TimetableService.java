@@ -3,12 +3,14 @@ package com.prgrms.coretime.timetable.service;
 
 import static com.prgrms.coretime.common.ErrorCode.DUPLICATE_TIMETABLE_NAME;
 import static com.prgrms.coretime.common.ErrorCode.NOT_FOUND;
+import static com.prgrms.coretime.common.ErrorCode.NOT_FRIEND;
 import static com.prgrms.coretime.common.ErrorCode.TIMETABLE_NOT_FOUND;
 import static com.prgrms.coretime.common.ErrorCode.USER_NOT_FOUND;
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.ALL;
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.CUSTOM;
 
 import com.prgrms.coretime.common.error.exception.DuplicateRequestException;
+import com.prgrms.coretime.common.error.exception.InvalidRequestException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.friend.domain.FriendRepository;
 import com.prgrms.coretime.timetable.domain.Semester;
@@ -186,7 +188,7 @@ public class TimetableService {
 
   private void validateFriendRelationship(Long userId, Long friendId) {
     if(!friendRepository.existsFriendRelationship(userId, friendId)) {
-      throw new IllegalArgumentException("친구 관계가 아닙니다.");
+      throw new InvalidRequestException(NOT_FRIEND);
     }
   }
 

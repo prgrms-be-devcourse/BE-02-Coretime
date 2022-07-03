@@ -35,7 +35,7 @@ public enum ErrorCode {
   DUPLICATE_FRIEND_REQUEST(400, "F002", "이미 완료된 친구 요청입니다."),
   FRIEND_ALREADY_EXISTS(400, "F003", "이미 등록된 친구입니다."),
   FRIEND_NOT_FOUND(404, "F004", "해당 friend 리소스를 찾을 수 없습니다."),
-
+  NOT_FRIEND(400, "F005", "친구 관계가 아닙니다."),
 
   /**
    *  Post Domain
@@ -45,7 +45,6 @@ public enum ErrorCode {
   PHOTO_NOT_FOUND(400, "PH001", "해당 Photo 리소스를 찾을 수 없습니다."),
   POST_LIKE_NOT_FOUND(400, "PL001", "해당 User 와 Post 의 좋아요가 존재하지 않습니다."),
   POST_LIKE_ALREADY_EXISTS(400, "PL002", "해당 User 와 Post 의 좋아요가 이미 존재합니다."),
-
 
   /**
    * Timetable Domain
