@@ -23,6 +23,12 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+logging:
+  level:
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: error
 
 jwt:
   header: accessToken
