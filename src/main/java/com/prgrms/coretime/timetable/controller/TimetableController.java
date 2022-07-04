@@ -102,15 +102,14 @@ public class TimetableController {
 
   @ApiOperation(value = "시간표에 official 강의 추가", notes = "시간표에 official 강의를 추가합니다.")
   @PostMapping("/{timetableId}/enrollments")
-  public ResponseEntity<ApiResponse> addOfficialLectureToTimetable(@PathVariable Long timetableId, @RequestBody @Valid
+  public ResponseEntity<ApiResponse> addOfficialLectureToTimetable(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @PathVariable Long timetableId, @RequestBody @Valid
       EnrollmentCreateRequest enrollmentCreateRequest) {
-     Enrollment enrollment = enrollmentService.addOfficialLectureToTimetable(timetableId, enrollmentCreateRequest);
-
-    ApiResponse apiResponse = new ApiResponse("official 강의 시간표에 추가 완료");
+     Enrollment enrollment = enrollmentService.addOfficialLectureToTimetable(
+         jwtPrincipal.userId, jwtPrincipal.schoolId, timetableId, enrollmentCreateRequest);
 
     return ResponseEntity
         .created(URI.create(String.format("/timetables/%s/enrollments/%s", timetableId, enrollment.getEnrollmentId().getLectureId())))
-        .body(apiResponse);
+        .body(new ApiResponse("official 강의 시간표에 추가 완료"));
   }
 
   @ApiOperation(value = "시간표에 custom 강의 추가", notes = "시간표에 custom 강의를 추가합니다.")

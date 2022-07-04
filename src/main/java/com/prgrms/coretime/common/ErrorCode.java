@@ -50,7 +50,10 @@ public enum ErrorCode {
    * Timetable Domain
    * */
   DUPLICATE_TIMETABLE_NAME(400, "T001", "이미 사용중인 이름입니다."),
-  TIMETABLE_NOT_FOUND(404, "T002", "시간표를 찾을 수 없습니다.");
+  TIMETABLE_NOT_FOUND(404, "T002", "시간표를 찾을 수 없습니다."),
+  INVALID_LECTURE_ADD_REQUEST(400, "T003", "시간표에 추가할 수 없는 강의입니다."),
+  ALREADY_ADDED_LECTURE(400, "T004", "이미 추가된 강의입니다."),
+  LECTURE_TIME_OVERLAP(400, "T005", "같은 시간에 다른 강의가 있습니다.");
 
   private final int status;
   private final String code;

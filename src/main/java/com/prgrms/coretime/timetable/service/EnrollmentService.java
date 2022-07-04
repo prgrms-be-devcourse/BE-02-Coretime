@@ -1,7 +1,12 @@
 package com.prgrms.coretime.timetable.service;
 
+import static com.prgrms.coretime.common.ErrorCode.ALREADY_ADDED_LECTURE;
+import static com.prgrms.coretime.common.ErrorCode.INVALID_LECTURE_ADD_REQUEST;
+import static com.prgrms.coretime.common.ErrorCode.LECTURE_TIME_OVERLAP;
 import static com.prgrms.coretime.common.ErrorCode.NOT_FOUND;
 
+import com.prgrms.coretime.common.error.exception.AlreadyExistsException;
+import com.prgrms.coretime.common.error.exception.InvalidRequestException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
 import com.prgrms.coretime.timetable.domain.enrollment.EnrollmentId;
@@ -37,27 +42,21 @@ public class EnrollmentService {
   private final EnrollmentRepository enrollmentRepository;
 
   @Transactional
-  public Enrollment addOfficialLectureToTimetable(Long timetableId, EnrollmentCreateRequest enrollmentCreateRequest) {
-    // TODO : 사용자 ID 가져오는 로직이 필요하다.
-    // TODO : 사용자의 school_id를 가져오는 로직이 필요하다
-
-    Long userId = 1L;
-    Long schoolId = 1L;
-
+  public Enrollment addOfficialLectureToTimetable(Long userId, Long schoolId, Long timetableId, EnrollmentCreateRequest enrollmentCreateRequest) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
     OfficialLecture officialLecture = lectureRepository.getOfficialLectureById(enrollmentCreateRequest.getLectureId()).orElseThrow(() -> new NotFoundException(NOT_FOUND));
 
     if(schoolId != officialLecture.getSchool().getId() || !timetable.getYear().equals(officialLecture.getOpenYear()) || !timetable.getSemester().equals(officialLecture.getSemester())) {
-      throw new IllegalArgumentException("시간표에 추가할 수 없는 강의입니다.");
+      throw new InvalidRequestException(INVALID_LECTURE_ADD_REQUEST);
     }
 
     Enrollment enrollment = new Enrollment(officialLecture, timetable);
 
     if(enrollmentRepository.findById(enrollment.getEnrollmentId()).isPresent()) {
-      throw new IllegalArgumentException("이미 추가된 강의입니다.");
+      throw new AlreadyExistsException(ALREADY_ADDED_LECTURE);
     }
 
-    validateLectureConflict(timetable.getId(), officialLecture.getLectureDetails());
+    validateLectureTimeOverlap(timetable.getId(), officialLecture.getLectureDetails());
 
     return enrollmentRepository.save(enrollment);
   }
@@ -71,7 +70,7 @@ public class EnrollmentService {
 
     List<LectureDetail> lectureDetails = changeCustomLectureDetailsToLectureDetails(customLectureRequest);
 
-    validateLectureConflict(timetable.getId(), lectureDetails);
+    validateLectureTimeOverlap(timetable.getId(), lectureDetails);
 
     Lecture customLecture = lectureRepository.save(CustomLecture.builder()
         .name(customLectureRequest.getName())
@@ -102,7 +101,7 @@ public class EnrollmentService {
 
     lectureDetailRepository.deleteCustomLectureDetailsByLectureId(customLecture.getId());
 
-    validateLectureConflict(timetable.getId(), lectureDetails);
+    validateLectureTimeOverlap(timetable.getId(), lectureDetails);
 
     createLectureDetails(customLecture, lectureDetails);
   }
@@ -128,9 +127,9 @@ public class EnrollmentService {
     return timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
   }
 
-  private void validateLectureConflict(Long timetableId, List<LectureDetail> lectureDetails) {
+  private void validateLectureTimeOverlap(Long timetableId, List<LectureDetail> lectureDetails) {
     if(lectureRepository.getNumberOfConflictLectures(timetableId, lectureDetails) > 0) {
-      throw new IllegalArgumentException("같은 시간에 다른 강의가 있습니다.");
+      throw new InvalidRequestException(LECTURE_TIME_OVERLAP);
     }
   }
 
