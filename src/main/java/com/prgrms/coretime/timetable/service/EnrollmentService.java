@@ -86,13 +86,10 @@ public class EnrollmentService {
   }
 
   @Transactional
-  public void updateCustomLecture(Long timetableId, Long lectureId, CustomLectureRequest customLectureRequest) {
-    // TODO : 사용자 ID 가져오는 로직이 필요하다.
-
-    Long userId = 1L;
+  public void updateCustomLecture(Long userId, Long timetableId, Long lectureId, CustomLectureRequest customLectureRequest) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
 
-    Lecture customLecture = lectureRepository.findById(lectureId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+    Lecture customLecture = lectureRepository.findById(lectureId).orElseThrow(() -> new NotFoundException(LECTURE_NOT_FOUND));
     List<LectureDetail> lectureDetails = changeCustomLectureDetailsToLectureDetails(customLectureRequest);
 
     customLecture.updateName(customLectureRequest.getName());

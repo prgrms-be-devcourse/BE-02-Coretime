@@ -58,7 +58,7 @@ public class TimetableController {
         .ok()
         .body(new ApiResponse("시간표 목록 조회 완료", timetablesResponse));
   }
-  
+
   @ApiOperation(value = "기본 시간표 조회", notes = "연도와 학기에 해당하는 사용자의 기본 시간표를 조회합니다.")
   @GetMapping("/default")
   public ResponseEntity<ApiResponse<TimetableResponse>> getDefaultTimetable(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @RequestParam Integer year, @RequestParam Semester semester) {
@@ -124,15 +124,13 @@ public class TimetableController {
 
   @ApiOperation(value = "시간표에 추가된 custom 강의 수정", notes = "시간표에 추가된 custom 강의를 수정합니다.")
   @PutMapping("/{timetableId}/enrollments/custom-lectures/{lectureId}")
-  public ResponseEntity<ApiResponse> addCustomLectureToTimetable(@PathVariable Long timetableId, @PathVariable Long lectureId, @RequestBody @Valid
+  public ResponseEntity<ApiResponse> updateCustomLecture(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @PathVariable Long timetableId, @PathVariable Long lectureId, @RequestBody @Valid
       CustomLectureRequest customLectureCreateRequest) {
-    enrollmentService.updateCustomLecture(timetableId, lectureId, customLectureCreateRequest);
-
-    ApiResponse apiResponse = new ApiResponse("시간표에 추가된 custom 강의 수정 완료");
+    enrollmentService.updateCustomLecture(jwtPrincipal.userId, timetableId, lectureId, customLectureCreateRequest);
 
     return ResponseEntity
         .ok()
-        .body(apiResponse);
+        .body(new ApiResponse("시간표에 추가된 custom 강의 수정 완료"));
   }
 
   @ApiOperation(value = "시간표에서 강의 삭제", notes = "강의를 시간표에서 삭제합니다")
