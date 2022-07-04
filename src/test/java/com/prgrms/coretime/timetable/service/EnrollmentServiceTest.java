@@ -266,4 +266,39 @@ class EnrollmentServiceTest {
       verify(lectureDetailRepository).save(any());
     }
   }
+
+  @Nested
+  @DisplayName("deleteLectureFromTimetable() 테스트")
+  class DeleteLectureFromTimetableTest {
+    @Test
+    @DisplayName("official 강의 시간표에서 삭제 테스트")
+    void testDeleteOfficialLectureFromTimetable() {
+      Enrollment enrollment = new Enrollment(officialLectureFirst, timetable);
+      when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
+      when(enrollmentRepository.findById(any())).thenReturn(Optional.of(enrollment));
+      when(lectureRepository.isCustomLecture(idOfOfficialLectureFirst)).thenReturn(false);
+
+      enrollmentService.deleteLectureFromTimetable(userId, timetableId, idOfOfficialLectureFirst);
+
+      verify(enrollmentRepository).delete(enrollment);
+      verify(lectureDetailRepository, never()).deleteCustomLectureDetailsByLectureId(idOfOfficialLectureFirst);
+      verify(lectureRepository, never()).deleteById(idOfOfficialLectureFirst);
+    }
+    
+     @Test
+     @DisplayName("custom 강의 시간표에서 삭제 테스트")
+     void testDeleteCustomLectureFromTimetable() {
+       Enrollment enrollment = new Enrollment(officialLectureFirst, timetable);
+       when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
+       when(enrollmentRepository.findById(any())).thenReturn(Optional.of(enrollment));
+       when(lectureRepository.isCustomLecture(idOfOfficialLectureFirst)).thenReturn(true);
+
+       enrollmentService.deleteLectureFromTimetable(userId, timetableId, idOfOfficialLectureFirst);
+
+       verify(enrollmentRepository).delete(enrollment);
+       verify(lectureDetailRepository).deleteCustomLectureDetailsByLectureId(idOfOfficialLectureFirst);
+       verify(lectureRepository).deleteById(idOfOfficialLectureFirst);
+     }
+  }
+
 }
