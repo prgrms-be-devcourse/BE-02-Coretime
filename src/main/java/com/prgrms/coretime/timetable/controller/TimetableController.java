@@ -2,6 +2,7 @@ package com.prgrms.coretime.timetable.controller;
 
 import com.prgrms.coretime.common.ApiResponse;
 import com.prgrms.coretime.common.entity.BaseEntity;
+import com.prgrms.coretime.common.jwt.JwtPrincipal;
 import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
 import com.prgrms.coretime.timetable.dto.request.CustomLectureRequest;
@@ -18,6 +19,7 @@ import java.net.URI;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,75 +41,63 @@ public class TimetableController {
 
   @ApiOperation(value = "시간표 생성", notes = "시간표를 생성합니다.")
   @PostMapping
-  public ResponseEntity<ApiResponse> createTimetable(@RequestBody @Valid TimetableCreateRequest timetableCreateRequest) {
-    Long createTimetableId = timetableService.createTimetable(timetableCreateRequest);
-
-    ApiResponse apiResponse = new ApiResponse("시간표 생성 완료");
+  public ResponseEntity<ApiResponse> createTimetable(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @RequestBody @Valid TimetableCreateRequest timetableCreateRequest) {
+    Long createTimetableId = timetableService.createTimetable(jwtPrincipal.userId, timetableCreateRequest);
 
     return ResponseEntity
         .created(URI.create("/timetables/" + createTimetableId))
-        .body(apiResponse);
+        .body(new ApiResponse("시간표 생성 완료"));
   }
 
   @ApiOperation(value = "시간표 목록 조회", notes = "연도와 학기에 따른 시간표 목록을 조회합니다.")
   @GetMapping
-  public ResponseEntity<ApiResponse<TimetablesResponse>> getTimetables(@RequestParam Integer year, @RequestParam Semester semester) {
-    TimetablesResponse timetablesResponse = timetableService.getTimetables(year, semester);
-
-    ApiResponse apiResponse = new ApiResponse("시간표 목록 조회 완료", timetablesResponse);
+  public ResponseEntity<ApiResponse<TimetablesResponse>> getTimetables(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @RequestParam Integer year, @RequestParam Semester semester) {
+    TimetablesResponse timetablesResponse = timetableService.getTimetables(jwtPrincipal.userId, year, semester);
 
     return ResponseEntity
         .ok()
-        .body(apiResponse);
+        .body(new ApiResponse("시간표 목록 조회 완료", timetablesResponse));
   }
 
   // 기본 시간표 조회
   @ApiOperation(value = "기본 시간표 조회", notes = "연도와 학기에 해당하는 사용자의 기본 시간표를 조회합니다.")
   @GetMapping("/default")
-  public ResponseEntity<ApiResponse<TimetableResponse>> getDefaultTimetable(@RequestParam Integer year, @RequestParam Semester semester) {
-    TimetableResponse timetableResponse = timetableService.getDefaultTimetable(year, semester);
-
-    ApiResponse apiResponse = new ApiResponse("기본 시간표 조회 완료", timetableResponse);
+  public ResponseEntity<ApiResponse<TimetableResponse>> getDefaultTimetable(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @RequestParam Integer year, @RequestParam Semester semester) {
+    TimetableResponse timetableResponse = timetableService.getDefaultTimetable(jwtPrincipal.userId, year, semester);
 
     return ResponseEntity
         .ok()
-        .body(apiResponse);
+        .body(new ApiResponse("기본 시간표 조회 완료", timetableResponse));
   }
 
   @ApiOperation(value = "시간표 조회", notes = "전달된 timetableId에 따라 시간표를 전달합니다.")
   @GetMapping("/{timetableId}")
-  public ResponseEntity<ApiResponse<TimetableResponse>> getTimetable(@PathVariable Long timetableId) {
-    TimetableResponse timetableResponse = timetableService.getTimetable(timetableId);
-
-    ApiResponse apiResponse = new ApiResponse("시간표 조회 완료", timetableResponse);
+  public ResponseEntity<ApiResponse<TimetableResponse>> getTimetable(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @PathVariable Long timetableId) {
+    TimetableResponse timetableResponse = timetableService.getTimetable(jwtPrincipal.userId, timetableId);
 
     return ResponseEntity
         .ok()
-        .body(apiResponse);
+        .body(new ApiResponse("시간표 조회 완료", timetableResponse));
   }
 
   @ApiOperation(value = "시간표 정보 변경", notes = "시간표의 이름과 기본 시간표 여부를 변경합니다.")
   @PatchMapping("/{timetableId}")
-  public ResponseEntity<ApiResponse> updateTimetableName(@PathVariable Long timetableId, @RequestBody @Valid TimetableUpdateRequest timetableUpdateRequest) {
-    timetableService.updateTimetable(timetableId, timetableUpdateRequest);
-
-    ApiResponse apiResponse = new ApiResponse("시간표 정보 변경 완료");
+  public ResponseEntity<ApiResponse> updateTimetableName(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @PathVariable Long timetableId, @RequestBody @Valid TimetableUpdateRequest timetableUpdateRequest) {
+    timetableService.updateTimetable(jwtPrincipal.userId, timetableId, timetableUpdateRequest);
 
     return ResponseEntity
         .ok()
-        .body(apiResponse);
+        .body(new ApiResponse("시간표 정보 변경 완료"));
   }
 
   @ApiOperation(value = "시간표 삭제", notes = "전달된 timetableId에 따라 시간표를 삭제합니다.")
   @DeleteMapping("/{timetableId}")
-  public ResponseEntity<ApiResponse> deleteTimetable(@PathVariable Long timetableId) {
-    timetableService.deleteTimetable(timetableId);
-
-    ApiResponse apiResponse = new ApiResponse("시간표 삭제 완료");
+  public ResponseEntity<ApiResponse> deleteTimetable(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @PathVariable Long timetableId) {
+    timetableService.deleteTimetable(jwtPrincipal.userId, timetableId);
 
     return ResponseEntity
         .ok()
-        .body(apiResponse);
+        .body(new ApiResponse("시간표 삭제 완료"));
   }
 
   @ApiOperation(value = "시간표에 official 강의 추가", notes = "시간표에 official 강의를 추가합니다.")
