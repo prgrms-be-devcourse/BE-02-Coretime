@@ -128,7 +128,7 @@ class EnrollmentServiceTest {
       }catch (NotFoundException e) {
         verify(lectureRepository, never()).getOfficialLectureById(enrollmentCreateRequestFirst.getLectureId());
         verify(enrollmentRepository, never()).findById(any());
-        verify(lectureRepository, never()).getNumberOfConflictLectures(any(), any());
+        verify(lectureRepository, never()).getNumberOfTimeOverlapLectures(any(), any());
         verify(enrollmentRepository, never()).save(any());
       }
     }
@@ -144,7 +144,7 @@ class EnrollmentServiceTest {
         enrollmentService.addOfficialLectureToTimetable(userId, schoolId, timetableId, enrollmentCreateRequestFirst);
       }catch (NotFoundException e) {
         verify(enrollmentRepository, never()).findById(any());
-        verify(lectureRepository, never()).getNumberOfConflictLectures(any(), any());
+        verify(lectureRepository, never()).getNumberOfTimeOverlapLectures(any(), any());
         verify(enrollmentRepository, never()).save(any());
       }
     }
@@ -159,7 +159,7 @@ class EnrollmentServiceTest {
         enrollmentService.addOfficialLectureToTimetable(userId, schoolId, timetableId, enrollmentCreateRequestSecond);
       }catch (InvalidRequestException e) {
         verify(enrollmentRepository, never()).findById(any());
-        verify(lectureRepository, never()).getNumberOfConflictLectures(any(), any());
+        verify(lectureRepository, never()).getNumberOfTimeOverlapLectures(any(), any());
         verify(enrollmentRepository, never()).save(any());
       }
     }
@@ -174,7 +174,7 @@ class EnrollmentServiceTest {
       try {
         enrollmentService.addOfficialLectureToTimetable(userId, schoolId, timetableId, enrollmentCreateRequestFirst);
       }catch (AlreadyExistsException e) {
-        verify(lectureRepository, never()).getNumberOfConflictLectures(any(), any());
+        verify(lectureRepository, never()).getNumberOfTimeOverlapLectures(any(), any());
         verify(enrollmentRepository, never()).save(any());
       }
     }
@@ -185,7 +185,7 @@ class EnrollmentServiceTest {
       when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
       when(lectureRepository.getOfficialLectureById(enrollmentCreateRequestFirst.getLectureId())).thenReturn(Optional.of(officialLectureFirst));
       when(enrollmentRepository.findById(any())).thenReturn(Optional.empty());
-      when(lectureRepository.getNumberOfConflictLectures(any(), any())).thenReturn(1L);
+      when(lectureRepository.getNumberOfTimeOverlapLectures(any(), any())).thenReturn(1L);
 
       try {
         enrollmentService.addOfficialLectureToTimetable(userId, schoolId, timetableId, enrollmentCreateRequestFirst);
@@ -200,7 +200,7 @@ class EnrollmentServiceTest {
       when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
       when(lectureRepository.getOfficialLectureById(enrollmentCreateRequestFirst.getLectureId())).thenReturn(Optional.of(officialLectureFirst));
       when(enrollmentRepository.findById(any())).thenReturn(Optional.empty());
-      when(lectureRepository.getNumberOfConflictLectures(any(), any())).thenReturn(0L);
+      when(lectureRepository.getNumberOfTimeOverlapLectures(any(), any())).thenReturn(0L);
 
       enrollmentService.addOfficialLectureToTimetable(userId, schoolId, timetableId, enrollmentCreateRequestFirst);
 
@@ -226,7 +226,7 @@ class EnrollmentServiceTest {
     @DisplayName("시간표에 강의가 추가될 수 있는 경우 테스트")
     void testEnrollmentSave() {
       when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
-      when(lectureRepository.getNumberOfConflictLectures(any(), any())).thenReturn(0L);
+      when(lectureRepository.getNumberOfTimeOverlapLectures(any(), any())).thenReturn(0L);
       when(lectureRepository.save(any())).thenReturn(customLecture);
 
       enrollmentService.addCustomLectureToTimetable(userId, timetableId, customLectureRequest);
@@ -256,7 +256,7 @@ class EnrollmentServiceTest {
     void testUpdateCustomLecture() {
       when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
       when(lectureRepository.findById(customLectureId)).thenReturn(Optional.of(customLecture));
-      when(lectureRepository.getNumberOfConflictLectures(any(), any())).thenReturn(0L);
+      when(lectureRepository.getNumberOfTimeOverlapLectures(any(), any())).thenReturn(0L);
 
       enrollmentService.updateCustomLecture(userId, timetableId, customLectureId, customLectureRequest);
 

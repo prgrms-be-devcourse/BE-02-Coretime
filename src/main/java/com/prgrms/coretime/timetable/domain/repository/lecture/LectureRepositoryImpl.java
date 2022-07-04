@@ -70,7 +70,7 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
   }
 
   @Override
-  public long getNumberOfConflictLectures(Long timetableId, List<LectureDetail> lectureDetails) {
+  public long getNumberOfTimeOverlapLectures(Long timetableId, List<LectureDetail> lectureDetails) {
      return queryFactory
         .select(lecture.count())
         .from(lecture)
@@ -92,7 +92,7 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
         )
         .fetchOne();
 
-    return isNull(customLecture) ? false : true;
+    return !isNull(customLecture);
   }
 
   @Override

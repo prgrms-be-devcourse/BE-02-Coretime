@@ -39,18 +39,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class EnrollmentService {
+  private final EnrollmentRepository enrollmentRepository;
   private final TimetableRepository timetableRepository;
   private final LectureRepository lectureRepository;
   private final LectureDetailRepository lectureDetailRepository;
-  private final EnrollmentRepository enrollmentRepository;
 
   @Transactional
   public Enrollment addOfficialLectureToTimetable(Long userId, Long schoolId, Long timetableId, EnrollmentCreateRequest enrollmentCreateRequest) {
-    Timetable timetable = getTimetableOfUser(userId, timetableId); // O
-    OfficialLecture officialLecture = lectureRepository.getOfficialLectureById(enrollmentCreateRequest.getLectureId()).orElseThrow(() -> new NotFoundException(LECTURE_NOT_FOUND)); // O
+    Timetable timetable = getTimetableOfUser(userId, timetableId);
+    OfficialLecture officialLecture = lectureRepository.getOfficialLectureById(enrollmentCreateRequest.getLectureId()).orElseThrow(() -> new NotFoundException(LECTURE_NOT_FOUND));
 
-    // 1. 엔티티 내부에서 처리해도 괜찮지 않느냐?
-    // 2. @Component를 이용해라
     if(!officialLecture.canEnrol(schoolId)) {
       throw new InvalidRequestException(INVALID_LECTURE_ADD_REQUEST);
     }
@@ -126,7 +124,7 @@ public class EnrollmentService {
   }
 
   private void validateLectureTimeOverlap(Long timetableId, List<LectureDetail> lectureDetails) {
-    if(lectureRepository.getNumberOfConflictLectures(timetableId, lectureDetails) > 0) {
+    if(lectureRepository.getNumberOfTimeOverlapLectures(timetableId, lectureDetails) > 0) {
       throw new InvalidRequestException(LECTURE_TIME_OVERLAP);
     }
   }
