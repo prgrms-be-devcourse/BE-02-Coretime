@@ -72,11 +72,13 @@ public class EnrollmentService {
 
     validateLectureTimeOverlap(timetable.getId(), lectureDetails);
 
-    Lecture customLecture = lectureRepository.save(CustomLecture.builder()
-        .name(customLectureRequest.getName())
-        .professor(customLectureRequest.getProfessor())
-        .classroom(customLectureRequest.getClassroom())
-        .build());
+    Lecture customLecture = lectureRepository.save(
+        CustomLecture.builder()
+            .name(customLectureRequest.getName())
+            .professor(customLectureRequest.getProfessor())
+            .classroom(customLectureRequest.getClassroom())
+            .build()
+    );
 
     createLectureDetails(customLecture, lectureDetails);
 

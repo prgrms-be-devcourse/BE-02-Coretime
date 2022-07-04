@@ -6,6 +6,7 @@ import static com.prgrms.coretime.timetable.domain.Semester.FIRST;
 import static com.prgrms.coretime.timetable.domain.Semester.SECOND;
 import static com.prgrms.coretime.timetable.domain.lecture.Grade.ETC;
 import static com.prgrms.coretime.timetable.domain.lecture.LectureType.MAJOR;
+import static com.prgrms.coretime.timetable.domain.lectureDetail.Day.MON;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -16,14 +17,20 @@ import com.prgrms.coretime.common.error.exception.InvalidRequestException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
+import com.prgrms.coretime.timetable.domain.lecture.CustomLecture;
 import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.domain.repository.enrollment.EnrollmentRepository;
 import com.prgrms.coretime.timetable.domain.repository.lecture.LectureRepository;
 import com.prgrms.coretime.timetable.domain.repository.lectureDetail.LectureDetailRepository;
 import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
 import com.prgrms.coretime.timetable.domain.timetable.Timetable;
+import com.prgrms.coretime.timetable.dto.request.CustomLectureDetail;
+import com.prgrms.coretime.timetable.dto.request.CustomLectureRequest;
 import com.prgrms.coretime.timetable.dto.request.EnrollmentCreateRequest;
 import com.prgrms.coretime.user.domain.User;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -47,7 +54,7 @@ class EnrollmentServiceTest {
   @InjectMocks
   private EnrollmentService enrollmentService;
 
-  private Long userId, schoolId, timetableId, idOfOfficialLectureFirst, idOfOfficialLectureSecond;
+  private Long userId, schoolId, timetableId, idOfOfficialLectureFirst, idOfOfficialLectureSecond, customLectureId;
   private User user;
   private School school;
   private Timetable timetable;
@@ -98,6 +105,7 @@ class EnrollmentServiceTest {
         .lectureType(MAJOR)
         .build();
     officialLectureSecond.setSchool(school);
+
   }
 
   @Nested
@@ -195,4 +203,39 @@ class EnrollmentServiceTest {
       verify(enrollmentRepository).save(any());
     }
   }
+
+  @Nested
+  @DisplayName("addCustomLectureToTimetable() 테스트")
+  class AddCustomLectureToTimetableTest {
+    private CustomLectureDetail customLectureDetail = CustomLectureDetail.builder()
+        .day(MON)
+        .startTime("10:00")
+        .endTime("10:50")
+        .build();
+
+    private CustomLectureRequest customLectureRequest = CustomLectureRequest.builder()
+        .name("custom 강의")
+        .lectureDetails(new ArrayList<>(Arrays.asList(customLectureDetail)))
+        .build();
+
+    private CustomLecture customLecture = CustomLecture.builder()
+        .name(customLectureRequest.getName())
+        .build();
+
+    @Test
+    @DisplayName("시간표에 강의가 추가될 수 있는 경우 테스트")
+    void testEnrollmentSave() {
+      when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
+      when(lectureRepository.getNumberOfConflictLectures(any(), any())).thenReturn(0L);
+      when(lectureRepository.save(any())).thenReturn(customLecture);
+
+      enrollmentService.addCustomLectureToTimetable(userId, timetableId, customLectureRequest);
+
+      verify(lectureRepository).save(any());
+      verify(lectureDetailRepository).save(any());
+      verify(enrollmentRepository).save(any());
+    }
+  }
+
+
 }
