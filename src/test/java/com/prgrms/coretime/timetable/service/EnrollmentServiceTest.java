@@ -18,6 +18,7 @@ import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
 import com.prgrms.coretime.timetable.domain.lecture.CustomLecture;
+import com.prgrms.coretime.timetable.domain.lecture.Lecture;
 import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.domain.repository.enrollment.EnrollmentRepository;
 import com.prgrms.coretime.timetable.domain.repository.lecture.LectureRepository;
@@ -59,6 +60,7 @@ class EnrollmentServiceTest {
   private School school;
   private Timetable timetable;
   private OfficialLecture officialLectureFirst, officialLectureSecond;
+  private CustomLecture customLecture;
 
   @BeforeEach
   void setUp() {
@@ -106,6 +108,10 @@ class EnrollmentServiceTest {
         .build();
     officialLectureSecond.setSchool(school);
 
+    customLectureId = 6L;
+    customLecture = CustomLecture.builder()
+        .name("custom 강의")
+        .build();
   }
 
   @Nested
@@ -218,10 +224,6 @@ class EnrollmentServiceTest {
         .lectureDetails(new ArrayList<>(Arrays.asList(customLectureDetail)))
         .build();
 
-    private CustomLecture customLecture = CustomLecture.builder()
-        .name(customLectureRequest.getName())
-        .build();
-
     @Test
     @DisplayName("시간표에 강의가 추가될 수 있는 경우 테스트")
     void testEnrollmentSave() {
@@ -237,5 +239,31 @@ class EnrollmentServiceTest {
     }
   }
 
+  @Nested
+  @DisplayName("updateCustomLecture() 테스트")
+  class UpdateCustomLectureTest {
+    private CustomLectureDetail customLectureDetail = CustomLectureDetail.builder()
+        .day(MON)
+        .startTime("10:00")
+        .endTime("10:50")
+        .build();
 
+    private CustomLectureRequest customLectureRequest = CustomLectureRequest.builder()
+        .name("custom 강의")
+        .lectureDetails(new ArrayList<>(Arrays.asList(customLectureDetail)))
+        .build();
+
+    @Test
+    @DisplayName("시간표에 등록된 custom lecture 수정 테스트")
+    void testUpdateCustomLecture() {
+      when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
+      when(lectureRepository.findById(customLectureId)).thenReturn(Optional.of(customLecture));
+      when(lectureRepository.getNumberOfConflictLectures(any(), any())).thenReturn(0L);
+
+      enrollmentService.updateCustomLecture(userId, timetableId, customLectureId, customLectureRequest);
+
+      verify(lectureDetailRepository).deleteCustomLectureDetailsByLectureId(customLecture.getId());
+      verify(lectureDetailRepository).save(any());
+    }
+  }
 }
