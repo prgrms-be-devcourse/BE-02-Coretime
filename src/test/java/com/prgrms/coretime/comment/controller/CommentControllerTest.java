@@ -9,7 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prgrms.coretime.comment.service.CommentService;
+import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.config.WebSecurityConfig;
+import com.prgrms.coretime.common.error.exception.NotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -24,8 +26,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = CommentController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfig.class))
-@MockBean(JpaMetamodelMappingContext.class)
-@WithMockUser("USERS")
+@MockBean({JpaMetamodelMappingContext.class})
+@WithMockUser(roles = {"USER"})
 class CommentControllerTest {
 
   @Autowired
@@ -36,7 +38,7 @@ class CommentControllerTest {
 
   @MockBean
   CommentService commentService;
-
+  
   String baseUrl = "/api/v1/comments";
 
   /*
@@ -52,6 +54,8 @@ class CommentControllerTest {
   @DisplayName("댓글 삭제 API 실행 시")
   class Describe_deleteCommentApi {
 
+    Long userId = 1L;
+
     Long commentId = 1L;
 
     String deleteUrl = baseUrl + "/{commentId}";
@@ -60,10 +64,11 @@ class CommentControllerTest {
     @DisplayName("없는 댓글 아이디를 삭제 할 경우")
     public void deleteIncorrectId() throws Exception {
 
-      doThrow(new IllegalArgumentException()).when(commentService).deleteComment(commentId);
+      doThrow(new NotFoundException(ErrorCode.COMMENT_NOT_FOUND)).when(commentService)
+          .deleteComment(userId, commentId);
 
       mockMvc.perform(
-              delete(deleteUrl, commentId).contentType(MediaType.APPLICATION_JSON).with(csrf()))
+              delete(deleteUrl, commentId).contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isBadRequest());
     }
 
@@ -79,7 +84,7 @@ class CommentControllerTest {
     @DisplayName("정상적인 댓글을 삭제할 경우")
     public void deleteCorrectId() throws Exception {
 
-      doNothing().when(commentService).deleteComment(commentId);
+      doNothing().when(commentService).deleteComment(userId, commentId);
 
       mockMvc.perform(
               delete(deleteUrl, commentId).contentType(MediaType.APPLICATION_JSON).with(csrf()))

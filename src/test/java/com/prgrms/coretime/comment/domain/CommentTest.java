@@ -187,6 +187,7 @@ class CommentTest {
           .post(post)
           .parent(null)
           .isAnonymous(true)
+          .anonymousSeq(post.getAnonymousSeqAndAdd())
           .content(_300BytesString)
           .build();
 
@@ -195,6 +196,7 @@ class CommentTest {
           .post(post)
           .parent(anonymousComment1)
           .isAnonymous(false)
+          .anonymousSeq(null)
           .content(_300BytesString)
           .build();
 
@@ -203,6 +205,7 @@ class CommentTest {
           .post(post)
           .parent(null)
           .isAnonymous(true)
+          .anonymousSeq(post.getAnonymousSeqAndAdd())
           .content(_300BytesString)
           .build();
 
