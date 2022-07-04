@@ -49,9 +49,9 @@ public enum ErrorCode {
 
   /**
    * Timetable Domain
-   * */
+   */
   DUPLICATE_TIMETABLE_NAME(400, "T001", "이미 사용중인 이름입니다."),
-  TIMETABLE_NOT_FOUND(404, "T002", "시간표를 찾을 수 없습니다.");
+  TIMETABLE_NOT_FOUND(404, "T002", "시간표를 찾을 수 없습니다."),
 
   /**
    * Comment Domain
