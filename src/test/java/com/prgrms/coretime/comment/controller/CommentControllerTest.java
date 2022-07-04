@@ -52,6 +52,8 @@ class CommentControllerTest {
   @DisplayName("댓글 삭제 API 실행 시")
   class Describe_deleteCommentApi {
 
+    Long userId = 1L;
+
     Long commentId = 1L;
 
     String deleteUrl = baseUrl + "/{commentId}";
@@ -60,7 +62,7 @@ class CommentControllerTest {
     @DisplayName("없는 댓글 아이디를 삭제 할 경우")
     public void deleteIncorrectId() throws Exception {
 
-      doThrow(new IllegalArgumentException()).when(commentService).deleteComment(commentId);
+      doThrow(new IllegalArgumentException()).when(commentService).deleteComment(userId, commentId);
 
       mockMvc.perform(
               delete(deleteUrl, commentId).contentType(MediaType.APPLICATION_JSON).with(csrf()))
@@ -79,7 +81,7 @@ class CommentControllerTest {
     @DisplayName("정상적인 댓글을 삭제할 경우")
     public void deleteCorrectId() throws Exception {
 
-      doNothing().when(commentService).deleteComment(commentId);
+      doNothing().when(commentService).deleteComment(userId, commentId);
 
       mockMvc.perform(
               delete(deleteUrl, commentId).contentType(MediaType.APPLICATION_JSON).with(csrf()))
