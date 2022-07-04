@@ -53,8 +53,14 @@ public enum ErrorCode {
   TIMETABLE_NOT_FOUND(404, "T002", "시간표를 찾을 수 없습니다."),
   INVALID_LECTURE_ADD_REQUEST(400, "T003", "시간표에 추가할 수 없는 강의입니다."),
   ALREADY_ADDED_LECTURE(400, "T004", "이미 추가된 강의입니다."),
-  LECTURE_TIME_OVERLAP(400, "T005", "같은 시간에 다른 강의가 있습니다.");
+  LECTURE_TIME_OVERLAP(400, "T005", "같은 시간에 다른 강의가 있습니다."),
 
+  /**
+   * Comment Domain
+   **/
+  COMMENT_NOT_FOUND(400, "COM001", "해당 Comment를 찾을 수 없습니다."),
+  COMMENT_LIKE_ALREADY_EXISTS(400, "COM002", "해당 댓글에 이미 좋아요가 존재합니다."),
+  COMMENT_LIKE_NOT_FOUND(400, "COM003", "해당 댓글에 좋아요가 존재하지 않습니다.");
   private final int status;
   private final String code;
   private final String message;
