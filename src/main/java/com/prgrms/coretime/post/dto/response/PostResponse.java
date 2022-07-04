@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 public record PostResponse(Long postId, BoardSimpleResponse board,
                            Long userId, String nickname, String title,
                            String content, Boolean isAnonymous,
+                           List<PhotoResponse> photos,
                            List<CommentResponse> comments,
                            Integer likeCount) {
 
@@ -25,6 +26,7 @@ public record PostResponse(Long postId, BoardSimpleResponse board,
         entity.getTitle(),
         entity.getContent(),
         entity.getIsAnonymous(),
+        entity.getPhotos().stream().map(PhotoResponse::new).toList(),
         comments.getContent().stream().map(CommentResponse::new).toList(),
         entity.getLikeCount()
     );

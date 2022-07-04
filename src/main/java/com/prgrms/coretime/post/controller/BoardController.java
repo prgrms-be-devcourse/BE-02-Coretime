@@ -63,7 +63,7 @@ public class BoardController {
   public ResponseEntity<ApiResponse<PostIdResponse>> createPost(
       @PathVariable(name = "boardId") Long boardId,
       @AuthenticationPrincipal JwtPrincipal principal,
-      @RequestBody @Validated PostCreateRequest request
+      @ModelAttribute @Validated PostCreateRequest request
   ) {
     return ResponseEntity.created(URI.create("")).body(
         new ApiResponse<>(

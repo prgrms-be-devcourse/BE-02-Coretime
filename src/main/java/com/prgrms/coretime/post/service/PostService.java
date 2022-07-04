@@ -4,10 +4,13 @@ import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.error.exception.AlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
+import com.prgrms.coretime.common.util.AmazonS3Uploader;
 import com.prgrms.coretime.post.domain.Board;
+import com.prgrms.coretime.post.domain.Photo;
 import com.prgrms.coretime.post.domain.repository.BoardRepository;
 import com.prgrms.coretime.post.domain.Post;
 import com.prgrms.coretime.post.domain.PostLike;
+import com.prgrms.coretime.post.domain.repository.PhotoRepository;
 import com.prgrms.coretime.post.domain.repository.PostLikeRepository;
 import com.prgrms.coretime.post.domain.repository.PostRepository;
 import com.prgrms.coretime.post.dto.request.PostCreateRequest;
@@ -17,8 +20,10 @@ import com.prgrms.coretime.post.dto.response.PostResponse;
 import com.prgrms.coretime.post.dto.response.PostSimpleResponse;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,16 +38,22 @@ public class PostService {
   private final BoardRepository boardRepository;
   private final PostLikeRepository postLikeRepository;
   private final UserRepository userRepository;
+  private final PhotoRepository photoRepository;
+  private final AmazonS3Uploader amazonS3Uploader;
   private final Integer HOT_COUNT = 10;
   private final Integer BEST_COUNT = 100;
 
   public PostService(PostRepository postRepository, BoardRepository boardRepository,
       PostLikeRepository postLikeRepository,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      PhotoRepository photoRepository,
+      AmazonS3Uploader amazonS3Uploader) {
     this.postRepository = postRepository;
     this.boardRepository = boardRepository;
     this.postLikeRepository = postLikeRepository;
     this.userRepository = userRepository;
+    this.photoRepository = photoRepository;
+    this.amazonS3Uploader = amazonS3Uploader;
   }
 
   @Transactional(readOnly = true)
@@ -90,13 +101,21 @@ public class PostService {
   public PostIdResponse createPost(Long boardId, Long userId, PostCreateRequest request) {
     Board board = findBoard(boardId);
     User user = findUser(userId);
-    Post post = Post.builder()
+    Post post = postRepository.save(Post.builder()
         .board(board)
         .user(user)
         .title(request.getTitle())
         .content(request.getContent())
         .isAnonymous(request.getIsAnonymous())
-        .build();
+        .build());
+    request.getPhotos().forEach(photo -> {
+      try {
+        String path = amazonS3Uploader.upload(photo, "photos/" + post.getId());
+        photoRepository.save(new Photo(path, post));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    });
     return new PostIdResponse(postRepository.save(post).getId());
   }
 

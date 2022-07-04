@@ -31,7 +31,6 @@ public class AmazonS3Uploader {
   public String upload(MultipartFile multipartFile, String dirName) throws IOException {
     File uploadFile = convert(multipartFile).orElseThrow(
             () -> new IllegalArgumentException("error: MultipartFile -> File convert fail"));
-
     return upload(uploadFile, dirName);
   }
 
@@ -69,7 +68,6 @@ public class AmazonS3Uploader {
       }
       return Optional.of(convertFile);
     }
-
     return Optional.empty();
   }
 }
