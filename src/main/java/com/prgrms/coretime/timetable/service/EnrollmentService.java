@@ -11,17 +11,17 @@ import static com.prgrms.coretime.common.ErrorCode.TIMETABLE_NOT_FOUND;
 import com.prgrms.coretime.common.error.exception.AlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.InvalidRequestException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
-import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
-import com.prgrms.coretime.timetable.domain.enrollment.EnrollmentId;
-import com.prgrms.coretime.timetable.domain.lecture.CustomLecture;
-import com.prgrms.coretime.timetable.domain.lecture.Lecture;
-import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
-import com.prgrms.coretime.timetable.domain.lectureDetail.LectureDetail;
+import com.prgrms.coretime.timetable.domain.Enrollment;
+import com.prgrms.coretime.timetable.domain.EnrollmentId;
+import com.prgrms.coretime.timetable.domain.CustomLecture;
+import com.prgrms.coretime.timetable.domain.Lecture;
+import com.prgrms.coretime.timetable.domain.OfficialLecture;
+import com.prgrms.coretime.timetable.domain.LectureDetail;
 import com.prgrms.coretime.timetable.domain.repository.enrollment.EnrollmentRepository;
 import com.prgrms.coretime.timetable.domain.repository.lecture.LectureRepository;
 import com.prgrms.coretime.timetable.domain.repository.lectureDetail.LectureDetailRepository;
 import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
-import com.prgrms.coretime.timetable.domain.timetable.Timetable;
+import com.prgrms.coretime.timetable.domain.Timetable;
 import com.prgrms.coretime.timetable.dto.request.CustomLectureDetail;
 import com.prgrms.coretime.timetable.dto.request.CustomLectureRequest;
 import com.prgrms.coretime.timetable.dto.request.EnrollmentCreateRequest;
@@ -46,15 +46,19 @@ public class EnrollmentService {
 
   @Transactional
   public Enrollment addOfficialLectureToTimetable(Long userId, Long schoolId, Long timetableId, EnrollmentCreateRequest enrollmentCreateRequest) {
-    Timetable timetable = getTimetableOfUser(userId, timetableId);
-    OfficialLecture officialLecture = lectureRepository.getOfficialLectureById(enrollmentCreateRequest.getLectureId()).orElseThrow(() -> new NotFoundException(LECTURE_NOT_FOUND));
+    Timetable timetable = getTimetableOfUser(userId, timetableId); // O
+    OfficialLecture officialLecture = lectureRepository.getOfficialLectureById(enrollmentCreateRequest.getLectureId()).orElseThrow(() -> new NotFoundException(LECTURE_NOT_FOUND)); // O
 
-    if(schoolId != officialLecture.getSchool().getId() || !timetable.getYear().equals(officialLecture.getOpenYear()) || !timetable.getSemester().equals(officialLecture.getSemester())) {
+    // 1. 엔티티 내부에서 처리해도 괜찮지 않느냐?
+    // 2. @Component를 이용해라
+    if(!officialLecture.canEnrol(schoolId)) {
+      throw new InvalidRequestException(INVALID_LECTURE_ADD_REQUEST);
+    }
+    if(!timetable.canEnrol(officialLecture.getOpenYear(), officialLecture.getSemester())) {
       throw new InvalidRequestException(INVALID_LECTURE_ADD_REQUEST);
     }
 
     Enrollment enrollment = new Enrollment(officialLecture, timetable);
-
     if(enrollmentRepository.findById(enrollment.getEnrollmentId()).isPresent()) {
       throw new AlreadyExistsException(ALREADY_ADDED_LECTURE);
     }

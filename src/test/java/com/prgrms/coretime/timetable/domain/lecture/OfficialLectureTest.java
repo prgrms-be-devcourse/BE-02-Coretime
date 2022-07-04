@@ -1,11 +1,14 @@
 package com.prgrms.coretime.timetable.domain.lecture;
 
 import static com.prgrms.coretime.timetable.domain.Semester.SECOND;
-import static com.prgrms.coretime.timetable.domain.lecture.Grade.JUNIOR;
-import static com.prgrms.coretime.timetable.domain.lecture.LectureType.MAJOR;
+import static com.prgrms.coretime.timetable.domain.Grade.JUNIOR;
+import static com.prgrms.coretime.timetable.domain.LectureType.MAJOR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.prgrms.coretime.timetable.domain.Grade;
+import com.prgrms.coretime.timetable.domain.LectureType;
+import com.prgrms.coretime.timetable.domain.OfficialLecture;
 import com.prgrms.coretime.timetable.domain.Semester;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;

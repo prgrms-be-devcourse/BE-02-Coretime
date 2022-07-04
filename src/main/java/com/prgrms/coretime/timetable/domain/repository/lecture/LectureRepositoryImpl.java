@@ -8,11 +8,11 @@ import static com.prgrms.coretime.timetable.domain.lectureDetail.QLectureDetail.
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import com.prgrms.coretime.timetable.domain.lecture.Grade;
-import com.prgrms.coretime.timetable.domain.lecture.Lecture;
-import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
-import com.prgrms.coretime.timetable.domain.lectureDetail.Day;
-import com.prgrms.coretime.timetable.domain.lectureDetail.LectureDetail;
+import com.prgrms.coretime.timetable.domain.Grade;
+import com.prgrms.coretime.timetable.domain.Lecture;
+import com.prgrms.coretime.timetable.domain.OfficialLecture;
+import com.prgrms.coretime.timetable.domain.Day;
+import com.prgrms.coretime.timetable.domain.LectureDetail;
 import com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition;
 import com.prgrms.coretime.timetable.dto.request.SearchType;
 import com.querydsl.core.BooleanBuilder;

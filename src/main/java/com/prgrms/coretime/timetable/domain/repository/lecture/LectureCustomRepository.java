@@ -1,7 +1,7 @@
 package com.prgrms.coretime.timetable.domain.repository.lecture;
 
-import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
-import com.prgrms.coretime.timetable.domain.lectureDetail.LectureDetail;
+import com.prgrms.coretime.timetable.domain.OfficialLecture;
+import com.prgrms.coretime.timetable.domain.LectureDetail;
 import com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition;
 import java.util.List;
 import java.util.Optional;

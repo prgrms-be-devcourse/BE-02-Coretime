@@ -4,7 +4,7 @@ import static com.prgrms.coretime.timetable.domain.enrollment.QEnrollment.enroll
 import static com.prgrms.coretime.timetable.domain.lecture.QLecture.lecture;
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.CUSTOM;
 
-import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
+import com.prgrms.coretime.timetable.domain.Enrollment;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;

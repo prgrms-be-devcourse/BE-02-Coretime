@@ -2,7 +2,6 @@
 package com.prgrms.coretime.timetable.service;
 
 import static com.prgrms.coretime.common.ErrorCode.DUPLICATE_TIMETABLE_NAME;
-import static com.prgrms.coretime.common.ErrorCode.NOT_FOUND;
 import static com.prgrms.coretime.common.ErrorCode.NOT_FRIEND;
 import static com.prgrms.coretime.common.ErrorCode.TIMETABLE_NOT_FOUND;
 import static com.prgrms.coretime.common.ErrorCode.USER_NOT_FOUND;
@@ -14,12 +13,12 @@ import com.prgrms.coretime.common.error.exception.InvalidRequestException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.friend.domain.FriendRepository;
 import com.prgrms.coretime.timetable.domain.Semester;
-import com.prgrms.coretime.timetable.domain.lecture.Lecture;
+import com.prgrms.coretime.timetable.domain.Lecture;
 import com.prgrms.coretime.timetable.domain.repository.enrollment.EnrollmentRepository;
 import com.prgrms.coretime.timetable.domain.repository.lecture.LectureRepository;
 import com.prgrms.coretime.timetable.domain.repository.lectureDetail.LectureDetailRepository;
 import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
-import com.prgrms.coretime.timetable.domain.timetable.Timetable;
+import com.prgrms.coretime.timetable.domain.Timetable;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
 import com.prgrms.coretime.timetable.dto.request.TimetableUpdateRequest;
 import com.prgrms.coretime.timetable.dto.response.FriendDefaultTimetableInfo;
