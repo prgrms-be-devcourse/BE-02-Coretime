@@ -35,10 +35,10 @@ public class CommentService {
         null : getComment(commentCreateRequest.getParentId());
 
     // 기존에 유저가 댓글을 썼다면 익명번호 가져오기
-    Integer seq = Integer.valueOf(
+    Integer seq = commentCreateRequest.getIsCommentAnonymous() ? Integer.valueOf(
         commentRepository.findFirstByUserIdAndPostId(userId, post.getId())
             .map(comment -> comment.getAnonymousSeq())
-            .orElse(post.getAnonymousSeqAndAdd()));
+            .orElse(post.getAnonymousSeqAndAdd())) : null;
 
     Comment comment = Comment.builder()
         .user(currentUser)
