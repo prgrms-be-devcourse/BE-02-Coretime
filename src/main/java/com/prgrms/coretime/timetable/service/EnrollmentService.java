@@ -104,10 +104,7 @@ public class EnrollmentService {
   }
 
   @Transactional
-  public void deleteLectureFromTimetable(Long timetableId, Long lectureId) {
-    // TODO : 사용자 ID 가져오는 로직이 필요하다.
-
-    Long userId = 1L;
+  public void deleteLectureFromTimetable(Long userId, Long timetableId, Long lectureId) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
 
     EnrollmentId enrollmentId = new EnrollmentId(lectureId, timetable.getId());

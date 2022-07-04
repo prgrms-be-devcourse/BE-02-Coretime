@@ -135,13 +135,11 @@ public class TimetableController {
 
   @ApiOperation(value = "시간표에서 강의 삭제", notes = "강의를 시간표에서 삭제합니다")
   @DeleteMapping("/{timetableId}/enrollments/{lectureId}")
-  public ResponseEntity<ApiResponse> deleteLectureFromTimetable(@PathVariable Long timetableId, @PathVariable Long lectureId) {
-    enrollmentService.deleteLectureFromTimetable(timetableId, lectureId);
-
-    ApiResponse apiResponse = new ApiResponse("시간표에서 강의 삭제 완료");
+  public ResponseEntity<ApiResponse> deleteLectureFromTimetable(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @PathVariable Long timetableId, @PathVariable Long lectureId) {
+    enrollmentService.deleteLectureFromTimetable(jwtPrincipal.userId, timetableId, lectureId);
 
     return ResponseEntity
         .ok()
-        .body(apiResponse);
+        .body(new ApiResponse("시간표에서 강의 삭제 완료"));
   }
 }
