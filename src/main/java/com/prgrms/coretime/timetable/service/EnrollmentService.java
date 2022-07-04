@@ -2,6 +2,7 @@ package com.prgrms.coretime.timetable.service;
 
 import static com.prgrms.coretime.common.ErrorCode.ALREADY_ADDED_LECTURE;
 import static com.prgrms.coretime.common.ErrorCode.INVALID_LECTURE_ADD_REQUEST;
+import static com.prgrms.coretime.common.ErrorCode.LECTURE_DETAIL_TIME_OVERLAP;
 import static com.prgrms.coretime.common.ErrorCode.LECTURE_NOT_FOUND;
 import static com.prgrms.coretime.common.ErrorCode.LECTURE_TIME_OVERLAP;
 import static com.prgrms.coretime.common.ErrorCode.NOT_FOUND;
@@ -64,10 +65,7 @@ public class EnrollmentService {
   }
 
   @Transactional
-  public Enrollment addCustomLectureToTimetable(Long timetableId, CustomLectureRequest customLectureRequest) {
-    // TODO : 사용자 ID 가져오는 로직이 필요하다.
-
-    Long userId = 1L;
+  public Enrollment addCustomLectureToTimetable(Long userId, Long timetableId, CustomLectureRequest customLectureRequest) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
 
     List<LectureDetail> lectureDetails = changeCustomLectureDetailsToLectureDetails(customLectureRequest);
@@ -82,9 +80,7 @@ public class EnrollmentService {
 
     createLectureDetails(customLecture, lectureDetails);
 
-    Enrollment enrollment = new Enrollment(customLecture, timetable);
-
-    return enrollmentRepository.save(enrollment);
+    return enrollmentRepository.save(new Enrollment(customLecture, timetable));
   }
 
   @Transactional
@@ -141,7 +137,7 @@ public class EnrollmentService {
     return customLectureRequest.getLectureDetails().stream()
         .map(customLectureDetail -> {
           if(lectureDetailSet.contains(customLectureDetail)) {
-            throw new IllegalArgumentException("입력된 시간중 겹치는 시간이 있습니다.");
+            throw new InvalidRequestException(LECTURE_DETAIL_TIME_OVERLAP);
           }
 
           lectureDetailSet.add(customLectureDetail);

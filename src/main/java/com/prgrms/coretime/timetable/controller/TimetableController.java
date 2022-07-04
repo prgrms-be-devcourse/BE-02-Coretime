@@ -58,8 +58,7 @@ public class TimetableController {
         .ok()
         .body(new ApiResponse("시간표 목록 조회 완료", timetablesResponse));
   }
-
-  // 기본 시간표 조회
+  
   @ApiOperation(value = "기본 시간표 조회", notes = "연도와 학기에 해당하는 사용자의 기본 시간표를 조회합니다.")
   @GetMapping("/default")
   public ResponseEntity<ApiResponse<TimetableResponse>> getDefaultTimetable(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @RequestParam Integer year, @RequestParam Semester semester) {
@@ -114,15 +113,13 @@ public class TimetableController {
 
   @ApiOperation(value = "시간표에 custom 강의 추가", notes = "시간표에 custom 강의를 추가합니다.")
   @PostMapping("/{timetableId}/enrollments/custom-lectures")
-  public ResponseEntity<ApiResponse> addCustomLectureToTimetable(@PathVariable Long timetableId, @RequestBody @Valid
+  public ResponseEntity<ApiResponse> addCustomLectureToTimetable(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @PathVariable Long timetableId, @RequestBody @Valid
       CustomLectureRequest customLectureCreateRequest) {
-    Enrollment enrollment = enrollmentService.addCustomLectureToTimetable(timetableId, customLectureCreateRequest);
-
-    ApiResponse apiResponse = new ApiResponse("custom 강의 시간표에 추가 완료");
+    Enrollment enrollment = enrollmentService.addCustomLectureToTimetable(jwtPrincipal.userId, timetableId, customLectureCreateRequest);
 
     return ResponseEntity
         .created(URI.create(String.format("/timetables/%s/enrollments/custom-lectures/%s", timetableId, enrollment.getEnrollmentId().getLectureId())))
-        .body(apiResponse);
+        .body(new ApiResponse("custom 강의 시간표에 추가 완료"));
   }
 
   @ApiOperation(value = "시간표에 추가된 custom 강의 수정", notes = "시간표에 추가된 custom 강의를 수정합니다.")
