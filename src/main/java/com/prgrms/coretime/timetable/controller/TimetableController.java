@@ -1,10 +1,9 @@
 package com.prgrms.coretime.timetable.controller;
 
 import com.prgrms.coretime.common.ApiResponse;
-import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.common.jwt.JwtPrincipal;
 import com.prgrms.coretime.timetable.domain.Semester;
-import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
+import com.prgrms.coretime.timetable.domain.Enrollment;
 import com.prgrms.coretime.timetable.dto.request.CustomLectureRequest;
 import com.prgrms.coretime.timetable.dto.request.EnrollmentCreateRequest;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
@@ -35,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/timetables")
 @RequiredArgsConstructor
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class TimetableController {
   private final TimetableService timetableService;
   private final EnrollmentService enrollmentService;
