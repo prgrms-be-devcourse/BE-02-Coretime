@@ -35,11 +35,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EnrollmentService {
   private final EnrollmentRepository enrollmentRepository;
+  private final EnrollmentValidator enrollmentValidator;
+
   private final TimetableRepository timetableRepository;
   private final LectureRepository lectureRepository;
   private final LectureDetailRepository lectureDetailRepository;
@@ -49,29 +50,18 @@ public class EnrollmentService {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
     OfficialLecture officialLecture = lectureRepository.getOfficialLectureById(enrollmentCreateRequest.getLectureId()).orElseThrow(() -> new NotFoundException(LECTURE_NOT_FOUND));
 
-    if(!officialLecture.canEnrol(schoolId)) {
-      throw new InvalidRequestException(INVALID_LECTURE_ADD_REQUEST);
-    }
-    if(!timetable.canEnrol(officialLecture.getOpenYear(), officialLecture.getSemester())) {
-      throw new InvalidRequestException(INVALID_LECTURE_ADD_REQUEST);
-    }
+    enrollmentValidator.validateOfficialLectureEnrollment(schoolId, officialLecture, timetable);
+    enrollmentValidator.validateLectureTimeOverlap(timetable.getId(), officialLecture.getLectureDetails());
 
-    Enrollment enrollment = new Enrollment(officialLecture, timetable);
-    if(enrollmentRepository.findById(enrollment.getEnrollmentId()).isPresent()) {
-      throw new AlreadyExistsException(ALREADY_ADDED_LECTURE);
-    }
-
-    validateLectureTimeOverlap(timetable.getId(), officialLecture.getLectureDetails());
-
-    return enrollmentRepository.save(enrollment);
+    return enrollmentRepository.save(new Enrollment(officialLecture, timetable));
   }
 
   @Transactional
   public Enrollment addCustomLectureToTimetable(Long userId, Long timetableId, CustomLectureRequest customLectureRequest) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
+    List<LectureDetail> lectureDetails = changeCustomLectureDetailsToLectureDetails(customLectureRequest.getLectureDetails());
 
-    List<LectureDetail> lectureDetails = changeCustomLectureDetailsToLectureDetails(customLectureRequest);
-
+    // enrollment checker
     validateLectureTimeOverlap(timetable.getId(), lectureDetails);
 
     Lecture customLecture = lectureRepository.save(
@@ -90,9 +80,8 @@ public class EnrollmentService {
   @Transactional
   public void updateCustomLecture(Long userId, Long timetableId, Long lectureId, CustomLectureRequest customLectureRequest) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
-
     Lecture customLecture = lectureRepository.findById(lectureId).orElseThrow(() -> new NotFoundException(LECTURE_NOT_FOUND));
-    List<LectureDetail> lectureDetails = changeCustomLectureDetailsToLectureDetails(customLectureRequest);
+    List<LectureDetail> lectureDetails = changeCustomLectureDetailsToLectureDetails(customLectureRequest.getLectureDetails());
 
     customLecture.updateName(customLectureRequest.getName());
     customLecture.updateProfessor(customLectureRequest.getProfessor());
@@ -100,6 +89,7 @@ public class EnrollmentService {
 
     lectureDetailRepository.deleteCustomLectureDetailsByLectureId(customLecture.getId());
 
+    // enrollmentChecker
     validateLectureTimeOverlap(timetable.getId(), lectureDetails);
 
     createLectureDetails(customLecture, lectureDetails);
@@ -108,9 +98,8 @@ public class EnrollmentService {
   @Transactional
   public void deleteLectureFromTimetable(Long userId, Long timetableId, Long lectureId) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
+    Enrollment enrollment = enrollmentRepository.findById(new EnrollmentId(lectureId, timetable.getId())).orElseThrow(() -> new NotFoundException(NOT_FOUND));
 
-    EnrollmentId enrollmentId = new EnrollmentId(lectureId, timetable.getId());
-    Enrollment enrollment = enrollmentRepository.findById(enrollmentId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
     enrollmentRepository.delete(enrollment);
 
     if(lectureRepository.isCustomLecture(lectureId)) {
@@ -129,10 +118,10 @@ public class EnrollmentService {
     }
   }
 
-  private List<LectureDetail> changeCustomLectureDetailsToLectureDetails(CustomLectureRequest customLectureRequest) {
+  private List<LectureDetail> changeCustomLectureDetailsToLectureDetails(List<CustomLectureDetail> customLectureDetails) {
     Set<CustomLectureDetail> lectureDetailSet = new HashSet<>();
 
-    return customLectureRequest.getLectureDetails().stream()
+    return customLectureDetails.stream()
         .map(customLectureDetail -> {
           if(lectureDetailSet.contains(customLectureDetail)) {
             throw new InvalidRequestException(LECTURE_DETAIL_TIME_OVERLAP);
