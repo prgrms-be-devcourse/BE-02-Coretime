@@ -68,7 +68,8 @@ public class Comment extends BaseEntity {
 
   //TODO: 생성자 처리 어떻게 할 건지, RequestDto 말고 여기서 Dto 받아서 생성할 건지 고민
   @Builder
-  public Comment(User user, Post post, Comment parent, Boolean isAnonymous, String content) {
+  public Comment(User user, Post post, Comment parent, Boolean isAnonymous, Integer anonymousSeq,
+      String content) {
     validatePost(post);
     validateUser(user);
     validateIsAnonymous(isAnonymous);
@@ -78,9 +79,7 @@ public class Comment extends BaseEntity {
     this.user = user; // 단방향
     setParent(parent); // 양방향
     this.isAnonymous = isAnonymous;
-    if (this.isAnonymous) {
-      setAnonymousSeq(this.post.getAnonymousSeqAndAdd());
-    }
+    this.anonymousSeq = anonymousSeq;
     this.isDelete = false;
     this.content = content;
   }

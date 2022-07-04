@@ -22,6 +22,7 @@ public enum ErrorCode {
   INVALID_TYPE_VALUE(400, "C002", "요청 값의 타입이 잘못되었습니다."),
   INVALID_INPUT_VALUE(400, "C003", "적절하지 않은 값입니다."),
   NOT_FOUND(404, "C004", "해당 리소스를 찾을 수 없습니다."),
+  BAD_REQUEST(400, "C005", "잘못된 요청입니다."),
   MISSING_REQUEST_PARAMETER(400, "C005", "필수 파라미터가 누락되었습니다."),
   INVALID_LENGTH(400, "C006", "올바르지 않은 길이입니다."),
   USER_NOT_FOUND(500, "U001", "유저가 존재하지 않습니다."),
@@ -35,17 +36,29 @@ public enum ErrorCode {
   DUPLICATE_FRIEND_REQUEST(400, "F002", "이미 완료된 친구 요청입니다."),
   FRIEND_ALREADY_EXISTS(400, "F003", "이미 등록된 친구입니다."),
   FRIEND_NOT_FOUND(404, "F004", "해당 friend 리소스를 찾을 수 없습니다."),
-
+  NOT_FRIEND(400, "F005", "친구 관계가 아닙니다."),
 
   /**
-   *  Post Domain
-   * */
+   * Post Domain
+   */
   POST_NOT_FOUND(400, "P001", "해당 Post 리소스를 찾을 수 없습니다."),
   BOARD_NOT_FOUND(400, "B001", "해당 Board 리소스를 찾을 수 없습니다."),
   PHOTO_NOT_FOUND(400, "PH001", "해당 Photo 리소스를 찾을 수 없습니다."),
   POST_LIKE_NOT_FOUND(400, "PL001", "해당 User 와 Post 의 좋아요가 존재하지 않습니다."),
-  POST_LIKE_ALREADY_EXISTS(400, "PL002", "해당 User 와 Post 의 좋아요가 이미 존재합니다.");
+  POST_LIKE_ALREADY_EXISTS(400, "PL002", "해당 User 와 Post 의 좋아요가 이미 존재합니다."),
 
+  /**
+   * Timetable Domain
+   * */
+  DUPLICATE_TIMETABLE_NAME(400, "T001", "이미 사용중인 이름입니다."),
+  TIMETABLE_NOT_FOUND(404, "T002", "시간표를 찾을 수 없습니다.");
+
+  /**
+   * Comment Domain
+   **/
+  COMMENT_NOT_FOUND(400, "COM001", "해당 Comment를 찾을 수 없습니다."),
+  COMMENT_LIKE_ALREADY_EXISTS(400, "COM002", "해당 댓글에 이미 좋아요가 존재합니다."),
+  COMMENT_LIKE_NOT_FOUND(400, "COM003", "해당 댓글에 좋아요가 존재하지 않습니다.");
   private final int status;
   private final String code;
   private final String message;
