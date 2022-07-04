@@ -2,8 +2,10 @@ package com.prgrms.coretime.timetable.service;
 
 import static com.prgrms.coretime.common.ErrorCode.ALREADY_ADDED_LECTURE;
 import static com.prgrms.coretime.common.ErrorCode.INVALID_LECTURE_ADD_REQUEST;
+import static com.prgrms.coretime.common.ErrorCode.LECTURE_NOT_FOUND;
 import static com.prgrms.coretime.common.ErrorCode.LECTURE_TIME_OVERLAP;
 import static com.prgrms.coretime.common.ErrorCode.NOT_FOUND;
+import static com.prgrms.coretime.common.ErrorCode.TIMETABLE_NOT_FOUND;
 
 import com.prgrms.coretime.common.error.exception.AlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.InvalidRequestException;
@@ -44,7 +46,7 @@ public class EnrollmentService {
   @Transactional
   public Enrollment addOfficialLectureToTimetable(Long userId, Long schoolId, Long timetableId, EnrollmentCreateRequest enrollmentCreateRequest) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
-    OfficialLecture officialLecture = lectureRepository.getOfficialLectureById(enrollmentCreateRequest.getLectureId()).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+    OfficialLecture officialLecture = lectureRepository.getOfficialLectureById(enrollmentCreateRequest.getLectureId()).orElseThrow(() -> new NotFoundException(LECTURE_NOT_FOUND));
 
     if(schoolId != officialLecture.getSchool().getId() || !timetable.getYear().equals(officialLecture.getOpenYear()) || !timetable.getSemester().equals(officialLecture.getSemester())) {
       throw new InvalidRequestException(INVALID_LECTURE_ADD_REQUEST);
@@ -124,7 +126,7 @@ public class EnrollmentService {
   }
 
   private Timetable getTimetableOfUser(Long userId, Long timetableId) {
-    return timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+    return timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId).orElseThrow(() -> new NotFoundException(TIMETABLE_NOT_FOUND));
   }
 
   private void validateLectureTimeOverlap(Long timetableId, List<LectureDetail> lectureDetails) {

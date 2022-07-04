@@ -22,6 +22,7 @@ public enum ErrorCode {
   INVALID_TYPE_VALUE(400, "C002", "요청 값의 타입이 잘못되었습니다."),
   INVALID_INPUT_VALUE(400, "C003", "적절하지 않은 값입니다."),
   NOT_FOUND(404, "C004", "해당 리소스를 찾을 수 없습니다."),
+  BAD_REQUEST(400, "C005", "잘못된 요청입니다."),
   MISSING_REQUEST_PARAMETER(400, "C005", "필수 파라미터가 누락되었습니다."),
   INVALID_LENGTH(400, "C006", "올바르지 않은 길이입니다."),
   USER_NOT_FOUND(500, "U001", "유저가 존재하지 않습니다."),
@@ -51,9 +52,10 @@ public enum ErrorCode {
    * */
   DUPLICATE_TIMETABLE_NAME(400, "T001", "이미 사용중인 이름입니다."),
   TIMETABLE_NOT_FOUND(404, "T002", "시간표를 찾을 수 없습니다."),
-  INVALID_LECTURE_ADD_REQUEST(400, "T003", "시간표에 추가할 수 없는 강의입니다."),
-  ALREADY_ADDED_LECTURE(400, "T004", "이미 추가된 강의입니다."),
-  LECTURE_TIME_OVERLAP(400, "T005", "같은 시간에 다른 강의가 있습니다."),
+  LECTURE_NOT_FOUND(404, "T003", "강의를 찾을 수 없습니다."),
+  INVALID_LECTURE_ADD_REQUEST(400, "T004", "시간표에 추가할 수 없는 강의입니다."),
+  ALREADY_ADDED_LECTURE(400, "T005", "이미 추가된 강의입니다."),
+  LECTURE_TIME_OVERLAP(400, "T006", "같은 시간에 다른 강의가 있습니다."),
 
   /**
    * Comment Domain
