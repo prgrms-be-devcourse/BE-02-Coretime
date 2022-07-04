@@ -4,6 +4,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.prgrms.coretime.TestConfig;
 import com.prgrms.coretime.comment.domain.Comment;
+import com.prgrms.coretime.comment.domain.CommentLike;
+import com.prgrms.coretime.comment.dto.response.CommentOneResponse;
 import com.prgrms.coretime.post.domain.Board;
 import com.prgrms.coretime.post.domain.BoardType;
 import com.prgrms.coretime.post.domain.Post;
@@ -16,6 +18,9 @@ import com.prgrms.coretime.user.domain.OAuthUser;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
 import java.nio.channels.IllegalChannelGroupException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeAll;
@@ -52,7 +57,13 @@ class CommentRepositoryTest {
   private CommentRepository commentRepository;
 
   @Autowired
+  private CommentLikeRepository commentLikeRepository;
+
+  @Autowired
   private SchoolRepository schoolRepository;
+
+  private String localTestEmail = "local@university.ac.kr";
+  private String oauthTestEmail = "oauth@ajou.ac.kr";
 
   private User localUser;
 
@@ -72,9 +83,6 @@ class CommentRepositoryTest {
   }
 
   void setUser() {
-    String localTestEmail = "local@university.ac.kr";
-    String oauthTestEmail = "oauth@ajou.ac.kr";
-
     localUser = LocalUser.builder()
         .nickname("local유저")
         .profileImage("예시 링크")
@@ -127,6 +135,7 @@ class CommentRepositoryTest {
         .post(anonyPost)
         .parent(null)
         .isAnonymous(true)
+        .anonymousSeq(anonyPost.getAnonymousSeqAndAdd())
         .content("응 근데 테스트 안짜면 니 망해~")
         .build();
 
@@ -215,9 +224,167 @@ class CommentRepositoryTest {
 
 
   @Test
-  @DisplayName("계층형 댓글 불러오는지 테스트")
-  public void testFindComments() {
+  @DisplayName("best 댓글이 존재할 때 값을 찾아오는지")
+  public void testFindBest() {
+    //given
+    List<Long> userIds = new ArrayList<>();
 
+    for (int i = 0; i < 10; i++) {
+      LocalUser savedUser = userRepository.save(LocalUser.builder()
+          .nickname("local유저" + i)
+          .profileImage("예시 링크" + i)
+          .email(localTestEmail + i)
+          .name("김승은로컬")
+          .school(school)
+          .password("test1234!")
+          .build());
+      userIds.add(savedUser.getId());
+    }
+
+    em.flush();
+    em.clear();
+
+    for (int i = 0; i < 10; i++) {
+      User user = userRepository.findById(userIds.get(i)).get();
+      commentLikeRepository.save(new CommentLike(user, parent));
+    }
+
+    commentRepository.save(Comment.builder()
+        .user(localUser)
+        .post(anonyPost)
+        .parent(parent)
+        .anonymousSeq(null)
+        .isAnonymous(false)
+        .content("나는 자식댓글")
+        .build());
+
+    em.flush();
+    em.clear();
+
+    //when
+    Optional<CommentOneResponse> bestComment = commentRepository.findBestCommentByPost(
+        anonyPost.getId());
+
+    //then
+    assertThat(bestComment).isNotEmpty();
+    CommentOneResponse bestCommentResponse = bestComment.get();
+    assertThat(bestCommentResponse.getCommentId()).isEqualTo(parent.getId());
+  }
+
+  @Test
+  @DisplayName("best 댓글이 좋아요가 10개 안될 때 null로 가져오는지")
+  public void testBestNull() {
+    //given
+    List<Long> userIds = new ArrayList<>();
+
+    for (int i = 0; i < 9; i++) {
+      LocalUser savedUser = userRepository.save(LocalUser.builder()
+          .nickname("local유저" + i)
+          .profileImage("예시 링크" + i)
+          .email(localTestEmail + i)
+          .name("김승은로컬")
+          .school(school)
+          .password("test1234!")
+          .build());
+      userIds.add(savedUser.getId());
+    }
+
+    em.flush();
+    em.clear();
+
+    for (int i = 0; i < 9; i++) {
+      User user = userRepository.findById(userIds.get(i)).get();
+      commentLikeRepository.save(new CommentLike(user, parent));
+    }
+
+    commentRepository.save(Comment.builder()
+        .user(localUser)
+        .post(anonyPost)
+        .parent(parent)
+        .isAnonymous(true)
+        .content("나는 자식댓글")
+        .build());
+
+    em.flush();
+    em.clear();
+
+    //when
+    Optional<CommentOneResponse> bestComment = commentRepository.findBestCommentByPost(
+        anonyPost.getId());
+
+    //then
+    assertThat(bestComment).isEmpty();
+  }
+
+  @Test
+  @DisplayName("한 게시글에 좋아요가 10개 이상인 댓글이 두 개 이상일 때 제일 높은 걸 찾아오는 지")
+  public void testCorrectBest() {
+    //given
+    List<Long> userIds = new ArrayList<>();
+    List<Long> extraIds = new ArrayList<>();
+
+    Comment child = Comment.builder()
+        .user(localUser)
+        .post(anonyPost)
+        .parent(parent)
+        .anonymousSeq(null)
+        .isAnonymous(false)
+        .content("나는 자식댓글")
+        .build();
+
+    commentRepository.save(child);
+
+    for (int i = 0; i < 10; i++) {
+      LocalUser savedUser = userRepository.save(LocalUser.builder()
+          .nickname("local유저" + i)
+          .profileImage("예시 링크" + i)
+          .email(localTestEmail + i)
+          .name("김승은로컬")
+          .school(school)
+          .password("test1234!")
+          .build());
+      userIds.add(savedUser.getId());
+    }
+
+    for (int i = 10; i < 20; i++) {
+      LocalUser savedUser = userRepository.save(LocalUser.builder()
+          .nickname("local유저" + i)
+          .profileImage("예시 링크" + i)
+          .email(localTestEmail + i)
+          .name("김승은로컬")
+          .school(school)
+          .password("test1234!")
+          .build());
+      extraIds.add(savedUser.getId());
+    }
+
+    em.flush();
+    em.clear();
+
+    for (int i = 0; i < 10; i++) {
+      User user = userRepository.findById(userIds.get(i)).get();
+      commentLikeRepository.save(new CommentLike(user, parent));
+      commentLikeRepository.save(new CommentLike(user, child));
+    }
+
+    for (int i = 0; i < 10; i++) {
+      User user = userRepository.findById(extraIds.get(i)).get();
+      commentLikeRepository.save(new CommentLike(user, child));
+    }
+
+    em.flush();
+    em.clear();
+
+    //when
+    Optional<CommentOneResponse> bestComment = commentRepository.findBestCommentByPost(
+        anonyPost.getId());
+
+    //then
+    assertThat(bestComment).isNotEmpty();
+    CommentOneResponse bestCommentResponse = bestComment.get();
+    assertThat(bestCommentResponse.getLike()).isEqualTo(20);
+    assertThat(bestCommentResponse.getName()).isEqualTo(child.getUser().getNickname());
+    assertThat(bestCommentResponse.getCommentId()).isEqualTo(child.getId());
   }
 
 }

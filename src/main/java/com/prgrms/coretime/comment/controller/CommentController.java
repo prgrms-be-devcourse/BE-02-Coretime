@@ -39,17 +39,11 @@ public class CommentController {
     return ResponseEntity.created(location).body(new ApiResponse("댓글 생성 성공", data));
   }
 
-<<<<<<< HEAD
-  @DeleteMapping("/comments/{commentId}")
-  public ResponseEntity<ApiResponse<Void>> deleteComment(@PathVariable Long commentId) {
-    commentService.deleteComment(commentId);
-=======
   @DeleteMapping("/{commentId}")
   public ResponseEntity<ApiResponse<Void>> deleteComment(
       @AuthenticationPrincipal JwtPrincipal principal,
       @PathVariable Long commentId) {
     commentService.deleteComment(principal.userId, commentId);
->>>>>>> main
     return ResponseEntity.ok(new ApiResponse("댓글 삭제 성공"));
   }
 
