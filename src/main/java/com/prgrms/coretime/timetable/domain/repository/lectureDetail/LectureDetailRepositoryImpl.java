@@ -18,7 +18,7 @@ public class LectureDetailRepositoryImpl implements LectureDetailCustomRepositor
   public void deleteCustomLectureDetailsByLectureId(Long lectureId) {
     queryFactory
         .delete(lectureDetail)
-        .where(lectureIdEq(lectureId))
+        .where(lectureDetailLectureIdEq(lectureId))
         .execute();
 
     entityManager.flush();
@@ -30,11 +30,15 @@ public class LectureDetailRepositoryImpl implements LectureDetailCustomRepositor
   public void deleteLectureDetailsByLectureIds(List<Long> lectureIds) {
     queryFactory
         .delete(lectureDetail)
-        .where(lectureDetail.lecture.id.in(lectureIds))
+        .where(lectureDetailLectureIdIn(lectureIds))
         .execute();
   }
 
-  BooleanExpression lectureIdEq(Long lectureId) {
+  private BooleanExpression lectureDetailLectureIdEq(Long lectureId) {
     return lectureId == null ? null : lectureDetail.lecture.id.eq(lectureId);
+  }
+
+  private BooleanExpression lectureDetailLectureIdIn(List<Long> lectureIds) {
+    return lectureIds == null ? null : lectureDetail.lecture.id.in(lectureIds);
   }
 }

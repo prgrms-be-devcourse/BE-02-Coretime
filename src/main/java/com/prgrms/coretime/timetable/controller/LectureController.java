@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/lectures")
 @AllArgsConstructor
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class LectureController {
   private final LectureService lectureService;
 
