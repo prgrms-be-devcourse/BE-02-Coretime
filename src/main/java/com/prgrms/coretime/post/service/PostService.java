@@ -1,15 +1,17 @@
 package com.prgrms.coretime.post.service;
 
-import com.prgrms.coretime.comment.domain.Comment;
+import com.prgrms.coretime.comment.domain.repository.CommentRepositoryCustom;
+import com.prgrms.coretime.comment.dto.response.CommentOneResponse;
+import com.prgrms.coretime.comment.dto.response.CommentsOnPostResponse;
 import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.error.exception.AlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.common.util.AmazonS3Uploader;
 import com.prgrms.coretime.post.domain.Board;
 import com.prgrms.coretime.post.domain.Photo;
-import com.prgrms.coretime.post.domain.repository.BoardRepository;
 import com.prgrms.coretime.post.domain.Post;
 import com.prgrms.coretime.post.domain.PostLike;
+import com.prgrms.coretime.post.domain.repository.BoardRepository;
 import com.prgrms.coretime.post.domain.repository.PhotoRepository;
 import com.prgrms.coretime.post.domain.repository.PostLikeRepository;
 import com.prgrms.coretime.post.domain.repository.PostRepository;
@@ -23,7 +25,6 @@ import com.prgrms.coretime.user.domain.repository.UserRepository;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +40,7 @@ public class PostService {
   private final PostLikeRepository postLikeRepository;
   private final UserRepository userRepository;
   private final PhotoRepository photoRepository;
+  private final CommentRepositoryCustom commentRepository;
   private final AmazonS3Uploader amazonS3Uploader;
   private final Integer HOT_COUNT = 10;
   private final Integer BEST_COUNT = 100;
@@ -47,12 +49,14 @@ public class PostService {
       PostLikeRepository postLikeRepository,
       UserRepository userRepository,
       PhotoRepository photoRepository,
+      CommentRepositoryCustom commentRepository,
       AmazonS3Uploader amazonS3Uploader) {
     this.postRepository = postRepository;
     this.boardRepository = boardRepository;
     this.postLikeRepository = postLikeRepository;
     this.userRepository = userRepository;
     this.photoRepository = photoRepository;
+    this.commentRepository = commentRepository;
     this.amazonS3Uploader = amazonS3Uploader;
   }
 
@@ -93,8 +97,11 @@ public class PostService {
   public PostResponse getPost(Long postId) {
     Post post = findPost(postId);
     PageRequest pageRequest = PageRequest.of(0, 20, Sort.by("createdAt"));
-    Page<Comment> comments = postRepository.findCommentsByPost(postId, pageRequest);
-    return new PostResponse(post, comments);
+    Page<CommentsOnPostResponse> comments = commentRepository.findByPost(postId, pageRequest);
+    Optional<CommentOneResponse> bestComment = commentRepository.findBestCommentByPost(postId);
+    return bestComment.map(
+            commentOneResponse -> new PostResponse(post, comments, commentOneResponse))
+        .orElseGet(() -> new PostResponse(post, comments));
   }
 
   @Transactional
