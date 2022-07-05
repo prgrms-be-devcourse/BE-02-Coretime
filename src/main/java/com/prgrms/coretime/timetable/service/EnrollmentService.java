@@ -40,18 +40,18 @@ public class EnrollmentService {
   private final LectureDetailRepository lectureDetailRepository;
 
   @Transactional
-  public Enrollment addOfficialLectureToTimetable(Long userId, Long schoolId, Long timetableId, EnrollmentCreateRequest enrollmentCreateRequest) {
+  public EnrollmentId addOfficialLectureToTimetable(Long userId, Long schoolId, Long timetableId, EnrollmentCreateRequest enrollmentCreateRequest) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
     OfficialLecture officialLecture = lectureRepository.getOfficialLectureById(enrollmentCreateRequest.getLectureId()).orElseThrow(() -> new NotFoundException(LECTURE_NOT_FOUND));
 
     enrollmentValidator.validateOfficialLectureEnrollment(schoolId, officialLecture, timetable);
     enrollmentValidator.validateLectureTimeOverlap(timetable.getId(), officialLecture.getLectureDetails());
 
-    return enrollmentRepository.save(new Enrollment(officialLecture, timetable));
+    return enrollmentRepository.save(new Enrollment(officialLecture, timetable)).getEnrollmentId();
   }
 
   @Transactional
-  public Enrollment addCustomLectureToTimetable(Long userId, Long timetableId, CustomLectureRequest customLectureRequest) {
+  public EnrollmentId addCustomLectureToTimetable(Long userId, Long timetableId, CustomLectureRequest customLectureRequest) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
     List<LectureDetail> lectureDetails = changeCustomLectureDetailsToLectureDetails(customLectureRequest.getLectureDetails());
 
@@ -66,7 +66,7 @@ public class EnrollmentService {
     );
     createLectureDetails(customLecture, lectureDetails);
 
-    return enrollmentRepository.save(new Enrollment(customLecture, timetable));
+    return enrollmentRepository.save(new Enrollment(customLecture, timetable)).getEnrollmentId();
   }
 
   @Transactional
