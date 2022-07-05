@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ public class EnrollmentValidator {
   private final EnrollmentRepository enrollmentRepository;
   private final LectureRepository lectureRepository;
 
+  @Transactional(readOnly = true)
   public void validateOfficialLectureEnrollment(Long schoolId, OfficialLecture officialLecture, Timetable timetable) {
     if(!officialLecture.canEnrol(schoolId)) {
       throw new InvalidRequestException(INVALID_LECTURE_ADD_REQUEST);
@@ -36,6 +38,7 @@ public class EnrollmentValidator {
     }
   }
 
+  @Transactional(readOnly = true)
   public void validateLectureTimeOverlap(Long timetableId, List<LectureDetail> lectureDetails, List<Long>...lectureDetailIds) {
     if(lectureRepository.getNumberOfTimeOverlapLectures(timetableId, lectureDetails, lectureDetailIds.length > 0 ? lectureDetailIds[0] : Collections.emptyList()) > 0) {
       throw new InvalidRequestException(LECTURE_TIME_OVERLAP);

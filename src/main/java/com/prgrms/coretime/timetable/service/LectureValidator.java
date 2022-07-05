@@ -20,7 +20,7 @@ public class LectureValidator {
   public void validateOfficialLectureSearchRequest(Long schoolId, OfficialLectureSearchRequest officialLectureSearchRequest) {
     validateSchoolId(schoolId);
     validateYear(officialLectureSearchRequest.getYear());
-    validateSemster(officialLectureSearchRequest.getSemester());
+    validateSemester(officialLectureSearchRequest.getSemester());
     validateGrades(officialLectureSearchRequest.getGrades());
     validateLectureTypes(officialLectureSearchRequest.getLectureTypes());
     validateCredits(officialLectureSearchRequest.getCredits());
@@ -38,7 +38,7 @@ public class LectureValidator {
     }
   }
 
-  private void validateSemster(Semester semester) {
+  private void validateSemester(Semester semester) {
     notNull(semester, "semester는 null일 수 없습니다.");
   }
 

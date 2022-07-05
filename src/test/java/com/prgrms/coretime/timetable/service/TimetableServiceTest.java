@@ -1,5 +1,7 @@
 package com.prgrms.coretime.timetable.service;
 
+import static com.prgrms.coretime.common.ErrorCode.DUPLICATE_TIMETABLE_NAME;
+import static com.prgrms.coretime.common.ErrorCode.NOT_FRIEND;
 import static com.prgrms.coretime.common.ErrorCode.TIMETABLE_NOT_FOUND;
 import static com.prgrms.coretime.common.ErrorCode.USER_NOT_FOUND;
 import static com.prgrms.coretime.timetable.domain.Semester.FIRST;
@@ -10,6 +12,7 @@ import static com.prgrms.coretime.timetable.domain.repository.enrollment.Lecture
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.CUSTOM;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,15 +49,17 @@ class TimetableServiceTest {
   @Mock
   private TimetableRepository timetableRepository;
   @Mock
+  private TimetableValidator timetableValidator;
+  @Mock
   private UserRepository userRepository;
   @Mock
   private FriendRepository friendRepository;
   @Mock
   private EnrollmentRepository enrollmentRepository;
   @Mock
-  LectureRepository lectureRepository;
+  private LectureRepository lectureRepository;
   @Mock
-  LectureDetailRepository lectureDetailRepository;
+  private LectureDetailRepository lectureDetailRepository;
   @InjectMocks
   private TimetableService timetableService;
 
@@ -72,7 +77,7 @@ class TimetableServiceTest {
 
   @Nested
   @DisplayName("createTimetable() 테스트")
-  class TimetableTableCreationTest {
+  class CreateTimetableTest {
     private TimetableCreateRequest timetableCreateRequest = TimetableCreateRequest.builder()
         .name("시간표1")
         .year(2022)
@@ -80,23 +85,23 @@ class TimetableServiceTest {
         .build();
 
     @Test
-    @DisplayName("사용자가 존재하지 않는 경우 시간표 생성 테스트")
-    void testCreateTimetableNotFoundException() {
+    @DisplayName("사용자가 존재하지 않는 경우 테스트")
+    void testUserNotFound() {
       when(userRepository.findById(userId)).thenThrow(new NotFoundException(USER_NOT_FOUND));
 
       try {
         timetableService.createTimetable(userId, timetableCreateRequest);
       }catch (Exception e) {
-        verify(timetableRepository, never()).getTimetableBySameName(userId, timetableCreateRequest.getName(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester());
+        verify(timetableValidator, never()).validateSameNamWhenCreate(any(), any(), any(), any());
         verify(timetableRepository, never()).save(any());
       }
     }
 
     @Test
     @DisplayName("시간표 이름이 중복되는 경우 테스트")
-    void testCreateTimetableNameDuplicate() {
+    void testDuplicateTimetableName() {
       when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-      when(timetableRepository.getTimetableBySameName(userId, timetableCreateRequest.getName(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester())).thenReturn(Optional.of(timetable));
+      doThrow(new DuplicateRequestException(DUPLICATE_TIMETABLE_NAME)).when(timetableValidator).validateSameNamWhenCreate(userId, timetableCreateRequest.getName(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester());
 
       try {
         timetableService.createTimetable(userId, timetableCreateRequest);
@@ -109,7 +114,6 @@ class TimetableServiceTest {
     @DisplayName("정상적으로 시간표를 생성하는 경우 테스트")
     void testCreateTimetable() {
       when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-      when(timetableRepository.getTimetableBySameName(userId, timetableCreateRequest.getName(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester())).thenReturn(Optional.empty());
       when(timetableRepository.save(any())).thenReturn(timetable);
 
       timetableService.createTimetable(userId, timetableCreateRequest);
@@ -129,7 +133,7 @@ class TimetableServiceTest {
       try {
         timetableService.getDefaultTimetable(userId, 2022, FIRST);
       } catch (NotFoundException e) {
-        verify(enrollmentRepository, never()).getEnrollmentsWithLectureByTimetableId(timetable.getId(), ALL);
+        verify(enrollmentRepository, never()).getEnrollmentsWithLectureByTimetableId(any(), any());
       }
     }
 
@@ -156,7 +160,7 @@ class TimetableServiceTest {
       try {
         timetableService.getTimetable(userId, timetableId);
       }catch (NotFoundException e) {
-        verify(enrollmentRepository, never()).getEnrollmentsWithLectureByTimetableId(timetable.getId(), ALL);
+        verify(enrollmentRepository, never()).getEnrollmentsWithLectureByTimetableId(any(), any());
       }
     }
 
@@ -178,7 +182,7 @@ class TimetableServiceTest {
     @Test
     @DisplayName("친구 관계가 아닌 경우 테스트")
     void testNotFriendException() {
-      when(friendRepository.existsFriendRelationship(userId, friendId)).thenReturn(false);
+      doThrow(new InvalidRequestException(NOT_FRIEND)).when(timetableValidator).validateFriendRelationship(userId, friendId);
 
       try {
         timetableService.getFriendDefaultTimetableInfos(userId, friendId);
@@ -209,7 +213,6 @@ class TimetableServiceTest {
             .build());
       }
 
-      when(friendRepository.existsFriendRelationship(userId, friendId)).thenReturn(true);
       when(timetableRepository.getDefaultTimetables(friendId)).thenReturn(timetables);
 
       List<FriendDefaultTimetableInfo> friendDefaultTimetableInfos = timetableService.getFriendDefaultTimetableInfos(userId, friendId);
@@ -246,27 +249,24 @@ class TimetableServiceTest {
     @Test
     @DisplayName("친구 관계가 아닌 경우 테스트")
     void testNotFriend() {
-      when(friendRepository.existsFriendRelationship(userId, friendId)).thenReturn(false);
+      doThrow(new InvalidRequestException(NOT_FRIEND)).when(timetableValidator).validateFriendRelationship(userId, friendId);
 
       try {
         timetableService.getDefaultTimetableOfFriend(userId, friendId, 2022, FIRST);
       } catch (InvalidRequestException e) {
-        verify(friendRepository).existsFriendRelationship(userId, friendId);
-        verify(timetableRepository, never()).getDefaultTimetable(userId, 2022, FIRST);
-        verify(enrollmentRepository, never()).getEnrollmentsWithLectureByTimetableId(timetable.getId(), ALL);
+        verify(timetableRepository, never()).getDefaultTimetable(any(), any(), any());
+        verify(enrollmentRepository, never()).getEnrollmentsWithLectureByTimetableId(any(), any());
       }
     }
 
     @Test
     @DisplayName("친구의 기본 시간표가 존재하지 않는 경우 테스트")
     void testTimetableNotFound() {
-      when(friendRepository.existsFriendRelationship(userId, friendId)).thenReturn(true);
       when(timetableRepository.getDefaultTimetable(userId, 2022, FIRST)).thenThrow(new NotFoundException(TIMETABLE_NOT_FOUND));
 
       try {
         timetableService.getDefaultTimetableOfFriend(userId, friendId, 2022, FIRST);
       } catch (NotFoundException e) {
-        verify(friendRepository).existsFriendRelationship(userId, friendId);
         verify(timetableRepository).getDefaultTimetable(userId, 2022, FIRST);
         verify(enrollmentRepository, never()).getEnrollmentsWithLectureByTimetableId(timetable.getId(), ALL);
       }
@@ -315,9 +315,8 @@ class TimetableServiceTest {
       try {
         timetableService.updateTimetable(userId, timetableId, timetableUpdateRequest);
       }catch (NotFoundException e) {
-        verify(timetableRepository).getTimetableByUserIdAndTimetableId(userId, timetableId);
-        verify(timetableRepository, never()).getTimetableBySameName(userId, timetableUpdateRequest.getName(), timetable.getYear(), timetable.getSemester());
-        verify(timetableRepository, never()).getDefaultTimetable(userId, timetable.getYear(), timetable.getSemester());
+        verify(timetableValidator, never()).validateSameNamWhenUpdate(any(), any(), any(), any(), any());
+        verify(timetableRepository, never()).getDefaultTimetable(any(), any(), any());
       }
     }
 
@@ -325,14 +324,12 @@ class TimetableServiceTest {
     @DisplayName("동일한 이름의 테이블이 존재하는 경우")
     void testDuplicateTimetableName() {
       when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
-      when(timetableRepository.getTimetableBySameName(userId, timetableUpdateRequest.getName(), timetable.getYear(), timetable.getSemester())).thenReturn(Optional.of(sameNameTable));
+      doThrow(new DuplicateRequestException(DUPLICATE_TIMETABLE_NAME)).when(timetableValidator).validateSameNamWhenUpdate(any(), any(), any(), any(), any());
 
       try {
         timetableService.updateTimetable(userId, timetableId, timetableUpdateRequest);
       }catch (DuplicateRequestException e) {
-        verify(timetableRepository).getTimetableByUserIdAndTimetableId(userId, timetableId);
-        verify(timetableRepository).getTimetableBySameName(userId, timetableUpdateRequest.getName(), timetable.getYear(), timetable.getSemester());
-        verify(timetableRepository, never()).getDefaultTimetable(userId, timetable.getYear(), timetable.getSemester());
+        verify(timetableRepository, never()).getDefaultTimetable(any(), any(), any());
       }
     }
 
@@ -340,13 +337,10 @@ class TimetableServiceTest {
     @DisplayName("default 테이블 변경하는 경우")
     void testUpdateDefaultTable() {
       when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
-      when(timetableRepository.getTimetableBySameName(userId, timetableDefaultTableUpdateRequest.getName(), timetable.getYear(), timetable.getSemester())).thenReturn(Optional.empty());
       when(timetableRepository.getDefaultTimetable(userId, timetable.getYear(), timetable.getSemester())).thenReturn(Optional.of(defaultTimetable));
 
       timetableService.updateTimetable(userId, timetableId, timetableDefaultTableUpdateRequest);
 
-      verify(timetableRepository).getTimetableByUserIdAndTimetableId(userId, timetableId);
-      verify(timetableRepository).getTimetableBySameName(userId, timetableDefaultTableUpdateRequest.getName(), timetable.getYear(), timetable.getSemester());
       verify(timetableRepository).getDefaultTimetable(userId, timetable.getYear(), timetable.getSemester());
     }
   }

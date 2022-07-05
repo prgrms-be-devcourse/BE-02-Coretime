@@ -2,6 +2,7 @@ package com.prgrms.coretime.timetable.controller;
 
 import com.prgrms.coretime.common.ApiResponse;
 import com.prgrms.coretime.common.jwt.JwtPrincipal;
+import com.prgrms.coretime.timetable.domain.EnrollmentId;
 import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.Enrollment;
 import com.prgrms.coretime.timetable.dto.request.CustomLectureRequest;
@@ -103,11 +104,11 @@ public class TimetableController {
   @PostMapping("/{timetableId}/enrollments")
   public ResponseEntity<ApiResponse> addOfficialLectureToTimetable(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @PathVariable Long timetableId, @RequestBody @Valid
       EnrollmentCreateRequest enrollmentCreateRequest) {
-     Enrollment enrollment = enrollmentService.addOfficialLectureToTimetable(
+     EnrollmentId enrollmentId = enrollmentService.addOfficialLectureToTimetable(
          jwtPrincipal.userId, jwtPrincipal.schoolId, timetableId, enrollmentCreateRequest);
 
     return ResponseEntity
-        .created(URI.create(String.format("/timetables/%s/enrollments/%s", timetableId, enrollment.getEnrollmentId().getLectureId())))
+        .created(URI.create(String.format("/timetables/%s/enrollments/%s", timetableId, enrollmentId.getLectureId())))
         .body(new ApiResponse("official 강의 시간표에 추가 완료"));
   }
 
@@ -115,10 +116,10 @@ public class TimetableController {
   @PostMapping("/{timetableId}/enrollments/custom-lectures")
   public ResponseEntity<ApiResponse> addCustomLectureToTimetable(@AuthenticationPrincipal JwtPrincipal jwtPrincipal, @PathVariable Long timetableId, @RequestBody @Valid
       CustomLectureRequest customLectureCreateRequest) {
-    Enrollment enrollment = enrollmentService.addCustomLectureToTimetable(jwtPrincipal.userId, timetableId, customLectureCreateRequest);
+    EnrollmentId enrollmentId = enrollmentService.addCustomLectureToTimetable(jwtPrincipal.userId, timetableId, customLectureCreateRequest);
 
     return ResponseEntity
-        .created(URI.create(String.format("/timetables/%s/enrollments/custom-lectures/%s", timetableId, enrollment.getEnrollmentId().getLectureId())))
+        .created(URI.create(String.format("/timetables/%s/enrollments/custom-lectures/%s", timetableId, enrollmentId.getLectureId())))
         .body(new ApiResponse("custom 강의 시간표에 추가 완료"));
   }
 

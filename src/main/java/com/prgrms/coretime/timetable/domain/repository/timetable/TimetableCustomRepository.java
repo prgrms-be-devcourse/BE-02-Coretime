@@ -18,7 +18,7 @@ public interface TimetableCustomRepository {
 
   List<Timetable> getTimetables(Long userId, Integer year, Semester semester);
 
-  boolean isFirstTimetable(Long userId, Integer year, Semester semester);
+  boolean isFirstTable(Long userId, Integer year, Semester semester);
 
   void deleteByTimetableId(Long timetableId);
 }

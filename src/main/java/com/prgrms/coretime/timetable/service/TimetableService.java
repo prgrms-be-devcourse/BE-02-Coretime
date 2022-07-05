@@ -1,24 +1,19 @@
 
 package com.prgrms.coretime.timetable.service;
 
-import static com.prgrms.coretime.common.ErrorCode.DUPLICATE_TIMETABLE_NAME;
-import static com.prgrms.coretime.common.ErrorCode.NOT_FRIEND;
 import static com.prgrms.coretime.common.ErrorCode.TIMETABLE_NOT_FOUND;
 import static com.prgrms.coretime.common.ErrorCode.USER_NOT_FOUND;
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.ALL;
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.CUSTOM;
 
-import com.prgrms.coretime.common.error.exception.DuplicateRequestException;
-import com.prgrms.coretime.common.error.exception.InvalidRequestException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
-import com.prgrms.coretime.friend.domain.FriendRepository;
-import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.Lecture;
+import com.prgrms.coretime.timetable.domain.Semester;
+import com.prgrms.coretime.timetable.domain.Timetable;
 import com.prgrms.coretime.timetable.domain.repository.enrollment.EnrollmentRepository;
 import com.prgrms.coretime.timetable.domain.repository.lecture.LectureRepository;
 import com.prgrms.coretime.timetable.domain.repository.lectureDetail.LectureDetailRepository;
 import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
-import com.prgrms.coretime.timetable.domain.Timetable;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
 import com.prgrms.coretime.timetable.dto.request.TimetableUpdateRequest;
 import com.prgrms.coretime.timetable.dto.response.FriendDefaultTimetableInfo;
@@ -41,34 +36,31 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TimetableService {
   private final TimetableRepository timetableRepository;
+  private final TimetableValidator timetableValidator;
   private final EnrollmentRepository enrollmentRepository;
-  private final LectureDetailRepository lectureDetailRepository;
   private final LectureRepository lectureRepository;
+  private final LectureDetailRepository lectureDetailRepository;
   private final UserRepository userRepository;
-  private final FriendRepository friendRepository;
 
   @Transactional
   public Long createTimetable(Long userId, TimetableCreateRequest timetableCreateRequest) {
     User user  = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
-
     String timetableName = timetableCreateRequest.getName().trim();
     Integer year = timetableCreateRequest.getYear();
     Semester semester = timetableCreateRequest.getSemester();
 
-    if(timetableRepository.getTimetableBySameName(userId, timetableName, year, semester).isPresent()) {
-      throw new DuplicateRequestException(DUPLICATE_TIMETABLE_NAME);
-    }
+    timetableValidator.validateSameNamWhenCreate(userId, timetableName, year, semester);
 
-    Timetable newTimetable = Timetable.builder()
-        .name(timetableName)
-        .year(year)
-        .semester(semester)
-        .user(user)
-        .isDefault(timetableRepository.isFirstTimetable(userId, year, semester))
-        .build();
+    boolean isFirstTable = timetableRepository.isFirstTable(userId, year, semester);
 
-    Timetable createdTimetable = timetableRepository.save(newTimetable);
-    return createdTimetable.getId();
+    return timetableRepository.save(Timetable.builder()
+            .name(timetableName)
+            .year(year)
+            .semester(semester)
+            .user(user)
+            .isDefault(isFirstTable)
+            .build()
+        ).getId();
   }
 
   @Transactional(readOnly = true)
@@ -112,7 +104,7 @@ public class TimetableService {
 
   @Transactional
   public List<FriendDefaultTimetableInfo> getFriendDefaultTimetableInfos(Long userId, Long friendId) {
-    validateFriendRelationship(userId, friendId);
+    timetableValidator.validateFriendRelationship(userId, friendId);
 
     return timetableRepository.getDefaultTimetables(
             friendId).stream()
@@ -123,7 +115,7 @@ public class TimetableService {
 
   @Transactional
   public List<LectureInfo> getDefaultTimetableOfFriend(Long userId, Long friendId, int year, Semester semester) {
-    validateFriendRelationship(userId, friendId);
+    timetableValidator.validateFriendRelationship(userId, friendId);
 
     Timetable friendDefaultTimetable = getDefaultTimetableOfUser(userId, year, semester);
 
@@ -133,20 +125,15 @@ public class TimetableService {
   @Transactional
   public void updateTimetable(Long userId, Long timetableId, TimetableUpdateRequest timetableUpdateRequest) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
-
     String updatedTimetableName = timetableUpdateRequest.getName().trim();
     Integer year = timetable.getYear();
     Semester semester = timetable.getSemester();
-    Boolean updatedIsDefault = timetableUpdateRequest.getIsDefault();
 
-    Timetable sameNameTable = timetableRepository.getTimetableBySameName(userId, updatedTimetableName, year, semester).orElse(timetable);
-    if(timetable != sameNameTable) {
-      throw new DuplicateRequestException(DUPLICATE_TIMETABLE_NAME);
-    }
+    timetableValidator.validateSameNamWhenUpdate(userId, updatedTimetableName, year, semester, timetable);
 
-    timetable.updateName(updatedTimetableName.trim());
+    timetable.updateName(updatedTimetableName);
 
-    if(updatedIsDefault) {
+    if(timetableUpdateRequest.getIsDefault()) {
       Timetable preDefaultTimetable = getDefaultTimetableOfUser(userId, timetable.getYear(), timetable.getSemester());
       preDefaultTimetable.makeNonDefault();
       timetable.makeDefault();
@@ -164,7 +151,7 @@ public class TimetableService {
     enrollmentRepository.deleteByTimetableId(timetable.getId());
     lectureDetailRepository.deleteLectureDetailsByLectureIds(customLectureIds);
     lectureRepository.deleteLectureByLectureIds(customLectureIds);
-    timetableRepository.deleteByTimetableId(timetable.getId());
+    timetableRepository.delete(timetable);
 
     if(timetable.getIsDefault()) {
       timetableRepository.getRecentlyAddedTimetable(userId, timetable.getYear(), timetable.getSemester())
@@ -178,12 +165,6 @@ public class TimetableService {
 
   private Timetable getTimetableOfUser(Long userId, Long timetableId) {
     return timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId).orElseThrow(() -> new NotFoundException(TIMETABLE_NOT_FOUND));
-  }
-
-  private void validateFriendRelationship(Long userId, Long friendId) {
-    if(!friendRepository.existsFriendRelationship(userId, friendId)) {
-      throw new InvalidRequestException(NOT_FRIEND);
-    }
   }
 
   private List<LectureInfo> getEnrollmentedLectures(Long timetableId) {

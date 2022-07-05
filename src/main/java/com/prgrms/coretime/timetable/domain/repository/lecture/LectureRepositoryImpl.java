@@ -16,6 +16,7 @@ import com.prgrms.coretime.timetable.domain.OfficialLecture;
 import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition;
 import com.prgrms.coretime.timetable.dto.request.SearchType;
+import com.prgrms.coretime.timetable.util.FlushAndClear;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -97,7 +98,7 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
   }
 
   @Override
-  @Modifying(clearAutomatically = true)
+  @FlushAndClear
   public void deleteLectureByLectureIds(List<Long> lectureIds) {
     queryFactory
         .delete(lecture)
