@@ -39,7 +39,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   )
   Page<Post> findPostsThatUserCommentedAt(@Param("postIds") List<Long> postIds, Pageable pageable);
 
-  @Query("select p from Post p join fetch p.board join fetch p.user where p.id = :postId")
+  @Query("select p from Post p join fetch p.board join fetch p.user left join fetch p.photos where p.id = :postId")
   Optional<Post> findPostById(@Param("postId") Long postId);
 
   @Query(value = "select c from Comment c join fetch c.user where c.post.id = :postId",

@@ -1,13 +1,18 @@
 package com.prgrms.coretime.post.service;
 
-import com.prgrms.coretime.comment.domain.Comment;
+import com.prgrms.coretime.comment.domain.repository.CommentRepositoryCustom;
+import com.prgrms.coretime.comment.dto.response.CommentOneResponse;
+import com.prgrms.coretime.comment.dto.response.CommentsOnPostResponse;
 import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.error.exception.AlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
+import com.prgrms.coretime.common.util.AmazonS3Uploader;
 import com.prgrms.coretime.post.domain.Board;
-import com.prgrms.coretime.post.domain.repository.BoardRepository;
+import com.prgrms.coretime.post.domain.Photo;
 import com.prgrms.coretime.post.domain.Post;
 import com.prgrms.coretime.post.domain.PostLike;
+import com.prgrms.coretime.post.domain.repository.BoardRepository;
+import com.prgrms.coretime.post.domain.repository.PhotoRepository;
 import com.prgrms.coretime.post.domain.repository.PostLikeRepository;
 import com.prgrms.coretime.post.domain.repository.PostRepository;
 import com.prgrms.coretime.post.dto.request.PostCreateRequest;
@@ -17,6 +22,7 @@ import com.prgrms.coretime.post.dto.response.PostResponse;
 import com.prgrms.coretime.post.dto.response.PostSimpleResponse;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -33,16 +39,25 @@ public class PostService {
   private final BoardRepository boardRepository;
   private final PostLikeRepository postLikeRepository;
   private final UserRepository userRepository;
+  private final PhotoRepository photoRepository;
+  private final CommentRepositoryCustom commentRepository;
+  private final AmazonS3Uploader amazonS3Uploader;
   private final Integer HOT_COUNT = 10;
   private final Integer BEST_COUNT = 100;
 
   public PostService(PostRepository postRepository, BoardRepository boardRepository,
       PostLikeRepository postLikeRepository,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      PhotoRepository photoRepository,
+      CommentRepositoryCustom commentRepository,
+      AmazonS3Uploader amazonS3Uploader) {
     this.postRepository = postRepository;
     this.boardRepository = boardRepository;
     this.postLikeRepository = postLikeRepository;
     this.userRepository = userRepository;
+    this.photoRepository = photoRepository;
+    this.commentRepository = commentRepository;
+    this.amazonS3Uploader = amazonS3Uploader;
   }
 
   @Transactional(readOnly = true)
@@ -82,21 +97,32 @@ public class PostService {
   public PostResponse getPost(Long postId) {
     Post post = findPost(postId);
     PageRequest pageRequest = PageRequest.of(0, 20, Sort.by("createdAt"));
-    Page<Comment> comments = postRepository.findCommentsByPost(postId, pageRequest);
-    return new PostResponse(post, comments);
+    Page<CommentsOnPostResponse> comments = commentRepository.findByPost(postId, pageRequest);
+    Optional<CommentOneResponse> bestComment = commentRepository.findBestCommentByPost(postId);
+    return bestComment.map(
+            commentOneResponse -> new PostResponse(post, comments, commentOneResponse))
+        .orElseGet(() -> new PostResponse(post, comments));
   }
 
   @Transactional
   public PostIdResponse createPost(Long boardId, Long userId, PostCreateRequest request) {
     Board board = findBoard(boardId);
     User user = findUser(userId);
-    Post post = Post.builder()
+    Post post = postRepository.save(Post.builder()
         .board(board)
         .user(user)
         .title(request.getTitle())
         .content(request.getContent())
         .isAnonymous(request.getIsAnonymous())
-        .build();
+        .build());
+    request.getPhotos().forEach(photo -> {
+      try {
+        String path = amazonS3Uploader.upload(photo, "photos/" + post.getId());
+        photoRepository.save(new Photo(path, post));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    });
     return new PostIdResponse(postRepository.save(post).getId());
   }
 

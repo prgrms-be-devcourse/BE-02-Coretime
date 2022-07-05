@@ -3,6 +3,8 @@ package com.prgrms.coretime.post.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.prgrms.coretime.S3MockConfig;
 import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.comment.domain.repository.CommentRepository;
 import com.prgrms.coretime.common.ErrorCode;
@@ -23,19 +25,28 @@ import com.prgrms.coretime.school.domain.respository.SchoolRepository;
 import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
+import io.findify.s3mock.S3Mock;
+import java.util.List;
+import java.util.Optional;
+import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Transactional
 @SpringBootTest
+@Import(S3MockConfig.class)
 class PostServiceTest {
 
   @Autowired
@@ -50,6 +61,8 @@ class PostServiceTest {
   private SchoolRepository schoolRepository;
   @Autowired
   private CommentRepository commentRepository;
+  @Autowired
+  private EntityManager em;
 
   PageRequest defaultPageRequest = PageRequest.of(0, 10, Sort.by(Direction.DESC, "createdAt"));
   School school;
@@ -78,25 +91,25 @@ class PostServiceTest {
         .build());
 
     user1 = userRepository.save(LocalUser.builder()
-        .nickname("테스트1")
-        .email("test1@test1")
-        .name("테식이1")
+        .nickname("일식이")
+        .email("test1@sangsang.ac.kr")
+        .name("일식이")
         .school(school)
         .password("1q2w3e")
         .build());
 
     user2 = userRepository.save(LocalUser.builder()
-        .nickname("테스트2")
-        .email("test2@test2")
-        .name("테식이2")
+        .nickname("이식이")
+        .email("test2@sangsang.ac.kr")
+        .name("이식이")
         .school(school)
         .password("1q2w3e")
         .build());
 
     user3 = userRepository.save(LocalUser.builder()
-        .nickname("테스트3")
-        .email("test3@test3")
-        .name("테식이3")
+        .nickname("삼식이")
+        .email("test3@sangsang.ac.kr")
+        .name("삼식이")
         .school(school)
         .password("1q2w3e")
         .build());
@@ -218,17 +231,24 @@ class PostServiceTest {
   }
 
   @Test
-  @DisplayName("게시글 상세 조회 테스트")
-  public void testGetPost() {
+  @DisplayName("게시글 생성 및 상세 조회 테스트")
+  public void testCreateAndGetPost(@Autowired S3Mock s3Mock, @Autowired AmazonS3Client amazonS3Client) {
     //Given
-    Post post = postRepository.save(Post.builder()
-        .board(board1)
-        .content("내용")
-        .isAnonymous(true)
-        .title("제목")
-        .user(user1)
-        .build()
+    List<MultipartFile> photos = List.of(
+        new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
+        new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes())
     );
+    PostCreateRequest createRequest = PostCreateRequest.builder()
+        .content("내용")
+        .title("제목")
+        .isAnonymous(true)
+        .photos(photos)
+        .build();
+    PostIdResponse createResponse = postService.createPost(board1.getId(), user1.getId(),
+        createRequest);
+    Optional<Post> optionalPost = postRepository.findPostById(createResponse.postId());
+    assertThat(optionalPost.isPresent()).isTrue();
+    Post post = optionalPost.get();
     for (int i = 0; i < 30; i++) {
       commentRepository.save(Comment.builder()
           .post(post)
@@ -237,6 +257,17 @@ class PostServiceTest {
           .user(user2)
           .build());
     }
+    em.flush();
+    em.clear();
+
+    //When
+    PostResponse response = postService.getPost(post.getId());
+
+    //Then
+    assertThat(response.comments()).hasSize(20);
+    assertThat(response.photos()).hasSize(2);
+
+    amazonS3Client.shutdown();
   }
 
   @Test
