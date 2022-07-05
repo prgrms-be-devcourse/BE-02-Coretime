@@ -57,6 +57,7 @@ public class CommentService {
     return CommentCreateResponse.of(currentUser, post, comment);
   }
 
+  @Transactional(readOnly = true)
   public Page<CommentsOnPostResponse> searchCommentsByPost(Long postId, Pageable pageable) {
     return commentRepository.findByPost(postId, pageable);
   }
