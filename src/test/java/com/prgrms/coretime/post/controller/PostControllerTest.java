@@ -1,6 +1,15 @@
 package com.prgrms.coretime.post.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.prgrms.coretime.S3MockConfig;
 import com.prgrms.coretime.common.util.JwtService;
 import com.prgrms.coretime.post.domain.Board;
 import com.prgrms.coretime.post.domain.BoardType;
@@ -14,6 +23,7 @@ import com.prgrms.coretime.school.domain.respository.SchoolRepository;
 import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
+import io.findify.s3mock.S3Mock;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,22 +31,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.web.multipart.MultipartFile;
 
 @Transactional
 @AutoConfigureMockMvc
 @SpringBootTest
+@Import(S3MockConfig.class)
 class PostControllerTest {
 
   @Autowired
@@ -53,6 +60,8 @@ class PostControllerTest {
   ObjectMapper objectMapper;
   @Autowired
   PostRepository postRepository;
+  @Autowired
+  S3Mock s3Mock;
 
   User currentUser;
   Board board;
@@ -71,9 +80,9 @@ class PostControllerTest {
         .build());
 
     currentUser = userRepository.save(LocalUser.builder()
-        .nickname("테스트1")
-        .email("test1@test1")
-        .name("테식이1")
+        .nickname("테스트")
+        .email("test@sangsang.ac.kr")
+        .name("김테스트")
         .school(school)
         .password("1q2w3e")
         .build());
@@ -126,17 +135,20 @@ class PostControllerTest {
   @DisplayName("게시글 생성 api 테스트")
   public void testCreatePost() throws Exception {
     //Given
-    PostCreateRequest createRequest = PostCreateRequest.builder()
-        .content("내용")
-        .title("제목")
-        .isAnonymous(true)
-        .build();
+    List<MultipartFile> photos = List.of(
+        new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
+        new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes())
+    );
 
     //When //Then
-    mockMvc.perform(post("/api/v1/boards/{boardId}/posts", board.getId())
+    mockMvc.perform(multipart("/api/v1/boards/{boardId}/posts", board.getId())
+            .file("photos", photos.get(0).getBytes())
+            .file("photos", photos.get(1).getBytes())
+            .param("title", "제목")
+            .param("content", "내용")
+            .param("isAnonymous", "true")
             .header("accessToken", accessToken)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(createRequest)))
+            .contentType(MediaType.MULTIPART_FORM_DATA))
         .andExpect(status().isCreated())
         .andDo(print());
   }

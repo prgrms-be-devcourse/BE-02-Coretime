@@ -22,4 +22,9 @@ public class Photo {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "post_id", referencedColumnName = "post_id")
   private Post post;
+
+  public Photo(String path, Post post) {
+    this.path = path;
+    this.post = post;
+  }
 }
