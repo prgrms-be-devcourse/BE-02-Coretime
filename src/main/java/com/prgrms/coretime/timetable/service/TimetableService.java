@@ -55,20 +55,23 @@ public class TimetableService {
     Integer year = timetableCreateRequest.getYear();
     Semester semester = timetableCreateRequest.getSemester();
 
+    // validator
     if(timetableRepository.getTimetableBySameName(userId, timetableName, year, semester).isPresent()) {
       throw new DuplicateRequestException(DUPLICATE_TIMETABLE_NAME);
     }
+
+    // ??
+    boolean isFirstTable = timetableRepository.isFirstTable(userId, year, semester);
 
     Timetable newTimetable = Timetable.builder()
         .name(timetableName)
         .year(year)
         .semester(semester)
         .user(user)
-        .isDefault(timetableRepository.isFirstTimetable(userId, year, semester))
+        .isDefault(isFirstTable)
         .build();
 
-    Timetable createdTimetable = timetableRepository.save(newTimetable);
-    return createdTimetable.getId();
+    return timetableRepository.save(newTimetable).getId();
   }
 
   @Transactional(readOnly = true)
@@ -112,6 +115,7 @@ public class TimetableService {
 
   @Transactional
   public List<FriendDefaultTimetableInfo> getFriendDefaultTimetableInfos(Long userId, Long friendId) {
+    // validator
     validateFriendRelationship(userId, friendId);
 
     return timetableRepository.getDefaultTimetables(
@@ -123,6 +127,7 @@ public class TimetableService {
 
   @Transactional
   public List<LectureInfo> getDefaultTimetableOfFriend(Long userId, Long friendId, int year, Semester semester) {
+    // validator
     validateFriendRelationship(userId, friendId);
 
     Timetable friendDefaultTimetable = getDefaultTimetableOfUser(userId, year, semester);
@@ -139,6 +144,7 @@ public class TimetableService {
     Semester semester = timetable.getSemester();
     Boolean updatedIsDefault = timetableUpdateRequest.getIsDefault();
 
+    // validator
     Timetable sameNameTable = timetableRepository.getTimetableBySameName(userId, updatedTimetableName, year, semester).orElse(timetable);
     if(timetable != sameNameTable) {
       throw new DuplicateRequestException(DUPLICATE_TIMETABLE_NAME);

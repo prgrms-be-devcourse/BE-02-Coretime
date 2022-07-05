@@ -87,7 +87,7 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
   }
 
   @Override
-  public boolean isFirstTimetable(Long userId, Integer year, Semester semester) {
+  public boolean isFirstTable(Long userId, Integer year, Semester semester) {
     long countOfTimetable = queryFactory
         .select(timetable.count())
         .from(timetable)
