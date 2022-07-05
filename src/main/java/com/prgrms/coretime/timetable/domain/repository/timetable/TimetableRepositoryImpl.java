@@ -1,6 +1,6 @@
 package com.prgrms.coretime.timetable.domain.repository.timetable;
 
-import static com.prgrms.coretime.timetable.domain.timetable.QTimetable.timetable;
+import static com.prgrms.coretime.timetable.domain.QTimetable.timetable;
 import static org.springframework.util.StringUtils.hasText;
 
 import com.prgrms.coretime.timetable.domain.Semester;

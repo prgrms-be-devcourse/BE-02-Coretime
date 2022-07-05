@@ -14,7 +14,7 @@ public interface LectureCustomRepository {
 
   Optional<OfficialLecture> getOfficialLectureById(Long lectureId);
 
-  long getNumberOfTimeOverlapLectures(Long timetableId, List<LectureDetail> lectureDetails);
+  long getNumberOfTimeOverlapLectures(Long timetableId, List<LectureDetail> lectureDetails, List<Long> lectureDetailIds);
 
   boolean isCustomLecture(Long lectureId);
 

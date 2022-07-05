@@ -1,7 +1,7 @@
 package com.prgrms.coretime.timetable.domain.repository.enrollment;
 
-import static com.prgrms.coretime.timetable.domain.enrollment.QEnrollment.enrollment;
-import static com.prgrms.coretime.timetable.domain.lecture.QLecture.lecture;
+import static com.prgrms.coretime.timetable.domain.QEnrollment.enrollment;
+import static com.prgrms.coretime.timetable.domain.QLecture.lecture;
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.CUSTOM;
 
 import com.prgrms.coretime.timetable.domain.Enrollment;
