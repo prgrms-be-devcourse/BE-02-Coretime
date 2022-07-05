@@ -59,6 +59,7 @@ public class CommentService {
 
   @Transactional(readOnly = true)
   public Page<CommentsOnPostResponse> searchCommentsByPost(Long postId, Pageable pageable) {
+    checkPostExist(postId);
     return commentRepository.findByPost(postId, pageable);
   }
 
@@ -85,6 +86,10 @@ public class CommentService {
 
   private void checkValidUser(Long currentUserId, Long targetUserId) {
     Assert.isFalse(currentUserId == targetUserId, ErrorCode.BAD_REQUEST.getMessage());
+  }
+
+  private void checkPostExist(Long postId) {
+    Assert.isFalse(postRepository.existsById(postId), ErrorCode.POST_NOT_FOUND.getMessage());
   }
 
 }
