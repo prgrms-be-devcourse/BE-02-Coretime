@@ -2,31 +2,27 @@ package com.prgrms.coretime.timetable.domain.repository.lectureDetail;
 
 import static com.prgrms.coretime.timetable.domain.QLectureDetail.lectureDetail;
 
+import com.prgrms.coretime.timetable.util.FlushAndClear;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
-import javax.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.Modifying;
 
 @RequiredArgsConstructor
 public class LectureDetailRepositoryImpl implements LectureDetailCustomRepository{
   private final JPAQueryFactory queryFactory;
-  private final EntityManager entityManager;
 
   @Override
+  @FlushAndClear
   public void deleteCustomLectureDetailsByLectureId(Long lectureId) {
     queryFactory
         .delete(lectureDetail)
         .where(lectureDetailLectureIdEq(lectureId))
         .execute();
-
-    entityManager.flush();
-    entityManager.clear();
   }
 
   @Override
-  @Modifying(clearAutomatically = true)
+  @FlushAndClear
   public void deleteLectureDetailsByLectureIds(List<Long> lectureIds) {
     queryFactory
         .delete(lectureDetail)

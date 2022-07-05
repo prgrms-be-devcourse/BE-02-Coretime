@@ -5,6 +5,7 @@ import static com.prgrms.coretime.timetable.domain.QLecture.lecture;
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.CUSTOM;
 
 import com.prgrms.coretime.timetable.domain.Enrollment;
+import com.prgrms.coretime.timetable.util.FlushAndClear;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -30,7 +31,7 @@ public class EnrollmentRepositoryImpl implements EnrollmentCustomRepository{
   }
 
   @Override
-  @Modifying(clearAutomatically = true)
+  @FlushAndClear
   public void deleteByTimetableId(Long timetableId) {
     queryFactory
         .delete(enrollment)

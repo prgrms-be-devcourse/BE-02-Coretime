@@ -151,7 +151,7 @@ public class TimetableService {
     enrollmentRepository.deleteByTimetableId(timetable.getId());
     lectureDetailRepository.deleteLectureDetailsByLectureIds(customLectureIds);
     lectureRepository.deleteLectureByLectureIds(customLectureIds);
-    timetableRepository.deleteByTimetableId(timetable.getId());
+    timetableRepository.delete(timetable);
 
     if(timetable.getIsDefault()) {
       timetableRepository.getRecentlyAddedTimetable(userId, timetable.getYear(), timetable.getSemester())
