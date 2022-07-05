@@ -3,7 +3,6 @@ package com.prgrms.coretime.timetable.service;
 import static com.prgrms.coretime.common.ErrorCode.ENROLLMENT_NOT_FOUND;
 import static com.prgrms.coretime.common.ErrorCode.LECTURE_DETAIL_TIME_OVERLAP;
 import static com.prgrms.coretime.common.ErrorCode.LECTURE_NOT_FOUND;
-import static com.prgrms.coretime.common.ErrorCode.NOT_FOUND;
 import static com.prgrms.coretime.common.ErrorCode.TIMETABLE_NOT_FOUND;
 
 import com.prgrms.coretime.common.error.exception.InvalidRequestException;
@@ -27,7 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
