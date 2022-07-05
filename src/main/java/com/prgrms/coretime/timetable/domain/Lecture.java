@@ -58,18 +58,13 @@ public class Lecture extends BaseEntity {
     this.classroom = classroom;
   }
 
-  public void updateName(String name) {
+  public void updateLecture(String name, String professor, String classroom) {
     validateName(name);
-    this.name = name;
-  }
-
-  public void updateProfessor(String professor) {
     validateProfessor(professor);
-    this.professor = professor;
-  }
-
-  public void updateClassroom(String classroom) {
     validateClassroom(classroom);
+
+    this.name = name;
+    this.professor = professor;
     this.classroom = classroom;
   }
 

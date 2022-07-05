@@ -84,12 +84,9 @@ public class EnrollmentService {
 
     enrollmentValidator.validateLectureTimeOverlap(timetable.getId(), lectureDetails, lectureDetailIds);
 
-    customLecture.updateName(customLectureRequest.getName());
-    customLecture.updateProfessor(customLectureRequest.getProfessor());
-    customLecture.updateClassroom(customLectureRequest.getClassroom());
+    customLecture.updateLecture(customLectureRequest.getName(), customLectureRequest.getProfessor(), customLectureRequest.getClassroom());
 
     lectureDetailRepository.deleteCustomLectureDetailsByLectureId(customLecture.getId());
-
     createLectureDetails(customLecture, lectureDetails);
   }
 
