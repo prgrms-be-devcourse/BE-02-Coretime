@@ -65,7 +65,7 @@ public class CommentService {
 
   public void deleteComment(Long userId, Long commentId) {
     Comment comment = getComment(commentId);
-    checkValidUser(userId, commentId);
+    checkValidUser(userId, comment.getUser().getId());
     comment.updateDelete();
   }
 
@@ -89,7 +89,9 @@ public class CommentService {
   }
 
   private void checkPostExist(Long postId) {
-    Assert.isFalse(postRepository.existsById(postId), ErrorCode.POST_NOT_FOUND.getMessage());
+    if (postRepository.existsById(postId)) {
+      throw new NotFoundException(ErrorCode.POST_NOT_FOUND);
+    }
   }
 
 }
