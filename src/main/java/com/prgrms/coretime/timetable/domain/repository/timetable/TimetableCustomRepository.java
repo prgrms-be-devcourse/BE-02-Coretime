@@ -14,6 +14,8 @@ public interface TimetableCustomRepository {
 
   Optional<Timetable> getRecentlyAddedTimetable(Long userId, Integer year, Semester semester);
 
+  List<Timetable> getDefaultTimetables(Long userId);
+
   List<Timetable> getTimetables(Long userId, Integer year, Semester semester);
 
   boolean isFirstTimetable(Long userId, Integer year, Semester semester);

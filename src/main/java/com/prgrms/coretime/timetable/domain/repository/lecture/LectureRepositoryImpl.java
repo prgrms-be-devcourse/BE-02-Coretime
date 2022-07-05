@@ -6,11 +6,10 @@ import static com.prgrms.coretime.timetable.domain.lecture.QLecture.lecture;
 import static com.prgrms.coretime.timetable.domain.lecture.QOfficialLecture.officialLecture;
 import static com.prgrms.coretime.timetable.domain.lectureDetail.QLectureDetail.lectureDetail;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
-import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.lecture.Grade;
 import com.prgrms.coretime.timetable.domain.lecture.Lecture;
-import com.prgrms.coretime.timetable.domain.lecture.LectureType;
 import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
 import com.prgrms.coretime.timetable.domain.lectureDetail.Day;
 import com.prgrms.coretime.timetable.domain.lectureDetail.LectureDetail;
@@ -26,38 +25,32 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.support.PageableExecutionUtils;
 
-@Slf4j
 @RequiredArgsConstructor
 public class LectureRepositoryImpl implements LectureCustomRepository {
   private final JPAQueryFactory queryFactory;
 
   @Override
   public Page<OfficialLecture> getOfficialLectures(OfficialLectureSearchCondition officialLectureSearchCondition, Pageable pageable) {
+    BooleanBuilder searchCondition = getSearchCondition(officialLectureSearchCondition);
+
     List<OfficialLecture> officialLectures = queryFactory
         .selectFrom(officialLecture)
-        .where(
-            getSearchConditionBuilder(officialLectureSearchCondition)
-        )
+        .where(searchCondition)
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())
-        .orderBy(
-            officialLectureSort(pageable)
-        )
+        .orderBy(officialLectureSort(pageable))
         .fetch();
 
     JPAQuery<Long> countQuery = queryFactory
         .select(officialLecture.count())
         .from(officialLecture)
-        .where(
-            getSearchConditionBuilder(officialLectureSearchCondition)
-        );
+        .where(searchCondition);
 
     return PageableExecutionUtils.getPage(officialLectures, pageable, countQuery::fetchOne);
   }
@@ -111,63 +104,56 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
         .execute();
   }
 
-  private BooleanBuilder getSearchConditionBuilder(OfficialLectureSearchCondition officialLectureSearchCondition) {
-    BooleanBuilder searchConditionBuilder = new BooleanBuilder();
-    searchConditionBuilder.and(schoolIdEq(officialLectureSearchCondition.getSchoolId()));
-    searchConditionBuilder.and(openYearEq(officialLectureSearchCondition.getOpenYear()));
-    searchConditionBuilder.and(semesterEq(officialLectureSearchCondition.getSemester()));
+  private BooleanBuilder getSearchCondition(OfficialLectureSearchCondition officialLectureSearchCondition) {
+    BooleanBuilder searchCondition = new BooleanBuilder();
 
-    if(officialLectureSearchCondition.getLectureTypes() != null) {
-      BooleanBuilder lectureTypeBuilder = new BooleanBuilder();
-      for(LectureType lectureType : officialLectureSearchCondition.getLectureTypes()) {
-        lectureTypeBuilder.or(lectureTypeEq(lectureType));
-      }
-      searchConditionBuilder.and(lectureTypeBuilder);
+    searchCondition
+        .and(officialLecture.school.id.eq(officialLectureSearchCondition.getSchoolId()))
+        .and(officialLecture.openYear.eq(officialLectureSearchCondition.getOpenYear()))
+        .and(officialLecture.semester.eq(officialLectureSearchCondition.getSemester()));
+
+    if(nonNull(officialLectureSearchCondition.getLectureTypes())) {
+      BooleanBuilder lectureTypeCondition = new BooleanBuilder();
+      officialLectureSearchCondition.getLectureTypes().forEach(lectureType -> lectureTypeCondition.or(officialLecture.lectureType.eq(lectureType)));
+      searchCondition.and(lectureTypeCondition);
     }
 
-    if(officialLectureSearchCondition.getGrades() != null) {
-      BooleanBuilder gradeBuilder = new BooleanBuilder();
-      gradeBuilder.or(gradeEq(Grade.ETC));
-      for(Grade grade : officialLectureSearchCondition.getGrades()) {
-        gradeBuilder.or(gradeEq(grade));
-      }
-      searchConditionBuilder.and(gradeBuilder);
+    if(nonNull(officialLectureSearchCondition.getGrades())) {
+      BooleanBuilder gradeCondition = new BooleanBuilder();
+      gradeCondition.or(officialLecture.grade.eq(Grade.ETC));
+      officialLectureSearchCondition.getGrades().forEach(grade -> gradeCondition.or(officialLecture.grade.eq(grade)));
+      searchCondition.and(gradeCondition);
     }
 
-    if(officialLectureSearchCondition.getCredits() != null) {
-      BooleanBuilder creditBuilder = new BooleanBuilder();
-      for(Double credit : officialLectureSearchCondition.getCredits()) {
-        if(credit == 4.0) {
-          creditBuilder.or(creditGoe(credit));
-        }else{
-          creditBuilder.or(creditEq(credit));
-        }
-      }
-      searchConditionBuilder.and(creditBuilder);
+    if(nonNull(officialLectureSearchCondition.getCredits())) {
+      BooleanBuilder creditCondition = new BooleanBuilder();
+      officialLectureSearchCondition.getCredits()
+          .forEach(credit -> creditCondition.or(credit == 4.0 ? officialLecture.credit.goe(credit) : officialLecture.credit.eq(credit)));
+      searchCondition.and(creditCondition);
     }
 
-    if(officialLectureSearchCondition.getSearchType() != null &&
-        officialLectureSearchCondition.getSearchWord() != null) {
+    if(nonNull(officialLectureSearchCondition.getSearchType()) &&
+        nonNull(officialLectureSearchCondition.getSearchWord())) {
       SearchType searchType = officialLectureSearchCondition.getSearchType();
       String searchWord = officialLectureSearchCondition.getSearchWord();
 
       switch (searchType) {
         case name:
-          searchConditionBuilder.and(nameContains(searchWord));
+          searchCondition.and(officialLecture.name.contains(searchWord));
           break;
         case professor:
-          searchConditionBuilder.and(professorContains(searchWord));
+          searchCondition.and(officialLecture.professor.contains(searchWord));
           break;
         case code:
-          searchConditionBuilder.and(codeContains(searchWord));
+          searchCondition.and(officialLecture.code.contains(searchWord));
           break;
         default:
-          searchConditionBuilder.and(classroomContains(searchWord));
+          searchCondition.and(officialLecture.classroom.contains(searchWord));
           break;
       }
     }
 
-    return searchConditionBuilder;
+    return searchCondition;
   }
 
   private OrderSpecifier<?> officialLectureSort(Pageable pageable) {
@@ -217,32 +203,8 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
     return customLectureExistConditionBuilder;
   }
 
-  private BooleanExpression schoolIdEq(Long schoolId) {
-    return schoolId == null ? null : officialLecture.school.id.eq(schoolId);
-  }
-
   private BooleanExpression officialLectureIddEq(Long officialLectureId) {
     return officialLectureId == null ? null : officialLecture.id.eq(officialLectureId);
-  }
-
-  private BooleanExpression openYearEq(Integer openYear) {
-    return openYear == null ? null : officialLecture.openYear.eq(openYear);
-  }
-
-  private BooleanExpression semesterEq(Semester semester) {
-    return semester == null ? null : officialLecture.semester.eq(semester);
-  }
-
-  private BooleanExpression lectureTypeEq(LectureType lectureType) {
-    return lectureType == null ? null : officialLecture.lectureType.eq(lectureType);
-  }
-
-  private BooleanExpression gradeEq(Grade grade) {
-    return grade == null ? null : officialLecture.grade.eq(grade);
-  }
-
-  private BooleanExpression creditEq(Double credit) {
-    return credit == null ? null : officialLecture.credit.eq(credit);
   }
 
   private BooleanExpression timetableIdEq(Long timetableId) {
@@ -261,32 +223,12 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
     return lecture.dType.eq("CUSTOM");
   }
 
-  private BooleanExpression creditGoe(Double credit) {
-    return credit == null ? null : officialLecture.credit.goe(credit);
-  }
-
   private BooleanExpression startTimeLt(LocalTime endTime) {
     return endTime == null ? null : lectureDetail.startTime.lt(endTime);
   }
 
   private BooleanExpression endTimeGt(LocalTime startTime) {
     return startTime == null ? null : lectureDetail.endTime.gt(startTime);
-  }
-
-  private BooleanExpression nameContains(String name) {
-    return name == null ? null : officialLecture.name.contains(name);
-  }
-
-  private BooleanExpression professorContains(String professor) {
-    return professor == null ? null : officialLecture.professor.contains(professor);
-  }
-
-  private BooleanExpression codeContains(String code) {
-    return code == null ? null : officialLecture.code.contains(code);
-  }
-
-  private BooleanExpression classroomContains(String classroom) {
-    return classroom == null ? null : officialLecture.classroom.contains(classroom);
   }
 }
 

@@ -66,6 +66,16 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
   }
 
   @Override
+  public List<Timetable> getDefaultTimetables(Long userId) {
+    return queryFactory
+        .selectFrom(timetable)
+        .where(
+            getDefaultTimetablesCondition(userId)
+        )
+        .fetch();
+  }
+
+  @Override
   public List<Timetable> getTimetables(Long userId, Integer year, Semester semester) {
     return queryFactory
         .selectFrom(timetable)
@@ -109,15 +119,16 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
     return sameNameTableCondition;
   }
 
-  private BooleanBuilder getIdYearSemesterCondition(Long userId, Integer year, Semester semester) {
-    BooleanBuilder idYearSemesterCondition = new BooleanBuilder();
+  private BooleanBuilder getDefaultTimetableCondition(Long userId, Integer year, Semester semester) {
+    BooleanBuilder defaultTableCondition = new BooleanBuilder();
 
-    idYearSemesterCondition
+    defaultTableCondition
         .and(userIdEq(userId))
         .and(yearEq(year))
-        .and(semesterEq(semester));
+        .and(semesterEq(semester))
+        .and(timetable.isDefault.eq(true));
 
-    return idYearSemesterCondition;
+    return defaultTableCondition;
   }
 
   private BooleanBuilder getTimetableCondition(Long userId, Long timetableId) {
@@ -130,16 +141,25 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
     return timetableCondition;
   }
 
-  private BooleanBuilder getDefaultTimetableCondition(Long userId, Integer year, Semester semester) {
-    BooleanBuilder defaultTableCondition = new BooleanBuilder();
+  private BooleanBuilder getDefaultTimetablesCondition(Long userId) {
+    BooleanBuilder defaultTimetablesCondition = new BooleanBuilder();
 
-    defaultTableCondition
+    defaultTimetablesCondition
         .and(userIdEq(userId))
-        .and(yearEq(year))
-        .and(semesterEq(semester))
         .and(timetable.isDefault.eq(true));
 
-    return defaultTableCondition;
+    return defaultTimetablesCondition;
+  }
+
+  private BooleanBuilder getIdYearSemesterCondition(Long userId, Integer year, Semester semester) {
+    BooleanBuilder idYearSemesterCondition = new BooleanBuilder();
+
+    idYearSemesterCondition
+        .and(userIdEq(userId))
+        .and(yearEq(year))
+        .and(semesterEq(semester));
+
+    return idYearSemesterCondition;
   }
 
   private BooleanBuilder getCountOfTableCondition(Long userId, Integer year, Semester semester) {
