@@ -1,8 +1,8 @@
 package com.prgrms.coretime.timetable.dto.request;
 
 import com.prgrms.coretime.timetable.domain.Semester;
-import com.prgrms.coretime.timetable.domain.lecture.Grade;
-import com.prgrms.coretime.timetable.domain.lecture.LectureType;
+import com.prgrms.coretime.timetable.domain.Grade;
+import com.prgrms.coretime.timetable.domain.LectureType;
 import java.util.List;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;

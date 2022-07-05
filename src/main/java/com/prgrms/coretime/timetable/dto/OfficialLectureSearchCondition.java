@@ -1,8 +1,8 @@
 package com.prgrms.coretime.timetable.dto;
 
 import com.prgrms.coretime.timetable.domain.Semester;
-import com.prgrms.coretime.timetable.domain.lecture.Grade;
-import com.prgrms.coretime.timetable.domain.lecture.LectureType;
+import com.prgrms.coretime.timetable.domain.Grade;
+import com.prgrms.coretime.timetable.domain.LectureType;
 import com.prgrms.coretime.timetable.dto.request.SearchType;
 import java.util.List;
 import lombok.Builder;

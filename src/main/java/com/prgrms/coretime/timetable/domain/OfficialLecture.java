@@ -1,12 +1,10 @@
-package com.prgrms.coretime.timetable.domain.lecture;
+package com.prgrms.coretime.timetable.domain;
 
 import static javax.persistence.EnumType.STRING;
 import static org.springframework.util.Assert.hasText;
 import static org.springframework.util.Assert.notNull;
 
 import com.prgrms.coretime.school.domain.School;
-import com.prgrms.coretime.timetable.domain.Semester;
-import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -19,8 +17,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 @Entity
 @Table(name = "official_lecture")
@@ -69,6 +65,14 @@ public class OfficialLecture extends Lecture {
 
   public void setSchool(School school) {
     this.school = school;
+  }
+
+  public boolean canEnrol(Long schoolId) {
+    if(this.school.getId() != schoolId) {
+      return false;
+    }else{
+      return true;
+    }
   }
 
   private void validateOfficialLecture(Semester semester, Integer openYear, Grade grade, Double credit, String code, LectureType lectureType) {

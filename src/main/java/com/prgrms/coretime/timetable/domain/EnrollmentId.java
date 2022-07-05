@@ -1,4 +1,4 @@
-package com.prgrms.coretime.timetable.domain.enrollment;
+package com.prgrms.coretime.timetable.domain;
 
 import java.io.Serializable;
 import javax.persistence.Embeddable;

@@ -1,9 +1,11 @@
-package com.prgrms.coretime.timetable.domain.lectureDetail;
+package com.prgrms.coretime.timetable.domain;
 
-import static com.prgrms.coretime.timetable.domain.lectureDetail.Day.MON;
+import static com.prgrms.coretime.timetable.domain.Day.MON;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.prgrms.coretime.timetable.domain.Day;
+import com.prgrms.coretime.timetable.domain.LectureDetail;
 import java.time.LocalTime;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;

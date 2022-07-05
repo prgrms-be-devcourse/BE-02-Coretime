@@ -1,9 +1,6 @@
 package com.prgrms.coretime.timetable.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.prgrms.coretime.timetable.domain.lectureDetail.Day;
-import com.querydsl.core.annotations.QueryProjection;
+import com.prgrms.coretime.timetable.domain.Day;
 import java.time.LocalTime;
 import lombok.Builder;
 import lombok.Getter;

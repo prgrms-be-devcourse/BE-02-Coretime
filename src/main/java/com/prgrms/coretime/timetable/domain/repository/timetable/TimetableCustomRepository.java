@@ -1,7 +1,7 @@
 package com.prgrms.coretime.timetable.domain.repository.timetable;
 
 import com.prgrms.coretime.timetable.domain.Semester;
-import com.prgrms.coretime.timetable.domain.timetable.Timetable;
+import com.prgrms.coretime.timetable.domain.Timetable;
 import java.util.List;
 import java.util.Optional;
 

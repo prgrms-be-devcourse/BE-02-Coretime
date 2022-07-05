@@ -1,4 +1,4 @@
-package com.prgrms.coretime.timetable.domain.timetable;
+package com.prgrms.coretime.timetable.domain;
 
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.LAZY;
@@ -7,11 +7,10 @@ import static org.springframework.util.Assert.notNull;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.timetable.domain.Semester;
-import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
+import com.prgrms.coretime.timetable.domain.Enrollment;
 import com.prgrms.coretime.user.domain.User;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
@@ -71,6 +70,16 @@ public class Timetable extends BaseEntity {
   public void updateName(String name) {
     validateTimetableName(name);
     this.name = name;
+  }
+
+  public boolean canEnrol(Integer year, Semester semester) {
+    if(!this.year.equals(year)) {
+      return false;
+    }else if(!this.semester.equals(semester)) {
+      return false;
+    }else {
+     return true;
+    }
   }
 
   public void makeDefault() {

@@ -1,11 +1,8 @@
-package com.prgrms.coretime.timetable.domain.enrollment;
+package com.prgrms.coretime.timetable.domain;
 
 import static javax.persistence.FetchType.LAZY;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
-import com.prgrms.coretime.timetable.domain.timetable.Timetable;
-import com.prgrms.coretime.timetable.domain.lecture.Lecture;
-import java.util.Objects;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;

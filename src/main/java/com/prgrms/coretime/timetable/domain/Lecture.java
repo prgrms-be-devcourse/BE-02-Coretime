@@ -1,11 +1,9 @@
-package com.prgrms.coretime.timetable.domain.lecture;
+package com.prgrms.coretime.timetable.domain;
 
 
 import static org.springframework.util.Assert.hasText;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
-import com.prgrms.coretime.timetable.domain.enrollment.Enrollment;
-import com.prgrms.coretime.timetable.domain.lectureDetail.LectureDetail;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
@@ -21,7 +19,6 @@ import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.util.StringUtils;
 
 @Entity
 @Table(name = "lecture")
@@ -61,18 +58,13 @@ public class Lecture extends BaseEntity {
     this.classroom = classroom;
   }
 
-  public void updateName(String name) {
+  public void updateLecture(String name, String professor, String classroom) {
     validateName(name);
-    this.name = name;
-  }
-
-  public void updateProfessor(String professor) {
     validateProfessor(professor);
-    this.professor = professor;
-  }
-
-  public void updateClassroom(String classroom) {
     validateClassroom(classroom);
+
+    this.name = name;
+    this.professor = professor;
     this.classroom = classroom;
   }
 

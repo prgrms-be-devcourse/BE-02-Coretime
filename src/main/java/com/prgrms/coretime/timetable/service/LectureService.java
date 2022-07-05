@@ -5,9 +5,9 @@ import static org.springframework.util.Assert.notNull;
 import static org.springframework.util.StringUtils.hasText;
 
 import com.prgrms.coretime.timetable.domain.Semester;
-import com.prgrms.coretime.timetable.domain.lecture.Grade;
-import com.prgrms.coretime.timetable.domain.lecture.LectureType;
-import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
+import com.prgrms.coretime.timetable.domain.Grade;
+import com.prgrms.coretime.timetable.domain.LectureType;
+import com.prgrms.coretime.timetable.domain.OfficialLecture;
 import com.prgrms.coretime.timetable.domain.repository.lecture.LectureRepository;
 import com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition;
 import com.prgrms.coretime.timetable.dto.request.OfficialLectureSearchRequest;

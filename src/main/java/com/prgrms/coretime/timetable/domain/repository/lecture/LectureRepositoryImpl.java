@@ -1,18 +1,18 @@
 package com.prgrms.coretime.timetable.domain.repository.lecture;
 
 import static com.prgrms.coretime.school.domain.QSchool.school;
-import static com.prgrms.coretime.timetable.domain.enrollment.QEnrollment.enrollment;
-import static com.prgrms.coretime.timetable.domain.lecture.QLecture.lecture;
-import static com.prgrms.coretime.timetable.domain.lecture.QOfficialLecture.officialLecture;
-import static com.prgrms.coretime.timetable.domain.lectureDetail.QLectureDetail.lectureDetail;
+import static com.prgrms.coretime.timetable.domain.QEnrollment.enrollment;
+import static com.prgrms.coretime.timetable.domain.QLecture.lecture;
+import static com.prgrms.coretime.timetable.domain.QLectureDetail.lectureDetail;
+import static com.prgrms.coretime.timetable.domain.QOfficialLecture.officialLecture;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import com.prgrms.coretime.timetable.domain.lecture.Grade;
-import com.prgrms.coretime.timetable.domain.lecture.Lecture;
-import com.prgrms.coretime.timetable.domain.lecture.OfficialLecture;
-import com.prgrms.coretime.timetable.domain.lectureDetail.Day;
-import com.prgrms.coretime.timetable.domain.lectureDetail.LectureDetail;
+import com.prgrms.coretime.timetable.domain.Grade;
+import com.prgrms.coretime.timetable.domain.Lecture;
+import com.prgrms.coretime.timetable.domain.OfficialLecture;
+import com.prgrms.coretime.timetable.domain.Day;
+import com.prgrms.coretime.timetable.domain.LectureDetail;
 import com.prgrms.coretime.timetable.dto.OfficialLectureSearchCondition;
 import com.prgrms.coretime.timetable.dto.request.SearchType;
 import com.querydsl.core.BooleanBuilder;
@@ -70,14 +70,14 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
   }
 
   @Override
-  public long getNumberOfConflictLectures(Long timetableId, List<LectureDetail> lectureDetails) {
+  public long getNumberOfTimeOverlapLectures(Long timetableId, List<LectureDetail> lectureDetails, List<Long> lectureDetailIds) {
      return queryFactory
         .select(lecture.count())
         .from(lecture)
         .join(lecture.enrollments, enrollment)
         .join(lecture.lectureDetails, lectureDetail)
         .where(
-            getConflictConditionBuilder(timetableId, lectureDetails)
+            getOverlapCondition(timetableId, lectureDetails, lectureDetailIds)
         )
         .fetchOne();
   }
@@ -92,7 +92,7 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
         )
         .fetchOne();
 
-    return isNull(customLecture) ? false : true;
+    return !isNull(customLecture);
   }
 
   @Override
@@ -173,25 +173,32 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
     return new OrderSpecifier(Order.ASC, officialLecture.id);
   }
 
-  private BooleanBuilder getConflictConditionBuilder(Long timetableId, List<LectureDetail> lectureDetails) {
-    BooleanBuilder conflictConditionBuilder = new BooleanBuilder();
-    BooleanBuilder dayAndTimesBuilder = new BooleanBuilder();
+  private BooleanBuilder getOverlapCondition(Long timetableId, List<LectureDetail> lectureDetails, List<Long> lectureDetailIds) {
+    BooleanBuilder overLapCondition = new BooleanBuilder();
+    BooleanBuilder dayAndTimesCondition = new BooleanBuilder();
+    BooleanBuilder lectureDetailIdsCondition = new BooleanBuilder();
 
     for(LectureDetail lectureDetail : lectureDetails) {
-      BooleanBuilder dayAndTimeBuilder = new BooleanBuilder();
+      BooleanBuilder dayAndTimeCondition = new BooleanBuilder();
 
-      dayAndTimeBuilder
+      dayAndTimeCondition
           .and(dayEq(lectureDetail.getDay()))
           .and(startTimeLt(lectureDetail.getEndTime()))
           .and(endTimeGt(lectureDetail.getStartTime()));
-      dayAndTimesBuilder.or(dayAndTimeBuilder);
+      dayAndTimesCondition.or(dayAndTimeCondition);
     }
 
-    conflictConditionBuilder
-        .and(timetableIdEq(timetableId))
-        .and(dayAndTimesBuilder);
+    for(Long lectureDetailId : lectureDetailIds) {
+      lectureDetailIdsCondition
+          .and(lectureDetailIdNe(lectureDetailId));
+    }
 
-    return conflictConditionBuilder;
+    overLapCondition
+        .and(timetableIdEq(timetableId))
+        .and(dayAndTimesCondition)
+        .and(lectureDetailIdsCondition);
+
+    return overLapCondition;
   }
 
   private BooleanBuilder getCustomLectureConditionBuilder(Long lectureId) {
@@ -217,6 +224,10 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
 
   private BooleanExpression lectureIdEq(Long lectureId) {
     return lectureId == null ? null : lecture.id.eq(lectureId);
+  }
+
+  private BooleanExpression lectureDetailIdNe(Long lectureDetailId) {
+    return lectureDetailId == null ? null : lectureDetail.id.ne(lectureDetailId);
   }
 
   private BooleanExpression customDTypeEq() {

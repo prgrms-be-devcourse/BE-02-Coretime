@@ -1,6 +1,6 @@
 package com.prgrms.coretime.timetable.dto.request;
 
-import com.prgrms.coretime.timetable.domain.lectureDetail.Day;
+import com.prgrms.coretime.timetable.domain.Day;
 import com.prgrms.coretime.timetable.util.TimeFormatConstraint;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
