@@ -6,6 +6,9 @@ import com.prgrms.coretime.TestConfig;
 import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.comment.domain.CommentLike;
 import com.prgrms.coretime.comment.dto.response.CommentOneResponse;
+import com.prgrms.coretime.comment.dto.response.CommentsOnPostResponse;
+import com.prgrms.coretime.common.ErrorCode;
+import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.post.domain.Board;
 import com.prgrms.coretime.post.domain.BoardType;
 import com.prgrms.coretime.post.domain.Post;
@@ -24,6 +27,7 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -31,6 +35,8 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -72,6 +78,8 @@ class CommentRepositoryTest {
   private Board board;
 
   private Post anonyPost;
+
+  private Post realPost;
 
   private Comment parent;
 
@@ -115,9 +123,6 @@ class CommentRepositoryTest {
     board = boardRepository.save(board);
   }
 
-  /**
-   * 주의: 현재 user와 board가 db에 있는 인스턴스일 수 잇는건 순서를 엄격하게 맞춘 탓임.
-   */
   void setPost() {
     anonyPost = Post.builder()
         .title("아 테스트 세팅하는데 손아파 죽겠다")
@@ -127,6 +132,15 @@ class CommentRepositoryTest {
         .board(board)
         .build();
     anonyPost = postRepository.save(anonyPost);
+
+    realPost = Post.builder()
+        .title("아 테스트 세팅하는데 손아파 죽겠다")
+        .content("ㅈㄱㄴ")
+        .isAnonymous(false)
+        .user(localUser)
+        .board(board)
+        .build();
+    realPost = postRepository.save(realPost);
   }
 
   void setComment() {
@@ -386,5 +400,147 @@ class CommentRepositoryTest {
     assertThat(bestCommentResponse.getName()).isEqualTo(child.getUser().getNickname());
     assertThat(bestCommentResponse.getCommentId()).isEqualTo(child.getId());
   }
+
+  @Test
+  @DisplayName("1. 댓글이 하나도 없을때")
+  public void testCommentEmpty() {
+    commentRepository.deleteById(parent.getId());
+
+    em.flush();
+    em.clear();
+
+    Page<CommentsOnPostResponse> commentsResponse = commentRepository.findByPost(anonyPost.getId(),
+        PageRequest.of(0, 20));
+
+    assertThat(commentsResponse.getTotalElements()).isEqualTo(0);
+    List<CommentsOnPostResponse> content = commentsResponse.getContent();
+    content.forEach(c -> assertThat(c).isNull());
+  }
+
+  @Test
+  @DisplayName("2. 자식 댓글이 없을 때")
+  public void testChildEmpty() {
+    commentRepository.save(Comment.builder()
+        .user(localUser)
+        .post(anonyPost)
+        .parent(null)
+        .isAnonymous(true)
+        .anonymousSeq(anonyPost.getNextAnonymousSeq())
+        .content("또다른 부모댓글")
+        .build());
+
+    em.flush();
+    em.clear();
+
+    Page<CommentsOnPostResponse> commentsResponse = commentRepository.findByPost(anonyPost.getId(),
+        PageRequest.of(0, 20));
+
+    assertThat(commentsResponse.getTotalElements()).isEqualTo(2);
+    List<CommentsOnPostResponse> content = commentsResponse.getContent();
+    content.forEach(c -> assertThat(c.getChildrenSize()).isEqualTo(0));
+  }
+
+  @Test
+  @DisplayName("3. 자식 댓글은 삭제하면 불러오지 않는다.")
+  public void testChildDelete() {
+    Comment child = commentRepository.save(Comment.builder()
+        .user(localUser)
+        .post(anonyPost)
+        .parent(parent)
+        .isAnonymous(true)
+        .anonymousSeq(anonyPost.getNextAnonymousSeq())
+        .content("또다른 부모댓글")
+        .build());
+
+    em.flush();
+    em.clear();
+
+    Page<CommentsOnPostResponse> commentsResponse = commentRepository.findByPost(anonyPost.getId(),
+        PageRequest.of(0, 20));
+
+    assertThat(commentsResponse.getTotalElements()).isEqualTo(1);
+    List<CommentsOnPostResponse> content = commentsResponse.getContent();
+    assertThat(content.get(0).getChildrenSize()).isEqualTo(1);
+
+    // 삭제로 변경
+    child = commentRepository.findById(child.getId())
+        .orElseThrow(() -> new NotFoundException(ErrorCode.COMMENT_NOT_FOUND));
+    child.updateDelete();
+
+    em.flush();
+    em.clear();
+
+    commentsResponse = commentRepository.findByPost(anonyPost.getId(),
+        PageRequest.of(0, 20));
+
+    assertThat(commentsResponse.getTotalElements()).isEqualTo(1);
+    content = commentsResponse.getContent();
+    assertThat(content.get(0).getChildrenSize()).isEqualTo(0);
+
+  }
+
+  @Test
+  @DisplayName("4. 자식 댓글이 없을때 부모 댓글이 지워지면 불러오지 않는다.")
+  public void testParentDelete() {
+    Comment comment = commentRepository.findById(parent.getId())
+        .orElseThrow(() -> new NotFoundException(ErrorCode.COMMENT_NOT_FOUND));
+
+    comment.updateDelete();
+    em.flush();
+    em.clear();
+
+    Page<CommentsOnPostResponse> commentsResponse = commentRepository.findByPost(anonyPost.getId(),
+        PageRequest.of(0, 20));
+    List<CommentsOnPostResponse> content = commentsResponse.getContent();
+    assertThat(content.size()).isEqualTo(0);
+
+  }
+
+  @Test
+  @DisplayName("5. 게시글 작성자와 댓글 작성자가 같을 때 이름은 '익명(글쓴이)'이다")
+  public void testPostUserSameCommentUser() {
+    Page<CommentsOnPostResponse> commentsResponse = commentRepository.findByPost(anonyPost.getId(),
+        PageRequest.of(0, 20));
+    List<CommentsOnPostResponse> content = commentsResponse.getContent();
+    assertThat(content.get(0).getName()).isEqualTo("익명(글쓴이)");
+  }
+
+  @Test
+  @Disabled // 해결해야돼...ㅠㅠ
+  @DisplayName("6. 유저가 회원탈퇴하면 이름은 '(알 수 없음)'이다")
+  public void testIfUserNull() {
+    userRepository.deleteById(localUser.getId());
+
+    em.flush();
+    em.clear();
+
+    Page<CommentsOnPostResponse> commentsResponse = commentRepository.findByPost(anonyPost.getId(),
+        PageRequest.of(0, 20));
+    List<CommentsOnPostResponse> content = commentsResponse.getContent();
+    assertThat(content.get(0).getName()).isEqualTo("(알 수 없음)");
+  }
+
+  @Test
+  @DisplayName("7. 게시글 작성자와 댓글 작성자(익명)가 같아도 실명 게시글이면 '(익명 + seq)'으로 뜬다.")
+  public void testRealPostComment() {
+    commentRepository.save(Comment.builder()
+        .user(localUser)
+        .post(realPost)
+        .parent(null)
+        .anonymousSeq(realPost.getAnonymousSeqAndAdd())
+        .isAnonymous(true)
+        .content("나는 작성자와 같지만 익명 + num으로 떠야해!")
+        .build());
+
+    em.flush();
+    em.clear();
+
+    Page<CommentsOnPostResponse> commentsResponse = commentRepository.findByPost(realPost.getId(),
+        PageRequest.of(0, 20));
+    List<CommentsOnPostResponse> content = commentsResponse.getContent();
+    assertThat(content.get(0).getName()).isEqualTo("익명" + (realPost.getNextAnonymousSeq() - 1));
+    assertThat(content.get(0).getName()).isNotEqualTo("익명(글쓴이)");
+  }
+
 
 }

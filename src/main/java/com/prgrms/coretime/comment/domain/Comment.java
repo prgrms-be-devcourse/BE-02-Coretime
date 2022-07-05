@@ -44,7 +44,6 @@ public class Comment extends BaseEntity {
   @OneToMany(mappedBy = "comment")
   private List<CommentLike> likes = new ArrayList<>();
 
-  // temp column : user
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "user_id")
   private User user;
