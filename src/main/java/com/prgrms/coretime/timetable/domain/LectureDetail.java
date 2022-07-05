@@ -1,15 +1,12 @@
-package com.prgrms.coretime.timetable.domain.lectureDetail;
+package com.prgrms.coretime.timetable.domain;
 
-import static java.util.Objects.*;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.LAZY;
 import static org.springframework.util.Assert.notNull;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
-import com.prgrms.coretime.timetable.domain.lecture.Lecture;
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;

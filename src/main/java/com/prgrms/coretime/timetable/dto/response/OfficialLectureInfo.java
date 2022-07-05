@@ -1,7 +1,7 @@
 package com.prgrms.coretime.timetable.dto.response;
 
-import com.prgrms.coretime.timetable.domain.lecture.Grade;
-import com.prgrms.coretime.timetable.domain.lecture.LectureType;
+import com.prgrms.coretime.timetable.domain.Grade;
+import com.prgrms.coretime.timetable.domain.LectureType;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

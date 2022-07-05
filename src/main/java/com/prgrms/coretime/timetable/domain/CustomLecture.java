@@ -1,4 +1,4 @@
-package com.prgrms.coretime.timetable.domain.lecture;
+package com.prgrms.coretime.timetable.domain;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;

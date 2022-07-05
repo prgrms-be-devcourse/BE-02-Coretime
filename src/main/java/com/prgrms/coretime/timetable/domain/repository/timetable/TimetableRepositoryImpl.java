@@ -1,10 +1,10 @@
 package com.prgrms.coretime.timetable.domain.repository.timetable;
 
-import static com.prgrms.coretime.timetable.domain.timetable.QTimetable.timetable;
+import static com.prgrms.coretime.timetable.domain.QTimetable.timetable;
 import static org.springframework.util.StringUtils.hasText;
 
 import com.prgrms.coretime.timetable.domain.Semester;
-import com.prgrms.coretime.timetable.domain.timetable.Timetable;
+import com.prgrms.coretime.timetable.domain.Timetable;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
