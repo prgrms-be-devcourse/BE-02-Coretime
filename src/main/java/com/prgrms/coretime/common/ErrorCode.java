@@ -10,10 +10,6 @@ import lombok.Getter;
 @Getter
 public enum ErrorCode {
 
-  /**
-   * Code 팀원들끼리 정해야하는데 이거 관리해야하나여..?ㅠㅠ 깃모지 될 것 같은데...
-   */
-
   //Internal Server Error
   INTERNAL_SERVER_ERROR(500, "server01", "서버에 문제가 생겼습니다."),
 
@@ -39,8 +35,8 @@ public enum ErrorCode {
   NOT_FRIEND(400, "F005", "친구 관계가 아닙니다."),
 
   /**
-   * Post Domain
-   */
+   *  Post Domain
+   * */
   POST_NOT_FOUND(400, "P001", "해당 Post 리소스를 찾을 수 없습니다."),
   BOARD_NOT_FOUND(400, "B001", "해당 Board 리소스를 찾을 수 없습니다."),
   PHOTO_NOT_FOUND(400, "PH001", "해당 Photo 리소스를 찾을 수 없습니다."),
@@ -52,6 +48,11 @@ public enum ErrorCode {
    */
   DUPLICATE_TIMETABLE_NAME(400, "T001", "이미 사용중인 이름입니다."),
   TIMETABLE_NOT_FOUND(404, "T002", "시간표를 찾을 수 없습니다."),
+  LECTURE_NOT_FOUND(404, "T003", "강의를 찾을 수 없습니다."),
+  INVALID_LECTURE_ADD_REQUEST(400, "T004", "시간표에 추가할 수 없는 강의입니다."),
+  ALREADY_ADDED_LECTURE(400, "T005", "이미 추가된 강의입니다."),
+  LECTURE_TIME_OVERLAP(400, "T006", "같은 시간에 다른 강의가 있습니다."),
+  LECTURE_DETAIL_TIME_OVERLAP(400, "T007", "입력된 시간중 겹치는 시간이 있습니다."),
 
   /**
    * Comment Domain
