@@ -7,13 +7,14 @@ import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.comment.domain.CommentLike;
 import com.prgrms.coretime.comment.domain.CommentLikeId;
 import com.prgrms.coretime.post.domain.Board;
-import com.prgrms.coretime.post.domain.repository.BoardRepository;
 import com.prgrms.coretime.post.domain.BoardType;
 import com.prgrms.coretime.post.domain.Post;
+import com.prgrms.coretime.post.domain.repository.BoardRepository;
 import com.prgrms.coretime.post.domain.repository.PostRepository;
 import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.school.domain.respository.SchoolRepository;
 import com.prgrms.coretime.user.domain.LocalUser;
+import com.prgrms.coretime.user.domain.OAuthUser;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
 import javax.persistence.EntityManager;
@@ -59,7 +60,9 @@ class CommentLikeRepositoryTest {
 
   private School school;
 
-  private User user;
+  private User localUser;
+
+  private User oauthUser;
 
   private Board board;
 
@@ -70,21 +73,35 @@ class CommentLikeRepositoryTest {
   private CommentLike commentLike;
 
   void setSchool() {
-    school = new School("university", "university@university.ac.kr");
+    school = new School("아주대학교", "ajou.ac.kr");
     school = schoolRepository.save(school);
   }
 
   void setUser() {
     String localTestEmail = "local@university.ac.kr";
-    user = LocalUser.builder()
-        .nickname("local_user")
-        .profileImage("sample link")
+    String oauthTestEmail = "oauth@ajou.ac.kr";
+
+    localUser = LocalUser.builder()
+        .nickname("local유저")
+        .profileImage("예시 링크")
         .email(localTestEmail)
-        .name("student_local")
+        .name("김승은로컬")
         .school(school)
         .password("test1234!")
         .build();
-    user = userRepository.save(user);
+
+    oauthUser = OAuthUser.builder()
+        .nickname("oauth유저")
+        .profileImage("예시 링크")
+        .email(oauthTestEmail)
+        .name("김승은oauth")
+        .school(school)
+        .provider("카카오")
+        .providerId("카카오id")
+        .build();
+
+    localUser = userRepository.save(localUser);
+    oauthUser = userRepository.save(oauthUser);
   }
 
   void setBoard() {
@@ -104,7 +121,7 @@ class CommentLikeRepositoryTest {
         .title("아 테스트 세팅하는데 손아파 죽겠다")
         .content("ㅈㄱㄴ")
         .isAnonymous(true)
-        .user(user)
+        .user(localUser)
         .board(board)
         .build();
     anonyPost = postRepository.save(anonyPost);
@@ -112,7 +129,7 @@ class CommentLikeRepositoryTest {
 
   void setComment() {
     comment = Comment.builder()
-        .user(user)
+        .user(localUser)
         .post(anonyPost)
         .parent(null)
         .isAnonymous(true)
@@ -123,7 +140,7 @@ class CommentLikeRepositoryTest {
   }
 
   void setCommentLike() {
-    commentLike = new CommentLike(user, comment);
+    commentLike = new CommentLike(localUser, comment);
     commentLike = commentLikeRepository.save(commentLike);
   }
 
@@ -140,21 +157,21 @@ class CommentLikeRepositoryTest {
   @Test
   @DisplayName("좋아요가 존재하는 지 검증")
   public void testExist() {
-    CommentLikeId id = new CommentLikeId(user.getId(), comment.getId());
+    CommentLikeId id = new CommentLikeId(localUser.getId(), comment.getId());
     assertThat(commentLikeRepository.existsById(id)).isTrue();
   }
 
   @Test
   @DisplayName("좋아요가 존재 안하는 지 검증")
   void testNotExist() {
-    CommentLikeId id = new CommentLikeId(user.getId(), 0L);
+    CommentLikeId id = new CommentLikeId(localUser.getId(), 0L);
     assertThat(commentLikeRepository.existsById(id)).isFalse();
   }
 
   @Test
   @DisplayName("좋아요가 삭제 되는지")
   void testDelete() {
-    CommentLikeId id = new CommentLikeId(user.getId(), comment.getId());
+    CommentLikeId id = new CommentLikeId(localUser.getId(), comment.getId());
     commentLikeRepository.deleteById(id);
 
     em.flush();
@@ -167,16 +184,10 @@ class CommentLikeRepositoryTest {
   @DisplayName("댓글과 좋아요 양방향 연관관계 매핑테스트")
   void testCommentAndCommentLike() {
 
-    User user2 = new User("jki111@naver.com", "이름임");
-    User savedUser = userRepository.save(user2);
-
-    em.flush();
-    em.clear();
-
-    user2 = userRepository.findById(savedUser.getId())
+    User user = userRepository.findById(oauthUser.getId())
         .orElseThrow(IllegalArgumentException::new);
 
-    CommentLike commentLike2 = new CommentLike(user2, comment);
+    CommentLike commentLike2 = new CommentLike(user, comment);
     CommentLike savedLike = commentLikeRepository.save(commentLike2);
 
     em.flush();
