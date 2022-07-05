@@ -97,9 +97,15 @@ public class UserService {
     }
   }
 
+  @Transactional
   public void changePassword(LocalUser user, UserPasswordChangeRequest request) {
     user.checkPassword(passwordEncoder, request.getPassword());
-    user.changePassword(request.getNewPassword());
+    user.changePassword(passwordEncoder, request.getNewPassword());
+  }
+
+  @Transactional
+  public void quit(User user) {
+    user.changeQuitFlag(true);
   }
 
 }

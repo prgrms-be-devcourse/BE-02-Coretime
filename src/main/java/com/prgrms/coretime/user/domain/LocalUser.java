@@ -48,8 +48,8 @@ public class LocalUser extends User {
     }
   }
 
-  public void changePassword(String password) {
+  public void changePassword(PasswordEncoder passwordEncoder, String password) {
     validatePassword(password);
-    this.password = password;
+    this.password = passwordEncoder.encode(password);
   }
 }

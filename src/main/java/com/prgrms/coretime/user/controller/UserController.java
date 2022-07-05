@@ -105,4 +105,11 @@ public class UserController {
     userService.changePassword(user, request);
     return ResponseEntity.ok(new ApiResponse<>("비밀번호 변경이 완료되었습니다."));
   }
+
+  @PatchMapping("/quit")
+  public ResponseEntity<ApiResponse<Object>> quit(@AuthenticationPrincipal JwtPrincipal principal) {
+    User user = userService.findByEmail(principal.email);
+    userService.quit(user);
+    return ResponseEntity.ok(new ApiResponse<>("회원 탈퇴가 완료되었습니다."));
+  }
 }
