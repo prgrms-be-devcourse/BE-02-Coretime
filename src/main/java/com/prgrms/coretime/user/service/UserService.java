@@ -9,6 +9,7 @@ import com.prgrms.coretime.school.domain.respository.SchoolRepository;
 import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
+import com.prgrms.coretime.user.dto.request.UserPasswordChangeRequest;
 import com.prgrms.coretime.user.dto.request.UserRegisterRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -53,20 +54,30 @@ public class UserService {
   }
 
   @Transactional(readOnly = true)
+  public User findById(Long userId) {
+    Assert.notNull(userId, "userId가 누락되었습니다.");
+    return userRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+  }
+
+  @Transactional(readOnly = true)
   public User findByNickname(String nickname) {
     Assert.hasText(nickname, "nickname이 누락되었습니다.");
     return userRepository.findByNickname(nickname)
         .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
   }
 
+  @Transactional(readOnly = true)
+  public boolean checkNicknameUnique(String nickname) {
+    return userRepository.existsByNickname(nickname);
+  }
+
   @Transactional
   public User register(UserRegisterRequest request) {
     School school = schoolRepository.findById(request.getSchoolId()).orElseThrow(() -> new NotFoundException(SCHOOL_NOT_FOUND));
-    /*
-    TODO: find로 하면 select 값 불필요하게 많으므로 exists 알아보기
-     */
-    userRepository.findByEmail(request.getEmail()).ifPresent(user -> {throw new AlreadyExistsException(USER_ALREADY_EXISTS);});
-    userRepository.findByNickname(request.getNickname()).ifPresent(user -> {throw new AlreadyExistsException(USER_ALREADY_EXISTS);});
+    if(userRepository.existsByEmail(request.getEmail())) throw new AlreadyExistsException(USER_ALREADY_EXISTS);
+    if(userRepository.existsByNickname(request.getNickname())) throw new AlreadyExistsException(USER_ALREADY_EXISTS);
+
     authenticateUserEmail(request.getEmail(), school);
     User newUser = LocalUser.builder()
         .name(request.getName())
@@ -86,6 +97,9 @@ public class UserService {
     }
   }
 
-
+  public void changePassword(LocalUser user, UserPasswordChangeRequest request) {
+    user.checkPassword(passwordEncoder, request.getPassword());
+    user.changePassword(request.getNewPassword());
+  }
 
 }

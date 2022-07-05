@@ -6,11 +6,14 @@ import com.prgrms.coretime.common.ApiResponse;
 import com.prgrms.coretime.common.jwt.JwtAuthenticationToken;
 import com.prgrms.coretime.common.jwt.JwtPrincipal;
 import com.prgrms.coretime.common.util.JwtService;
+import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.dto.request.UserLocalLoginRequest;
+import com.prgrms.coretime.user.dto.request.UserPasswordChangeRequest;
 import com.prgrms.coretime.user.dto.request.UserRegisterRequest;
 import com.prgrms.coretime.user.dto.response.LoginResponse;
 import com.prgrms.coretime.user.dto.response.RegisterResponse;
+import com.prgrms.coretime.user.dto.response.ValidCheckResponse;
 import com.prgrms.coretime.user.service.UserService;
 import java.util.List;
 import javax.validation.Valid;
@@ -21,6 +24,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -87,5 +91,18 @@ public class UserController {
       UserRegisterRequest request) {
     User newUser = userService.register(request);
     return ResponseEntity.status(CREATED).body(new ApiResponse<>("회원가입 성공하였습니다.", RegisterResponse.from(newUser)));
+  }
+
+  @GetMapping("/check")
+  public ResponseEntity<ApiResponse<ValidCheckResponse>> checkNicknameValid(@RequestParam("nickname") String nickname) {
+    ValidCheckResponse response = userService.checkNicknameUnique(nickname) ? new ValidCheckResponse(false) : new ValidCheckResponse(true);
+    return ResponseEntity.ok(new ApiResponse<>("중복검사가 완료되었습니다.", response));
+  }
+
+  @PatchMapping("/password/change")
+  public ResponseEntity<ApiResponse<Object>> changePassword(@AuthenticationPrincipal JwtPrincipal principal, @RequestBody @Valid UserPasswordChangeRequest request) {
+    LocalUser user = (LocalUser) userService.findByEmail(principal.email);
+    userService.changePassword(user, request);
+    return ResponseEntity.ok(new ApiResponse<>("비밀번호 변경이 완료되었습니다."));
   }
 }

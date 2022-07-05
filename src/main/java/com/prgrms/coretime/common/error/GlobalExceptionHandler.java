@@ -1,6 +1,7 @@
 package com.prgrms.coretime.common.error;
 
 
+import com.prgrms.coretime.common.error.exception.AuthErrorException;
 import com.prgrms.coretime.common.error.exception.DuplicateRequestException;
 import com.prgrms.coretime.common.error.exception.AlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.InvalidRequestException;
@@ -126,6 +127,13 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(InvalidRequestException.class)
   public ResponseEntity<ErrorResponse> handleInvalidRequestException(InvalidRequestException e) {
+    log.warn(e.getMessage(), e);
+    ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
+    return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+  }
+
+  @ExceptionHandler(AuthErrorException.class)
+  public ResponseEntity<ErrorResponse> handleAuthErrorException(AuthErrorException e) {
     log.warn(e.getMessage(), e);
     ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
