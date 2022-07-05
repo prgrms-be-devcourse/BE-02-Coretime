@@ -49,10 +49,11 @@ public enum ErrorCode {
   DUPLICATE_TIMETABLE_NAME(400, "T001", "이미 사용중인 이름입니다."),
   TIMETABLE_NOT_FOUND(404, "T002", "시간표를 찾을 수 없습니다."),
   LECTURE_NOT_FOUND(404, "T003", "강의를 찾을 수 없습니다."),
-  INVALID_LECTURE_ADD_REQUEST(400, "T004", "시간표에 추가할 수 없는 강의입니다."),
-  ALREADY_ADDED_LECTURE(400, "T005", "이미 추가된 강의입니다."),
-  LECTURE_TIME_OVERLAP(400, "T006", "같은 시간에 다른 강의가 있습니다."),
-  LECTURE_DETAIL_TIME_OVERLAP(400, "T007", "입력된 시간중 겹치는 시간이 있습니다."),
+  ENROLLMENT_NOT_FOUND(404, "T004", "시간표에 강의가 등록되어 있지 않습니다."),
+  INVALID_LECTURE_ADD_REQUEST(400, "T005", "시간표에 추가할 수 없는 강의입니다."),
+  ALREADY_ADDED_LECTURE(400, "T006", "이미 추가된 강의입니다."),
+  LECTURE_TIME_OVERLAP(400, "T007", "같은 시간에 다른 강의가 있습니다."),
+  LECTURE_DETAIL_TIME_OVERLAP(400, "T008", "입력된 시간중 겹치는 시간이 있습니다."),
 
   /**
    * Comment Domain

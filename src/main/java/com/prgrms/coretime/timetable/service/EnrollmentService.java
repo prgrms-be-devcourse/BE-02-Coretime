@@ -1,8 +1,8 @@
 package com.prgrms.coretime.timetable.service;
 
+import static com.prgrms.coretime.common.ErrorCode.ENROLLMENT_NOT_FOUND;
 import static com.prgrms.coretime.common.ErrorCode.LECTURE_DETAIL_TIME_OVERLAP;
 import static com.prgrms.coretime.common.ErrorCode.LECTURE_NOT_FOUND;
-import static com.prgrms.coretime.common.ErrorCode.LECTURE_TIME_OVERLAP;
 import static com.prgrms.coretime.common.ErrorCode.NOT_FOUND;
 import static com.prgrms.coretime.common.ErrorCode.TIMETABLE_NOT_FOUND;
 
@@ -23,7 +23,6 @@ import com.prgrms.coretime.timetable.dto.request.CustomLectureDetail;
 import com.prgrms.coretime.timetable.dto.request.CustomLectureRequest;
 import com.prgrms.coretime.timetable.dto.request.EnrollmentCreateRequest;
 import java.time.LocalTime;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,7 +40,6 @@ public class EnrollmentService {
   private final TimetableRepository timetableRepository;
   private final LectureRepository lectureRepository;
   private final LectureDetailRepository lectureDetailRepository;
-  private final EntityManager entityManager;
 
   @Transactional
   public Enrollment addOfficialLectureToTimetable(Long userId, Long schoolId, Long timetableId, EnrollmentCreateRequest enrollmentCreateRequest) {
@@ -93,7 +91,7 @@ public class EnrollmentService {
   @Transactional
   public void deleteLectureFromTimetable(Long userId, Long timetableId, Long lectureId) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
-    Enrollment enrollment = enrollmentRepository.findById(new EnrollmentId(lectureId, timetable.getId())).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+    Enrollment enrollment = enrollmentRepository.findById(new EnrollmentId(lectureId, timetable.getId())).orElseThrow(() -> new NotFoundException(ENROLLMENT_NOT_FOUND));
 
     enrollmentRepository.delete(enrollment);
 

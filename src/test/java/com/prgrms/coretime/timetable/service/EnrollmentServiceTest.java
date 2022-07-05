@@ -57,7 +57,7 @@ class EnrollmentServiceTest {
   @InjectMocks
   private EnrollmentService enrollmentService;
 
-  private Long userId, schoolId, timetableId, idOfOfficialLectureFirst, customLectureId;
+  private Long userId, schoolId, timetableId, officialLectureId, customLectureId;
   private User user;
   private School school;
   private Timetable timetable;
@@ -82,7 +82,7 @@ class EnrollmentServiceTest {
         .isDefault(true)
         .build();
 
-    idOfOfficialLectureFirst = 4L;
+    officialLectureId = 4L;
     officialLecture = OfficialLecture.builder()
         .name("강의1")
         .professor("교수1")
@@ -105,7 +105,7 @@ class EnrollmentServiceTest {
   @Nested
   @DisplayName("addOfficialLectureToTimetable() 테스트")
   class AddOfficialLectureToTimetableTest {
-    private EnrollmentCreateRequest enrollmentCreateRequest = new EnrollmentCreateRequest(idOfOfficialLectureFirst);
+    private EnrollmentCreateRequest enrollmentCreateRequest = new EnrollmentCreateRequest(officialLectureId);
 
     @Test
     @DisplayName("시간표를 찾지 못한 경우 테스트")
@@ -158,7 +158,7 @@ class EnrollmentServiceTest {
     void testLectureTimeOverLap() {
       when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
       when(lectureRepository.getOfficialLectureById(enrollmentCreateRequest.getLectureId())).thenReturn(Optional.of(officialLecture));
-       doThrow(new InvalidRequestException(ALREADY_ADDED_LECTURE)).when(enrollmentValidator).validateLectureTimeOverlap(timetable.getId(), officialLecture.getLectureDetails());
+      doThrow(new InvalidRequestException(ALREADY_ADDED_LECTURE)).when(enrollmentValidator).validateLectureTimeOverlap(timetable.getId(), officialLecture.getLectureDetails());
 
       try {
         enrollmentService.addOfficialLectureToTimetable(userId, schoolId, timetableId, enrollmentCreateRequest);
@@ -283,18 +283,48 @@ class EnrollmentServiceTest {
   @DisplayName("deleteLectureFromTimetable() 테스트")
   class DeleteLectureFromTimetableTest {
     @Test
+    @DisplayName("시간표를 찾지 못한 경우 테스트")
+    void testTimetableNotFound() {
+      when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.empty());
+
+      try {
+        enrollmentService.deleteLectureFromTimetable(userId, timetableId, officialLectureId);
+      }catch (NotFoundException e) {
+        verify(enrollmentRepository, never()).findById(any());
+        verify(enrollmentRepository, never()).delete(any());
+        verify(lectureDetailRepository, never()).deleteCustomLectureDetailsByLectureId(officialLectureId);
+        verify(lectureRepository, never()).deleteById(officialLectureId);
+      }
+    }
+
+    @Test
+    @DisplayName("강의가 시간표에 등록되지 않은 경우")
+    void testEnrollmentNotFound() {
+      when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
+      when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.empty());
+
+      try {
+        enrollmentService.deleteLectureFromTimetable(userId, timetableId, officialLectureId);
+      }catch (NotFoundException e) {
+        verify(enrollmentRepository, never()).delete(any());
+        verify(lectureDetailRepository, never()).deleteCustomLectureDetailsByLectureId(officialLectureId);
+        verify(lectureRepository, never()).deleteById(officialLectureId);
+      }
+    }
+
+    @Test
     @DisplayName("official 강의 시간표에서 삭제 테스트")
     void testDeleteOfficialLectureFromTimetable() {
       Enrollment enrollment = new Enrollment(officialLecture, timetable);
       when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
       when(enrollmentRepository.findById(any())).thenReturn(Optional.of(enrollment));
-      when(lectureRepository.isCustomLecture(idOfOfficialLectureFirst)).thenReturn(false);
+      when(lectureRepository.isCustomLecture(officialLectureId)).thenReturn(false);
 
-      enrollmentService.deleteLectureFromTimetable(userId, timetableId, idOfOfficialLectureFirst);
+      enrollmentService.deleteLectureFromTimetable(userId, timetableId, officialLectureId);
 
       verify(enrollmentRepository).delete(enrollment);
-      verify(lectureDetailRepository, never()).deleteCustomLectureDetailsByLectureId(idOfOfficialLectureFirst);
-      verify(lectureRepository, never()).deleteById(idOfOfficialLectureFirst);
+      verify(lectureDetailRepository, never()).deleteCustomLectureDetailsByLectureId(officialLectureId);
+      verify(lectureRepository, never()).deleteById(officialLectureId);
     }
     
      @Test
@@ -303,13 +333,13 @@ class EnrollmentServiceTest {
        Enrollment enrollment = new Enrollment(officialLecture, timetable);
        when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
        when(enrollmentRepository.findById(any())).thenReturn(Optional.of(enrollment));
-       when(lectureRepository.isCustomLecture(idOfOfficialLectureFirst)).thenReturn(true);
+       when(lectureRepository.isCustomLecture(officialLectureId)).thenReturn(true);
 
-       enrollmentService.deleteLectureFromTimetable(userId, timetableId, idOfOfficialLectureFirst);
+       enrollmentService.deleteLectureFromTimetable(userId, timetableId, officialLectureId);
 
        verify(enrollmentRepository).delete(enrollment);
-       verify(lectureDetailRepository).deleteCustomLectureDetailsByLectureId(idOfOfficialLectureFirst);
-       verify(lectureRepository).deleteById(idOfOfficialLectureFirst);
+       verify(lectureDetailRepository).deleteCustomLectureDetailsByLectureId(officialLectureId);
+       verify(lectureRepository).deleteById(officialLectureId);
      }
   }
 
