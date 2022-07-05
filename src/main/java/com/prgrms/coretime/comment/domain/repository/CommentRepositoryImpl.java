@@ -35,6 +35,8 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .and(comment.children.size().goe(0))
         )
         .orderBy(comment.createdAt.asc())
+        .offset(pageable.getOffset())
+        .limit(pageable.getPageSize())
         .fetch();
 
     // 자식 댓글은 삭제되면 메시지를 보여주지 않는다.
