@@ -4,30 +4,28 @@ import static com.prgrms.coretime.common.ErrorCode.ALREADY_ADDED_LECTURE;
 import static com.prgrms.coretime.common.ErrorCode.INVALID_LECTURE_ADD_REQUEST;
 import static com.prgrms.coretime.common.ErrorCode.LECTURE_NOT_FOUND;
 import static com.prgrms.coretime.common.ErrorCode.TIMETABLE_NOT_FOUND;
-import static com.prgrms.coretime.timetable.domain.Semester.FIRST;
-import static com.prgrms.coretime.timetable.domain.Semester.SECOND;
+import static com.prgrms.coretime.timetable.domain.Day.MON;
 import static com.prgrms.coretime.timetable.domain.Grade.ETC;
 import static com.prgrms.coretime.timetable.domain.LectureType.MAJOR;
-import static com.prgrms.coretime.timetable.domain.Day.MON;
+import static com.prgrms.coretime.timetable.domain.Semester.FIRST;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.prgrms.coretime.common.error.exception.AlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.InvalidRequestException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.school.domain.School;
-import com.prgrms.coretime.timetable.domain.Enrollment;
 import com.prgrms.coretime.timetable.domain.CustomLecture;
+import com.prgrms.coretime.timetable.domain.Enrollment;
 import com.prgrms.coretime.timetable.domain.OfficialLecture;
+import com.prgrms.coretime.timetable.domain.Timetable;
 import com.prgrms.coretime.timetable.domain.repository.enrollment.EnrollmentRepository;
 import com.prgrms.coretime.timetable.domain.repository.lecture.LectureRepository;
 import com.prgrms.coretime.timetable.domain.repository.lectureDetail.LectureDetailRepository;
 import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
-import com.prgrms.coretime.timetable.domain.Timetable;
 import com.prgrms.coretime.timetable.dto.request.CustomLectureDetail;
 import com.prgrms.coretime.timetable.dto.request.CustomLectureRequest;
 import com.prgrms.coretime.timetable.dto.request.EnrollmentCreateRequest;
@@ -160,7 +158,7 @@ class EnrollmentServiceTest {
     void testLectureTimeOverLap() {
       when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
       when(lectureRepository.getOfficialLectureById(enrollmentCreateRequest.getLectureId())).thenReturn(Optional.of(officialLecture));
-      doThrow(new InvalidRequestException(ALREADY_ADDED_LECTURE)).when(enrollmentValidator).validateLectureTimeOverlap(timetable.getId(), officialLecture.getLectureDetails());
+       doThrow(new InvalidRequestException(ALREADY_ADDED_LECTURE)).when(enrollmentValidator).validateLectureTimeOverlap(timetable.getId(), officialLecture.getLectureDetails());
 
       try {
         enrollmentService.addOfficialLectureToTimetable(userId, schoolId, timetableId, enrollmentCreateRequest);
@@ -196,10 +194,39 @@ class EnrollmentServiceTest {
         .build();
 
     @Test
+    @DisplayName("시간표를 찾을 수 없는 경우 테스트")
+    void testTimetableNotFound() {
+      when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenThrow(new NotFoundException(TIMETABLE_NOT_FOUND));
+
+      try {
+        enrollmentService.addCustomLectureToTimetable(userId, timetableId, customLectureRequest);
+      } catch (NotFoundException e) {
+        verify(enrollmentValidator, never()).validateLectureTimeOverlap(any(), any(), any());
+        verify(lectureRepository, never()).save(any());
+        verify(lectureDetailRepository, never()).save(any());
+        verify(enrollmentRepository, never()).save(any());
+      }
+    }
+
+    @Test
+    @DisplayName("강의의 시간이 다른 강의와 겹치는 경우 테스트")
+    void testLectureTimeOverlap() {
+      when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
+      doThrow(new InvalidRequestException(ALREADY_ADDED_LECTURE)).when(enrollmentValidator).validateLectureTimeOverlap(eq(timetable.getId()), any());
+
+      try {
+        enrollmentService.addCustomLectureToTimetable(userId, timetableId, customLectureRequest);
+      } catch (InvalidRequestException e) {
+        verify(lectureRepository, never()).save(any());
+        verify(lectureDetailRepository, never()).save(any());
+        verify(enrollmentRepository, never()).save(any());
+      }
+    }
+
+    @Test
     @DisplayName("시간표에 강의가 추가될 수 있는 경우 테스트")
     void testEnrollmentSave() {
       when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
-      when(lectureRepository.getNumberOfTimeOverlapLectures(any(), any())).thenReturn(0L);
       when(lectureRepository.save(any())).thenReturn(customLecture);
 
       enrollmentService.addCustomLectureToTimetable(userId, timetableId, customLectureRequest);
@@ -225,11 +252,25 @@ class EnrollmentServiceTest {
         .build();
 
     @Test
+    @DisplayName("강의의 시간이 다른 강의와 겹치는 경우 테스트")
+    void testLectureTimeOverlap() {
+      when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
+      when(lectureRepository.findById(customLectureId)).thenReturn(Optional.of(customLecture));
+      doThrow(new InvalidRequestException(ALREADY_ADDED_LECTURE)).when(enrollmentValidator).validateLectureTimeOverlap(eq(timetable.getId()), any(), any());
+
+      try {
+        enrollmentService.updateCustomLecture(userId, timetableId, customLectureId, customLectureRequest);
+      } catch (InvalidRequestException e) {
+        verify(lectureDetailRepository, never()).deleteCustomLectureDetailsByLectureId(customLecture.getId());
+        verify(lectureDetailRepository, never()).save(any());
+      }
+    }
+
+    @Test
     @DisplayName("시간표에 등록된 custom lecture 수정 테스트")
     void testUpdateCustomLecture() {
       when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
       when(lectureRepository.findById(customLectureId)).thenReturn(Optional.of(customLecture));
-      when(lectureRepository.getNumberOfTimeOverlapLectures(any(), any())).thenReturn(0L);
 
       enrollmentService.updateCustomLecture(userId, timetableId, customLectureId, customLectureRequest);
 
