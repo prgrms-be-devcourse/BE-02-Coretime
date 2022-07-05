@@ -1,10 +1,16 @@
 
 package com.prgrms.coretime.user.service;
 
+import com.prgrms.coretime.common.error.exception.AlreadyExistsException;
+import com.prgrms.coretime.common.error.exception.AuthErrorException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
+import com.prgrms.coretime.school.domain.School;
+import com.prgrms.coretime.school.domain.respository.SchoolRepository;
 import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
+import com.prgrms.coretime.user.dto.request.UserPasswordChangeRequest;
+import com.prgrms.coretime.user.dto.request.UserRegisterRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,11 +25,14 @@ public class UserService {
 
   private final UserRepository userRepository;
 
+  private final SchoolRepository schoolRepository;
 
   public UserService(PasswordEncoder passwordEncoder,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      SchoolRepository schoolRepository) {
     this.passwordEncoder = passwordEncoder;
     this.userRepository = userRepository;
+    this.schoolRepository = schoolRepository;
   }
 
   // TODO : oauth 고려, register 부분도
@@ -45,16 +54,58 @@ public class UserService {
   }
 
   @Transactional(readOnly = true)
+  public User findById(Long userId) {
+    Assert.notNull(userId, "userId가 누락되었습니다.");
+    return userRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+  }
+
+  @Transactional(readOnly = true)
   public User findByNickname(String nickname) {
     Assert.hasText(nickname, "nickname이 누락되었습니다.");
     return userRepository.findByNickname(nickname)
         .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
   }
 
+  @Transactional(readOnly = true)
+  public boolean checkNicknameUnique(String nickname) {
+    return userRepository.existsByNickname(nickname);
+  }
+
   @Transactional
-  // TODO : 임시 회원가입 구현. 인증 구현해야 함.
-  public User register() {
-    return null;
+  public User register(UserRegisterRequest request) {
+    School school = schoolRepository.findById(request.getSchoolId()).orElseThrow(() -> new NotFoundException(SCHOOL_NOT_FOUND));
+    if(userRepository.existsByEmail(request.getEmail())) throw new AlreadyExistsException(USER_ALREADY_EXISTS);
+    if(userRepository.existsByNickname(request.getNickname())) throw new AlreadyExistsException(USER_ALREADY_EXISTS);
+
+    authenticateUserEmail(request.getEmail(), school);
+    User newUser = LocalUser.builder()
+        .name(request.getName())
+        .nickname(request.getNickname())
+        .email(request.getEmail())
+        .profileImage(request.getProfileImage())
+        .school(school)
+        .password(passwordEncoder.encode(request.getPassword()))
+        .build();
+    return userRepository.save(newUser);
+  }
+
+  private void authenticateUserEmail(String userEmail, School school) {
+    String[] parsed = userEmail.split("@");
+    if(!school.getEmail().equals(parsed[1])) {
+      throw new AuthErrorException(SCHOOL_AUTH_FAILED);
+    }
+  }
+
+  @Transactional
+  public void changePassword(LocalUser user, UserPasswordChangeRequest request) {
+    user.checkPassword(passwordEncoder, request.getPassword());
+    user.changePassword(passwordEncoder, request.getNewPassword());
+  }
+
+  @Transactional
+  public void quit(User user) {
+    user.changeQuitFlag(true);
   }
 
 }

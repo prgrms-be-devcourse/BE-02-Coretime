@@ -59,6 +59,9 @@ public class User extends BaseEntity {
   @Column(name = "name", nullable = false, length = MAX_NAME_LENGTH)
   private String name;
 
+  @Column(name = "is_quit")
+  private Boolean isQuit = false;
+
   /*TODO : Refactoring*/
   private static void validateName(String name) {
     if(name.length() > MAX_NAME_LENGTH) {
@@ -120,5 +123,9 @@ public class User extends BaseEntity {
 
     this.email = email;
     this.name = name;
+  }
+
+  public void changeQuitFlag(Boolean flag) {
+    this.isQuit = flag;
   }
 }

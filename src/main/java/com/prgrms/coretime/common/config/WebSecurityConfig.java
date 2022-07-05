@@ -72,8 +72,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         .authorizeRequests()
         .antMatchers("/swagger*/**").permitAll()
-        .antMatchers("/api/v1/**").permitAll()
+        .antMatchers("/api/v1/users/local/register", "/api/v1/users/local/login").permitAll()
+        .antMatchers("/api/v1/users/oauth/register", "/api/v1/users/oauth/login").permitAll()
+        .antMatchers("/api/v1/**").hasAuthority("USER")
         .and()
         .addFilterAfter(jwtAuthenticationFilter(), SecurityContextPersistenceFilter.class);
   }
+
+  /*TODO: AccessDeniedHandler*/
 }
