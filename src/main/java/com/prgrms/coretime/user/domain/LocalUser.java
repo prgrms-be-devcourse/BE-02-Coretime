@@ -4,7 +4,9 @@ import static com.prgrms.coretime.common.ErrorCode.*;
 
 import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.error.exception.AuthErrorException;
+import com.prgrms.coretime.common.error.exception.InvalidRequestException;
 import com.prgrms.coretime.school.domain.School;
+import java.util.regex.Pattern;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -20,6 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LocalUser extends User {
 
+  private static final String PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$";
+  private static final int MAX_PASSWORD_LENGTH = 500;
+
   @Column(name = "password")
   private String password;
 
@@ -32,5 +37,19 @@ public class LocalUser extends User {
   public void checkPassword(PasswordEncoder passwordEncoder, String credentials) {
     if (!passwordEncoder.matches(credentials, password))
       throw new AuthErrorException(INVALID_ACCOUNT_REQUEST);
+  }
+
+  private void validatePassword(String password) {
+    if(password.length() > MAX_PASSWORD_LENGTH) {
+      throw new InvalidRequestException(INVALID_LENGTH);
+    }
+    if(!Pattern.matches(PASSWORD_REGEX, password)) {
+      throw new InvalidRequestException(INVALID_INPUT_VALUE);
+    }
+  }
+
+  public void changePassword(PasswordEncoder passwordEncoder, String password) {
+    validatePassword(password);
+    this.password = passwordEncoder.encode(password);
   }
 }

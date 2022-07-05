@@ -21,9 +21,20 @@ public enum ErrorCode {
   BAD_REQUEST(400, "C005", "잘못된 요청입니다."),
   MISSING_REQUEST_PARAMETER(400, "C005", "필수 파라미터가 누락되었습니다."),
   INVALID_LENGTH(400, "C006", "올바르지 않은 길이입니다."),
-  USER_NOT_FOUND(500, "U001", "유저가 존재하지 않습니다."),
+
+  /**
+   * School Domain
+   */
+  SCHOOL_NOT_FOUND(400, "S001", "학교가 존재하지 않습니다."),
+  SCHOOL_AUTH_FAILED(400, "S002", "학교 인증에 실패했습니다."),
+
+  /**
+   * User Domain
+   */
+  USER_NOT_FOUND(400, "U001", "유저가 존재하지 않습니다."),
   INVALID_ACCOUNT_REQUEST(400, "U002", "아이디 및 비밀번호가 올바르지 않습니다."),
   INVALID_TOKEN_REQUEST(400, "U003", "토큰이 올바르지 않습니다."),
+  USER_ALREADY_EXISTS(400, "U004", "유저가 이미 존재합니다."),
 
   /**
    * Friend Domain
