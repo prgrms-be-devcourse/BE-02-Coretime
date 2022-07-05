@@ -6,9 +6,12 @@ import com.prgrms.coretime.common.jwt.JwtPrincipal;
 import com.prgrms.coretime.common.util.JwtService;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.dto.request.UserLocalLoginRequest;
+import com.prgrms.coretime.user.dto.request.UserRegisterRequest;
 import com.prgrms.coretime.user.dto.response.LoginResponse;
+import com.prgrms.coretime.user.dto.response.RegisterResponse;
 import com.prgrms.coretime.user.service.UserService;
 import java.util.List;
+import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -75,5 +78,12 @@ public class UserController {
     List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("USER"));
     String newAccessToken = jwtService.createAccessToken(user.getId(), user.getSchool().getId(), user.getNickname(), user.getEmail(), authorities);
     return ResponseEntity.ok(new ApiResponse<>("토큰이 재발급되었습니다.", new LoginResponse(newAccessToken, refreshToken)));
+  }
+
+  @PostMapping("/local/register")
+  public ResponseEntity<ApiResponse<RegisterResponse>> register(@RequestBody @Valid
+      UserRegisterRequest request) {
+    User newUser = userService.register(request);
+    return ResponseEntity.ok(new ApiResponse<>("회원가입 성공하였습니다.", RegisterResponse.from(newUser)));
   }
 }
