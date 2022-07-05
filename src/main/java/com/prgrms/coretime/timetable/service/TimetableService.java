@@ -1,24 +1,19 @@
 
 package com.prgrms.coretime.timetable.service;
 
-import static com.prgrms.coretime.common.ErrorCode.DUPLICATE_TIMETABLE_NAME;
-import static com.prgrms.coretime.common.ErrorCode.NOT_FRIEND;
 import static com.prgrms.coretime.common.ErrorCode.TIMETABLE_NOT_FOUND;
 import static com.prgrms.coretime.common.ErrorCode.USER_NOT_FOUND;
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.ALL;
 import static com.prgrms.coretime.timetable.domain.repository.enrollment.LectureType.CUSTOM;
 
-import com.prgrms.coretime.common.error.exception.DuplicateRequestException;
-import com.prgrms.coretime.common.error.exception.InvalidRequestException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
-import com.prgrms.coretime.friend.domain.FriendRepository;
-import com.prgrms.coretime.timetable.domain.Semester;
 import com.prgrms.coretime.timetable.domain.Lecture;
+import com.prgrms.coretime.timetable.domain.Semester;
+import com.prgrms.coretime.timetable.domain.Timetable;
 import com.prgrms.coretime.timetable.domain.repository.enrollment.EnrollmentRepository;
 import com.prgrms.coretime.timetable.domain.repository.lecture.LectureRepository;
 import com.prgrms.coretime.timetable.domain.repository.lectureDetail.LectureDetailRepository;
 import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
-import com.prgrms.coretime.timetable.domain.Timetable;
 import com.prgrms.coretime.timetable.dto.request.TimetableCreateRequest;
 import com.prgrms.coretime.timetable.dto.request.TimetableUpdateRequest;
 import com.prgrms.coretime.timetable.dto.response.FriendDefaultTimetableInfo;
@@ -58,15 +53,14 @@ public class TimetableService {
 
     boolean isFirstTable = timetableRepository.isFirstTable(userId, year, semester);
 
-    Timetable newTimetable = Timetable.builder()
-        .name(timetableName)
-        .year(year)
-        .semester(semester)
-        .user(user)
-        .isDefault(isFirstTable)
-        .build();
-
-    return timetableRepository.save(newTimetable).getId();
+    return timetableRepository.save(Timetable.builder()
+            .name(timetableName)
+            .year(year)
+            .semester(semester)
+            .user(user)
+            .isDefault(isFirstTable)
+            .build()
+        ).getId();
   }
 
   @Transactional(readOnly = true)
