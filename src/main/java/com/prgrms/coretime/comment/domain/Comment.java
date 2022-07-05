@@ -44,7 +44,6 @@ public class Comment extends BaseEntity {
   @OneToMany(mappedBy = "comment")
   private List<CommentLike> likes = new ArrayList<>();
 
-  // temp column : user
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "user_id")
   private User user;
@@ -113,10 +112,6 @@ public class Comment extends BaseEntity {
   }
 
 
-  /**
-   * TODO : USER 1:N 양방향 필요하면!
-   */
-
   // Getter
   public Long getId() {
     return id;
@@ -157,10 +152,6 @@ public class Comment extends BaseEntity {
     Assert.notNull(post, "게시글은 필수 입니다.");
   }
 
-  /**
-   * TODO : User가 현재 로그인한 유저가 맞는지 판단하는 검증 필요
-   * 추후 인증 구현 되면 추가할 것
-   */
   private void validateUser(User user) {
     Assert.notNull(user, "사용자는 필수 입니다.");
   }
@@ -169,9 +160,6 @@ public class Comment extends BaseEntity {
     Assert.notNull(isAnonymous, "익명 여부는 필수입니다.");
   }
 
-  /**
-   * 목적 : 댓글 검증 1. 댓글이 null이거나 공백인지 3. 댓글 바이트 검증
-   */
   private void validateContent(String content) {
     Assert.hasText(content, "댓글은 필수입니다.");
     Assert.isTrue(content.length() > 0 && content.length() <= 300, "댓글은 300자 이내로 작성되어야 합니다");
