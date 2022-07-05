@@ -41,26 +41,21 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TimetableService {
   private final TimetableRepository timetableRepository;
+  private final TimetableValidator timetableValidator;
   private final EnrollmentRepository enrollmentRepository;
-  private final LectureDetailRepository lectureDetailRepository;
   private final LectureRepository lectureRepository;
+  private final LectureDetailRepository lectureDetailRepository;
   private final UserRepository userRepository;
-  private final FriendRepository friendRepository;
 
   @Transactional
   public Long createTimetable(Long userId, TimetableCreateRequest timetableCreateRequest) {
     User user  = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
-
     String timetableName = timetableCreateRequest.getName().trim();
     Integer year = timetableCreateRequest.getYear();
     Semester semester = timetableCreateRequest.getSemester();
 
-    // validator
-    if(timetableRepository.getTimetableBySameName(userId, timetableName, year, semester).isPresent()) {
-      throw new DuplicateRequestException(DUPLICATE_TIMETABLE_NAME);
-    }
+    timetableValidator.validateSameNamWhenCreate(userId, timetableName, year, semester);
 
-    // ??
     boolean isFirstTable = timetableRepository.isFirstTable(userId, year, semester);
 
     Timetable newTimetable = Timetable.builder()
@@ -115,8 +110,7 @@ public class TimetableService {
 
   @Transactional
   public List<FriendDefaultTimetableInfo> getFriendDefaultTimetableInfos(Long userId, Long friendId) {
-    // validator
-    validateFriendRelationship(userId, friendId);
+    timetableValidator.validateFriendRelationship(userId, friendId);
 
     return timetableRepository.getDefaultTimetables(
             friendId).stream()
@@ -127,8 +121,7 @@ public class TimetableService {
 
   @Transactional
   public List<LectureInfo> getDefaultTimetableOfFriend(Long userId, Long friendId, int year, Semester semester) {
-    // validator
-    validateFriendRelationship(userId, friendId);
+    timetableValidator.validateFriendRelationship(userId, friendId);
 
     Timetable friendDefaultTimetable = getDefaultTimetableOfUser(userId, year, semester);
 
@@ -138,21 +131,15 @@ public class TimetableService {
   @Transactional
   public void updateTimetable(Long userId, Long timetableId, TimetableUpdateRequest timetableUpdateRequest) {
     Timetable timetable = getTimetableOfUser(userId, timetableId);
-
     String updatedTimetableName = timetableUpdateRequest.getName().trim();
     Integer year = timetable.getYear();
     Semester semester = timetable.getSemester();
-    Boolean updatedIsDefault = timetableUpdateRequest.getIsDefault();
 
-    // validator
-    Timetable sameNameTable = timetableRepository.getTimetableBySameName(userId, updatedTimetableName, year, semester).orElse(timetable);
-    if(timetable != sameNameTable) {
-      throw new DuplicateRequestException(DUPLICATE_TIMETABLE_NAME);
-    }
+    timetableValidator.validateSameNamWhenUpdate(userId, updatedTimetableName, year, semester, timetable);
 
-    timetable.updateName(updatedTimetableName.trim());
+    timetable.updateName(updatedTimetableName);
 
-    if(updatedIsDefault) {
+    if(timetableUpdateRequest.getIsDefault()) {
       Timetable preDefaultTimetable = getDefaultTimetableOfUser(userId, timetable.getYear(), timetable.getSemester());
       preDefaultTimetable.makeNonDefault();
       timetable.makeDefault();
@@ -184,12 +171,6 @@ public class TimetableService {
 
   private Timetable getTimetableOfUser(Long userId, Long timetableId) {
     return timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId).orElseThrow(() -> new NotFoundException(TIMETABLE_NOT_FOUND));
-  }
-
-  private void validateFriendRelationship(Long userId, Long friendId) {
-    if(!friendRepository.existsFriendRelationship(userId, friendId)) {
-      throw new InvalidRequestException(NOT_FRIEND);
-    }
   }
 
   private List<LectureInfo> getEnrollmentedLectures(Long timetableId) {
