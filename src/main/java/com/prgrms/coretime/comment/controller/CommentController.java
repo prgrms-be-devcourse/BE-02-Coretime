@@ -2,12 +2,15 @@ package com.prgrms.coretime.comment.controller;
 
 import com.prgrms.coretime.comment.dto.request.CommentCreateRequest;
 import com.prgrms.coretime.comment.dto.response.CommentCreateResponse;
+import com.prgrms.coretime.comment.dto.response.CommentsOnPostResponse;
 import com.prgrms.coretime.comment.service.CommentService;
 import com.prgrms.coretime.common.ApiResponse;
 import com.prgrms.coretime.common.jwt.JwtPrincipal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -48,10 +51,10 @@ public class CommentController {
   }
 
   @GetMapping("/{postId}/comments")
-  public ResponseEntity<ApiResponse> searchComments(
-      @PathVariable Long postId) {
-
-    return null;
+  public ResponseEntity<ApiResponse<Page<CommentsOnPostResponse>>> searchComments(
+      @PathVariable Long postId, Pageable pageable) {
+    return ResponseEntity.ok(
+        new ApiResponse<>("댓글 조회 성공", commentService.searchCommentsByPost(postId, pageable)));
   }
 
 }

@@ -5,6 +5,7 @@ import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.comment.domain.repository.CommentRepository;
 import com.prgrms.coretime.comment.dto.request.CommentCreateRequest;
 import com.prgrms.coretime.comment.dto.response.CommentCreateResponse;
+import com.prgrms.coretime.comment.dto.response.CommentsOnPostResponse;
 import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.post.domain.Post;
@@ -12,6 +13,8 @@ import com.prgrms.coretime.post.domain.repository.PostRepository;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +55,10 @@ public class CommentService {
     commentRepository.save(comment);
 
     return CommentCreateResponse.of(currentUser, post, comment);
+  }
+
+  public Page<CommentsOnPostResponse> searchCommentsByPost(Long postId, Pageable pageable) {
+    return commentRepository.findByPost(postId, pageable);
   }
 
   public void deleteComment(Long userId, Long commentId) {
