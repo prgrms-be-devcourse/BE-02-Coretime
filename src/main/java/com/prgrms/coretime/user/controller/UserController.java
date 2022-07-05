@@ -1,5 +1,7 @@
 package com.prgrms.coretime.user.controller;
 
+import static org.springframework.http.HttpStatus.*;
+
 import com.prgrms.coretime.common.ApiResponse;
 import com.prgrms.coretime.common.jwt.JwtAuthenticationToken;
 import com.prgrms.coretime.common.jwt.JwtPrincipal;
@@ -84,6 +86,6 @@ public class UserController {
   public ResponseEntity<ApiResponse<RegisterResponse>> register(@RequestBody @Valid
       UserRegisterRequest request) {
     User newUser = userService.register(request);
-    return ResponseEntity.ok(new ApiResponse<>("회원가입 성공하였습니다.", RegisterResponse.from(newUser)));
+    return ResponseEntity.status(CREATED).body(new ApiResponse<>("회원가입 성공하였습니다.", RegisterResponse.from(newUser)));
   }
 }
