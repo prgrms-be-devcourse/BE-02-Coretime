@@ -86,37 +86,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 
   @Override
   public Optional<CommentOneResponse> findBestCommentByPost(Long postId) {
-//
-//    select
-//    comment0_.comment_id as comment_1_1_,
-//        comment0_.created_at as created_2_1_,
-//    comment0_.updated_at as updated_3_1_,
-//        comment0_.anonymous_seq as anonymou4_1_,
-//    comment0_.content as content5_1_,
-//        comment0_.is_anonymous as is_anony6_1_,
-//    comment0_.is_deleted as is_delet7_1_,
-//        comment0_.parent_id as parent_i8_1_,
-//    comment0_.post_id as post_id9_1_,
-//        comment0_.user_id as user_id10_1_
-//    from
-//    comment comment0_
-//    where
-//    comment0_.post_id=?
-//    and (
-//        select
-//        count(likes1_.comment_id)
-//        from
-//        comment_like likes1_
-//        where
-//        comment0_.comment_id = likes1_.comment_id
-//    )>=?
-//        order by
-//        (select
-//            count(likes2_.comment_id)
-//            from
-//            comment_like likes2_
-//            where
-//            comment0_.comment_id = likes2_.comment_id) desc limit ?
+
     Comment bestComment = queryFactory.select(comment)
         .from(comment)
         .where(comment.post.id.eq(postId),
@@ -126,50 +96,9 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
         .orderBy(comment.likes.size().desc())
         .fetchFirst();
 
-    // 베스트 댓글 없음
     if (bestComment == null) {
       return Optional.empty();
     }
-//    select
-//    likes0_.comment_id as comment_1_2_3_,
-//        likes0_.user_id as user_id2_2_3_,
-//    likes0_.comment_id as comment_1_2_2_,
-//        likes0_.user_id as user_id2_2_2_,
-//    likes0_.created_at as created_3_2_2_,
-//        likes0_.updated_at as updated_4_2_2_,
-//    user1_.user_id as user_id2_19_0_,
-//        user1_.created_at as created_3_19_0_,
-//    user1_.updated_at as updated_4_19_0_,
-//        user1_.email as email5_19_0_,
-//    user1_.name as name6_19_0_,
-//        user1_.nickname as nickname7_19_0_,
-//    user1_.profile_image as profile_8_19_0_,
-//        user1_.school_id as school_i9_19_0_,
-//    user1_1_.password as password1_8_0_,
-//        user1_2_.provider as provider1_11_0_,
-//    user1_2_.provider_id as provider2_11_0_,
-//        user1_.dtype as dtype1_19_0_,
-//    school2_.school_id as school_i1_16_1_,
-//        school2_.created_at as created_2_16_1_,
-//    school2_.updated_at as updated_3_16_1_,
-//        school2_.email as email4_16_1_,
-//    school2_.name as name5_16_1_
-//        from
-//    comment_like likes0_
-//    inner join
-//    users user1_
-//    on likes0_.user_id=user1_.user_id
-//    left outer join
-//    local_user user1_1_
-//    on user1_.user_id=user1_1_.user_id
-//    left outer join
-//    oauth_user user1_2_
-//    on user1_.user_id=user1_2_.user_id
-//    left outer join
-//    school school2_
-//    on user1_.school_id=school2_.school_id
-//    where
-//    likes0_.comment_id=?
 
     CommentOneResponse bestCommentResponse = new CommentOneResponse(
         bestComment.getUser().getId(),
