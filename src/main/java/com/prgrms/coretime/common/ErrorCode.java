@@ -30,7 +30,13 @@ public enum ErrorCode {
   INVALID_FRIEND_REQUEST_TARGET(400, "F001", "올바르지 않은 친구 상대입니다."),
   DUPLICATE_FRIEND_REQUEST(400, "F002", "이미 완료된 친구 요청입니다."),
   FRIEND_ALREADY_EXISTS(400, "F003", "이미 등록된 친구입니다."),
-  FRIEND_NOT_FOUND(404, "F004", "해당 friend 리소스를 찾을 수 없습니다.");
+  FRIEND_NOT_FOUND(404, "F004", "해당 friend 리소스를 찾을 수 없습니다."),
+
+  /**
+   * Message Domain
+   */
+  MESSAGE_ROOM_NOT_FOUND(404, "M001", "해당 쪽지방 리소스를 찾을 수 없습니다."),
+  NO_PERMISSION_TO_SEND_MESSAGE(404, "M002", "해당 쪽지방에 쪽지를 보낼 수 없습니다.");
 
   private final int status;
   private final String code;

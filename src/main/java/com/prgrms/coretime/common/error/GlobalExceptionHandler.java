@@ -1,14 +1,13 @@
 package com.prgrms.coretime.common.error;
 
-
+import com.prgrms.coretime.common.ErrorCode;
+import com.prgrms.coretime.common.ErrorResponse;
 import com.prgrms.coretime.common.error.exception.DuplicateFriendRequestException;
 import com.prgrms.coretime.common.error.exception.FriendAlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.InvalidRequestException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
-import com.prgrms.coretime.common.ErrorCode;
-import com.prgrms.coretime.common.ErrorResponse;
+import com.prgrms.coretime.common.error.exception.PermissionDeniedException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
@@ -118,6 +117,14 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(InvalidRequestException.class)
   public ResponseEntity<ErrorResponse> handleInvalidRequestException(InvalidRequestException e) {
+    log.warn(e.getMessage(), e);
+    ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
+    return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+  }
+
+  @ExceptionHandler(PermissionDeniedException.class)
+  public ResponseEntity<ErrorResponse> handlePermissionDeniedException(
+      PermissionDeniedException e) {
     log.warn(e.getMessage(), e);
     ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
