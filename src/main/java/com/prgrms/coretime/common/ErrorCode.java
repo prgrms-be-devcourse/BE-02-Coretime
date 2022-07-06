@@ -36,7 +36,8 @@ public enum ErrorCode {
    * Message Domain
    */
   MESSAGE_ROOM_NOT_FOUND(404, "M001", "해당 쪽지방 리소스를 찾을 수 없습니다."),
-  NO_PERMISSION_TO_SEND_MESSAGE(404, "M002", "해당 쪽지방에 쪽지를 보낼 수 없습니다.");
+  NO_PERMISSION_TO_SEND_MESSAGE(404, "M002", "해당 쪽지방에 쪽지를 보낼 수 없습니다."),
+  INVALID_MESSAGE_TARGET(400, "M003", "올바르지 않은 쪽지 상대입니다.");
 
   private final int status;
   private final String code;
