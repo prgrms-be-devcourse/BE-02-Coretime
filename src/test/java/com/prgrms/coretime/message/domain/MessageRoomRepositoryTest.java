@@ -38,6 +38,9 @@ class MessageRoomRepositoryTest {
   @Autowired
   private PostRepository postRepository;
 
+  @Autowired
+  private MessageRepository messageRepository;
+
   private TestUser user1 = new TestUser("1111");
   private TestUser user2 = new TestUser("2222");
   private TestUser user3 = new TestUser("3333");
@@ -99,6 +102,23 @@ class MessageRoomRepositoryTest {
   }
 
   @Test
+  @DisplayName("정보(익명 여부, 게시물 id, 대화 참여자)로 MessageRoom 조회")
+  void findMessageRoomByInfoTest() {
+    MessageRoom savedMessageRoom = messageRoomRepository.save(messageRoom);
+
+    Optional<MessageRoom> maybeMessageRoom1 = messageRoomRepository.findMessageRoomByInfo(
+        postCreatedAnonymousWriter.getId(), postCreatedAnonymousWriter.getIsAnonymous(),
+        user1.getId(), user2.getId());
+    Optional<MessageRoom> maybeMessageRoom2 = messageRoomRepository.findMessageRoomByInfo(
+        postCreatedAnonymousWriter.getId(), postCreatedAnonymousWriter.getIsAnonymous(),
+        user1.getId(), user3.getId());
+
+    assertThat(maybeMessageRoom1.isPresent(), is(true));
+    assertThat(maybeMessageRoom1.get(), samePropertyValuesAs(savedMessageRoom));
+    assertThat(maybeMessageRoom2.isPresent(), is(false));
+  }
+
+  @Test
   @DisplayName("정보(익명 여부, 게시물 id, 대화 참여자)로 MessageRoomId 조회")
   void findIdByInfoTest() {
     MessageRoom savedMessageRoom = messageRoomRepository.save(messageRoom);
@@ -113,6 +133,22 @@ class MessageRoomRepositoryTest {
     assertThat(maybeMessageRoom1.isPresent(), is(true));
     assertThat(maybeMessageRoom1.get(), samePropertyValuesAs(savedMessageRoom.getId()));
     assertThat(maybeMessageRoom2.isPresent(), is(false));
+  }
+
+  @Test
+  @DisplayName("정보(익명 여부, 게시물 id, 대화 참여자)로 MessageRoom 존재 여부 조회")
+  void existsByInfoTest() {
+    messageRoomRepository.save(messageRoom);
+
+    boolean result1 = messageRoomRepository.existsByInfo(
+        postCreatedAnonymousWriter.getId(), postCreatedAnonymousWriter.getIsAnonymous(),
+        user1.getId(), user2.getId());
+    boolean result2 = messageRoomRepository.existsByInfo(
+        postCreatedAnonymousWriter.getId(), postCreatedAnonymousWriter.getIsAnonymous(),
+        user1.getId(), user3.getId());
+
+    assertThat(result1, is(true));
+    assertThat(result2, is(false));
   }
 
 }

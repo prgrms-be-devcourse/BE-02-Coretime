@@ -5,12 +5,15 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.prgrms.coretime.message.domain.Message;
 import com.prgrms.coretime.message.domain.MessageRepository;
 import com.prgrms.coretime.message.domain.MessageRoom;
 import com.prgrms.coretime.message.domain.MessageRoomRepository;
+import com.prgrms.coretime.message.domain.VisibilityState;
 import com.prgrms.coretime.message.dto.request.MessageRoomCreateRequest;
+import com.prgrms.coretime.message.dto.request.MessageRoomGetRequest;
 import com.prgrms.coretime.post.domain.Board;
 import com.prgrms.coretime.post.domain.Post;
 import com.prgrms.coretime.post.domain.PostRepository;
@@ -23,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 
 @ExtendWith(MockitoExtension.class)
 class MessageRoomServiceTest {
@@ -53,6 +57,8 @@ class MessageRoomServiceTest {
 
   private Message message = mock(Message.class);
 
+  private Page<Message> messages = mock(Page.class);
+
   @Test
   @DisplayName("쪽지방 생성하기: 성공")
   void saveMessageRoomSuccessTest() {
@@ -80,6 +86,27 @@ class MessageRoomServiceTest {
         post.getIsAnonymous());
 
     verify(messageRoomRepository).findIdByInfo(any(), any(), any(), any());
+  }
+
+  @Test
+  @DisplayName("쪽지방 조회하기: 성공")
+  void getMessageRoomSuccessTest() {
+    MessageRoomGetRequest request = new MessageRoomGetRequest(1L);
+    doReturn(Optional.of(user1)).when(testUserRepository).findById(anyLong());
+    doReturn(Optional.of(messageRoom)).when(messageRoomRepository).findById(anyLong());
+    when(messageRoom.getVisibilityTo()).thenReturn(VisibilityState.BOTH);
+    when(user1.getId()).thenReturn(1L);
+    when(messageRoom.getInitialSender()).thenReturn(user1);
+    when(messageRoom.getInitialSender().getId()).thenReturn(1L);
+    doReturn(messages).when(messageRoomRepository).findMessagesByMessageRoomId(any(), any());
+    when(messageRoom.getCreatedFrom()).thenReturn(post);
+    when(messageRoom.getCreatedFrom().getBoard()).thenReturn(board);
+    when(messageRoom.getInitialReceiver()).thenReturn(user2);
+
+    messageRoomService.getMessageRoom(1L, request);
+
+    verify(messageRoomRepository).findById(anyLong());
+    verify(messageRoomRepository).findMessagesByMessageRoomId(any(), any());
   }
 
 }
