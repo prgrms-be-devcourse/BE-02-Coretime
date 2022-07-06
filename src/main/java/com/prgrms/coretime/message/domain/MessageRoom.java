@@ -78,4 +78,18 @@ public class MessageRoom extends BaseEntity {
     this.isBlocked = isBlocked;
   }
 
+  public void changeVisibilityTo(VisibilityState visibilityTo) {
+    if (this.visibilityTo.equals(VisibilityState.BOTH)) {
+      this.visibilityTo = visibilityTo;
+    } else if (this.visibilityTo.equals(VisibilityState.ONLY_INITIAL_RECEIVER)) {
+      if (visibilityTo.equals(VisibilityState.ONLY_INITIAL_SENDER)) {
+        this.visibilityTo = VisibilityState.NO_ONE;
+      }
+    } else if (this.visibilityTo.equals(VisibilityState.ONLY_INITIAL_SENDER)) {
+      if (visibilityTo.equals(VisibilityState.ONLY_INITIAL_RECEIVER)) {
+        this.visibilityTo = VisibilityState.NO_ONE;
+      }
+    }
+  }
+
 }

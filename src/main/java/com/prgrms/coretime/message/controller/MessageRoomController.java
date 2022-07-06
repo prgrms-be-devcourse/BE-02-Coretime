@@ -3,6 +3,7 @@ package com.prgrms.coretime.message.controller;
 import com.prgrms.coretime.common.ApiResponse;
 import com.prgrms.coretime.message.dto.request.MessageRoomCreateRequest;
 import com.prgrms.coretime.message.dto.request.MessageRoomGetRequest;
+import com.prgrms.coretime.message.dto.request.MessageSendRequest;
 import com.prgrms.coretime.message.dto.response.MessageRoomIdResponse;
 import com.prgrms.coretime.message.dto.response.MessageRoomListResponse;
 import com.prgrms.coretime.message.dto.response.MessageRoomResponse;
@@ -98,5 +99,14 @@ public class MessageRoomController {
 
     messageRoomService.blockMessageRoom(userId, messageRoomId);
     return ResponseEntity.ok().body(new ApiResponse<>("쪽지방 차단이 완료되었습니다."));
+  }
+
+  @ApiOperation(value = "쪽지방 삭제하기", notes = "쪽지방을 삭제하는 요청입니다.")
+  @PatchMapping("/{messageRoomId}/delete")
+  public ResponseEntity<ApiResponse> deleteMessageRoom(@RequestParam final Long userId,
+      @PathVariable("messageRoomId") Long messageRoomId) {
+
+    messageRoomService.deleteMessageRoom(userId, messageRoomId);
+    return ResponseEntity.ok().body(new ApiResponse<>("쪽지방 삭제가 완료되었습니다."));
   }
 }

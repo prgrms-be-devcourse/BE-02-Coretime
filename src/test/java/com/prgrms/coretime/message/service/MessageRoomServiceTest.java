@@ -139,4 +139,17 @@ class MessageRoomServiceTest {
 
     verify(messageRoom).changeIsBlocked(any());
   }
+
+  @Test
+  @DisplayName("쪽지방 삭제하기: 성공")
+  void deleteMessageRoomSuccessTest() {
+    doReturn(Optional.of(user1)).when(testUserRepository).findById(anyLong());
+    doReturn(Optional.of(messageRoom)).when(messageRoomRepository).findById(anyLong());
+    when(messageRoom.getInitialReceiver()).thenReturn(user1);
+    when(messageRoom.getInitialSender()).thenReturn(user2);
+
+    messageRoomService.deleteMessageRoom(user1.getId(), messageRoom.getId());
+
+    verify(messageRoom).changeVisibilityTo(any());
+  }
 }

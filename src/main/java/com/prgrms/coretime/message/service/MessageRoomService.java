@@ -8,6 +8,7 @@ import com.prgrms.coretime.message.domain.Message;
 import com.prgrms.coretime.message.domain.MessageRepository;
 import com.prgrms.coretime.message.domain.MessageRoom;
 import com.prgrms.coretime.message.domain.MessageRoomRepository;
+import com.prgrms.coretime.message.domain.VisibilityState;
 import com.prgrms.coretime.message.dto.MessageRoomsWithLastMessages;
 import com.prgrms.coretime.message.dto.request.MessageRoomCreateRequest;
 import com.prgrms.coretime.message.dto.request.MessageRoomGetRequest;
@@ -93,6 +94,7 @@ public class MessageRoomService {
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
     MessageRoom messageRoom = messageRoomRepository.findById(request.getMessageRoomId())
         .orElseThrow(() -> new NotFoundException(ErrorCode.MESSAGE_ROOM_NOT_FOUND));
+    checkMessageRoomIsDeleted(messageRoom, userId);
 
     Pageable pageable = PageRequest.of(0, 20, Sort.by("createdAt").descending());
     Page<Message> messages = messageRoomRepository.findMessagesByMessageRoomId(
@@ -136,6 +138,22 @@ public class MessageRoomService {
   }
 
   /**
+   * 쪽지방 삭제
+   */
+  @Transactional
+  public void deleteMessageRoom(Long userId, Long messageRoomId) {
+    TestUser currentUser = testUserRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+    MessageRoom messageRoom = messageRoomRepository.findById(messageRoomId)
+        .orElseThrow(() -> new NotFoundException(ErrorCode.MESSAGE_ROOM_NOT_FOUND));
+    checkUserAuthority(currentUser, messageRoom);
+
+    VisibilityState visibilityState = isInitialSender(currentUser, messageRoom) ?
+        VisibilityState.ONLY_INITIAL_RECEIVER : VisibilityState.ONLY_INITIAL_SENDER;
+    messageRoom.changeVisibilityTo(visibilityState);
+  }
+
+  /**
    * 쪽지방 차단
    */
   @Transactional
@@ -159,4 +177,27 @@ public class MessageRoomService {
     }
   }
 
+  /**
+   * 현재 user가 최초 발신자인지 확인
+   */
+  private boolean isInitialSender(TestUser user, MessageRoom messageRoom) {
+    if (messageRoom.getInitialSender().getId() == user.getId()) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   *  삭제한 쪽지방인지 확인
+   */
+  private void checkMessageRoomIsDeleted(MessageRoom messageRoom, Long userId) {
+    VisibilityState visibility = messageRoom.getVisibilityTo();
+    if (visibility.equals(VisibilityState.NO_ONE) ||
+        (messageRoom.getInitialSender().getId() == userId &&
+            visibility.equals(VisibilityState.ONLY_INITIAL_RECEIVER)) ||
+        (messageRoom.getInitialReceiver().getId() == userId &&
+            visibility.equals(VisibilityState.ONLY_INITIAL_SENDER))) {
+      throw new PermissionDeniedException(ErrorCode.NO_PERMISSION_TO_READ_DATA);
+    }
+  }
 }

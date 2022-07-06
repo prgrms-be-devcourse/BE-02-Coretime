@@ -8,6 +8,7 @@ import com.prgrms.coretime.message.domain.Message;
 import com.prgrms.coretime.message.domain.MessageRepository;
 import com.prgrms.coretime.message.domain.MessageRoom;
 import com.prgrms.coretime.message.domain.MessageRoomRepository;
+import com.prgrms.coretime.message.domain.VisibilityState;
 import com.prgrms.coretime.message.dto.request.MessageSendRequest;
 import com.prgrms.coretime.message.dto.response.MessageResponse;
 import com.prgrms.coretime.user.domain.TestUser;
@@ -55,6 +56,7 @@ public class MessageService {
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
     MessageRoom messageRoom = messageRoomRepository.findById(messageRoomId)
         .orElseThrow(() -> new NotFoundException(ErrorCode.MESSAGE_ROOM_NOT_FOUND));
+    checkMessageRoomIsDeleted(messageRoom, userId);
 
     Page<Message> messages = messageRoomRepository.findMessagesByMessageRoomId(
         messageRoomId, pageable);
@@ -82,4 +84,17 @@ public class MessageService {
     }
   }
 
+  /**
+   *  삭제한 쪽지방인지 확인
+   */
+  private void checkMessageRoomIsDeleted(MessageRoom messageRoom, Long userId) {
+    VisibilityState visibility = messageRoom.getVisibilityTo();
+    if (visibility.equals(VisibilityState.NO_ONE) ||
+        (messageRoom.getInitialSender().getId() == userId &&
+            visibility.equals(VisibilityState.ONLY_INITIAL_RECEIVER)) ||
+        (messageRoom.getInitialReceiver().getId() == userId &&
+            visibility.equals(VisibilityState.ONLY_INITIAL_SENDER))) {
+      throw new PermissionDeniedException(ErrorCode.NO_PERMISSION_TO_READ_DATA);
+    }
+  }
 }
