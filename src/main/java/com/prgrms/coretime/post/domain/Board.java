@@ -2,7 +2,7 @@ package com.prgrms.coretime.post.domain;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.school.domain.School;
-import java.time.LocalDateTime;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -43,8 +43,33 @@ public class Board extends BaseEntity {
 
   @Builder
   public Board(String name, BoardType category, School school) {
+    setName(name);
+    setCategory(category);
+    this.school = school;
+  }
+
+  private void setName(String name) {
+    if (Objects.isNull(name)) {
+      throw new IllegalArgumentException("Board의 name은 null일 수 없습니다.");
+    }else if (name.isBlank()) {
+      throw new IllegalArgumentException("Board의 name은 빈 문자열일 수 없습니다.");
+    }else if (name.length() > 10) {
+      throw new IllegalArgumentException("Board의 name은 10글자를 넘을 수 없습니다.");
+    }
     this.name = name;
+  }
+
+  private void setCategory(BoardType category) {
+    if (Objects.isNull(category)) {
+      throw new IllegalArgumentException("Board의 category는 null일 수 없습니다.");
+    }
     this.category = category;
+  }
+
+  private void setSchool(School school) {
+    if (Objects.isNull(school)) {
+      throw new IllegalArgumentException("Board의 Shool은 null일 수 없습니다.");
+    }
     this.school = school;
   }
 }

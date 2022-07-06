@@ -1,15 +1,18 @@
 package com.prgrms.coretime.post.domain;
 
-import com.prgrms.coretime.common.ErrorCode;
-import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.user.domain.User;
 import java.util.Objects;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
+import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JoinColumnOrFormula;
-
-import javax.persistence.*;
 
 @Entity
 @Table(name = "post_like")
@@ -44,7 +47,7 @@ public class PostLike {
 
   private void setPost(Post post) {
     if (Objects.isNull(post)) {
-      throw new NotFoundException(ErrorCode.POST_NOT_FOUND);
+      throw new IllegalArgumentException("PostLike의 post는 null일 수 없습니다.");
     }
     this.post = post;
     post.likePost();
@@ -52,7 +55,7 @@ public class PostLike {
 
   private void setUser(User user) {
     if (Objects.isNull(user)) {
-      throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+      throw new IllegalArgumentException("PostLike의 user는 null일 수 없습니다.");
     }
     this.user = user;
   }
