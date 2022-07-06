@@ -172,6 +172,7 @@ class EnrollmentServiceTest {
     void testEnrollmentSave() {
       when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
       when(lectureRepository.getOfficialLectureById(enrollmentCreateRequest.getLectureId())).thenReturn(Optional.of(officialLecture));
+      when(enrollmentRepository.save(any())).thenReturn(new Enrollment(officialLecture, timetable));
 
       enrollmentService.addOfficialLectureToTimetable(userId, schoolId, timetableId, enrollmentCreateRequest);
 
@@ -228,6 +229,7 @@ class EnrollmentServiceTest {
     void testEnrollmentSave() {
       when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
       when(lectureRepository.save(any())).thenReturn(customLecture);
+      when(enrollmentRepository.save(any())).thenReturn(new Enrollment(customLecture, timetable));
 
       enrollmentService.addCustomLectureToTimetable(userId, timetableId, customLectureRequest);
 
