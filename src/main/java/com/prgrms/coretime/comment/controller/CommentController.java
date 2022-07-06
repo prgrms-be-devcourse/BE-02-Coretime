@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1/posts/{postId}/comments")
 @RequiredArgsConstructor
 public class CommentController {
 
@@ -31,15 +31,16 @@ public class CommentController {
   /**
    * TODO : 추후 현재 로그인 중인 User 포함해서 API 수정
    */
-  @PostMapping("/comments")
+  @PostMapping
   public ResponseEntity<ApiResponse<CommentCreateResponse>> createComment(
       @AuthenticationPrincipal JwtPrincipal principal,
+      @PathVariable Long postId,
       @RequestBody CommentCreateRequest commentCreateRequest) throws URISyntaxException {
 
-    CommentCreateResponse data = commentService.createComment(principal.userId,
+    CommentCreateResponse response = commentService.createComment(principal.userId,
         commentCreateRequest);
-    URI location = new URI("/api/v1/posts/" + commentCreateRequest.getPostId());
-    return ResponseEntity.created(location).body(new ApiResponse("댓글 생성 성공", data));
+    URI location = new URI("/api/v1/posts/{postId}" + commentCreateRequest.getPostId());
+    return ResponseEntity.created(location).body(new ApiResponse("댓글 생성 성공", response));
   }
 
   @DeleteMapping("/{commentId}")
@@ -50,7 +51,7 @@ public class CommentController {
     return ResponseEntity.ok(new ApiResponse("댓글 삭제 성공"));
   }
 
-  @GetMapping("/{postId}/comments")
+  @GetMapping
   public ResponseEntity<ApiResponse<Page<CommentsOnPostResponse>>> searchComments(
       @PathVariable Long postId, Pageable pageable) {
     return ResponseEntity.ok(
