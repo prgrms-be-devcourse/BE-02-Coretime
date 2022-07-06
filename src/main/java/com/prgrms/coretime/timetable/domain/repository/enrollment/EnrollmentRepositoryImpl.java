@@ -11,7 +11,6 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.Modifying;
 
 @RequiredArgsConstructor
 public class EnrollmentRepositoryImpl implements EnrollmentCustomRepository{
@@ -35,14 +34,14 @@ public class EnrollmentRepositoryImpl implements EnrollmentCustomRepository{
   public void deleteByTimetableId(Long timetableId) {
     queryFactory
         .delete(enrollment)
-        .where(timetableIdEq(timetableId))
+        .where(enrollmentTimetableIdEq(timetableId))
         .execute();
   }
 
   private BooleanBuilder getEnrollmentWithLectureCondition(Long timetableId, LectureType lectureType) {
     BooleanBuilder enrollmentCondition = new BooleanBuilder();
 
-    enrollmentCondition.and(timetableIdEq(timetableId));
+    enrollmentCondition.and(enrollmentTimetableIdEq(timetableId));
 
     if(lectureType.equals(CUSTOM)) {
       enrollmentCondition.and(enrollment.lecture.dType.eq("CUSTOM"));
@@ -51,7 +50,7 @@ public class EnrollmentRepositoryImpl implements EnrollmentCustomRepository{
     return enrollmentCondition;
   }
 
-  private BooleanExpression timetableIdEq(Long timetableId) {
+  private BooleanExpression enrollmentTimetableIdEq(Long timetableId) {
     return timetableId == null ? null : enrollment.enrollmentId.timeTableId.eq(timetableId);
   }
 }

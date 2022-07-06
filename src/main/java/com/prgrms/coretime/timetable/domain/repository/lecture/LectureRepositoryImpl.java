@@ -184,8 +184,8 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
 
       dayAndTimeCondition
           .and(lectureDetailDayEq(lectureDetail.getDay()))
-          .and(startTimeLt(lectureDetail.getEndTime()))
-          .and(endTimeGt(lectureDetail.getStartTime()));
+          .and(lectureDetailStartTimeLt(lectureDetail.getEndTime()))
+          .and(lectureDetailEndTimeGt(lectureDetail.getStartTime()));
       dayAndTimesCondition.or(dayAndTimeCondition);
     }
 
@@ -274,11 +274,11 @@ public class LectureRepositoryImpl implements LectureCustomRepository {
     return lectureId == null ? null : lecture.id.eq(lectureId);
   }
 
-  private BooleanExpression startTimeLt(LocalTime endTime) {
+  private BooleanExpression lectureDetailStartTimeLt(LocalTime endTime) {
     return endTime == null ? null : lectureDetail.startTime.lt(endTime);
   }
 
-  private BooleanExpression endTimeGt(LocalTime startTime) {
+  private BooleanExpression lectureDetailEndTimeGt(LocalTime startTime) {
     return startTime == null ? null : lectureDetail.endTime.gt(startTime);
   }
 }
