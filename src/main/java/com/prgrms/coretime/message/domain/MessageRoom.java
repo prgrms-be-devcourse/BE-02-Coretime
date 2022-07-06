@@ -74,4 +74,8 @@ public class MessageRoom extends BaseEntity {
     this.visibilityTo = VisibilityState.BOTH;
   }
 
+  public void changeIsBlocked(Boolean isBlocked) {
+    this.isBlocked = isBlocked;
+  }
+
 }

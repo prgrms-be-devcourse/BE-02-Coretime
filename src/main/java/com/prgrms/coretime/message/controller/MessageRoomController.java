@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -90,4 +91,12 @@ public class MessageRoomController {
     return ResponseEntity.ok().body(new ApiResponse<>("쪽지방 리스트 조회가 완료되었습니다.", response));
   }
 
+  @ApiOperation(value = "쪽지방 차단하기", notes = "쪽지방을 차단하는 요청입니다.")
+  @PatchMapping("/{messageRoomId}/block")
+  public ResponseEntity<ApiResponse> blockMessageRoom(@RequestParam final Long userId,
+      @PathVariable("messageRoomId") Long messageRoomId) {
+
+    messageRoomService.blockMessageRoom(userId, messageRoomId);
+    return ResponseEntity.ok().body(new ApiResponse<>("쪽지방 차단이 완료되었습니다."));
+  }
 }

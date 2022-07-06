@@ -2,6 +2,7 @@ package com.prgrms.coretime.common.error;
 
 import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.ErrorResponse;
+import com.prgrms.coretime.common.error.exception.CannotSendMessageException;
 import com.prgrms.coretime.common.error.exception.DuplicateFriendRequestException;
 import com.prgrms.coretime.common.error.exception.FriendAlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.InvalidRequestException;
@@ -130,4 +131,10 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
 
+  @ExceptionHandler(CannotSendMessageException.class)
+  public ResponseEntity<ErrorResponse> handleCannotSendMessageException(CannotSendMessageException e) {
+    log.warn(e.getMessage(), e);
+    ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
+    return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+  }
 }

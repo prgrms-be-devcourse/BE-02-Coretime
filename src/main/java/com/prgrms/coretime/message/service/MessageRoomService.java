@@ -8,7 +8,6 @@ import com.prgrms.coretime.message.domain.Message;
 import com.prgrms.coretime.message.domain.MessageRepository;
 import com.prgrms.coretime.message.domain.MessageRoom;
 import com.prgrms.coretime.message.domain.MessageRoomRepository;
-import com.prgrms.coretime.message.domain.VisibilityState;
 import com.prgrms.coretime.message.dto.MessageRoomsWithLastMessages;
 import com.prgrms.coretime.message.dto.request.MessageRoomCreateRequest;
 import com.prgrms.coretime.message.dto.request.MessageRoomGetRequest;
@@ -134,6 +133,30 @@ public class MessageRoomService {
     });
 
     return responses;
+  }
+
+  /**
+   * 쪽지방 차단
+   */
+  @Transactional
+  public void blockMessageRoom(Long userId, Long messageRoomId) {
+    TestUser currentUser = testUserRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+    MessageRoom messageRoom = messageRoomRepository.findById(messageRoomId)
+        .orElseThrow(() -> new NotFoundException(ErrorCode.MESSAGE_ROOM_NOT_FOUND));
+    checkUserAuthority(currentUser, messageRoom);
+
+    messageRoom.changeIsBlocked(true);
+  }
+
+  /**
+   * 쪽지방 수정(삭제, 차단) 권한 확인
+   */
+  private void checkUserAuthority(TestUser user, MessageRoom messageRoom) {
+    if (!(messageRoom.getInitialSender().getId() == user.getId()) &&
+        !(messageRoom.getInitialReceiver().getId() == user.getId())) {
+      throw new PermissionDeniedException(ErrorCode.NO_PERMISSION_TO_MODIFY_MESSAGE_ROOM);
+    }
   }
 
 }

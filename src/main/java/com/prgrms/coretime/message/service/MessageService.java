@@ -1,6 +1,7 @@
 package com.prgrms.coretime.message.service;
 
 import com.prgrms.coretime.common.ErrorCode;
+import com.prgrms.coretime.common.error.exception.CannotSendMessageException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.common.error.exception.PermissionDeniedException;
 import com.prgrms.coretime.message.domain.Message;
@@ -35,6 +36,7 @@ public class MessageService {
     MessageRoom messageRoom = messageRoomRepository.findById(messageRoomId)
         .orElseThrow(() -> new NotFoundException(ErrorCode.MESSAGE_ROOM_NOT_FOUND));
     checkUserAuthority(currentUser, messageRoom);
+    checkMessageRoomIsBlocked(messageRoom);
 
     Message message = Message.builder()
         .messageRoom(messageRoom)
@@ -68,6 +70,15 @@ public class MessageService {
     if (!(messageRoom.getInitialSender().getId() == user.getId()) &&
         !(messageRoom.getInitialReceiver().getId() == user.getId())) {
       throw new PermissionDeniedException(ErrorCode.NO_PERMISSION_TO_SEND_MESSAGE);
+    }
+  }
+
+  /**
+   * 차단된 쪽지방인지 확인
+   */
+  private void checkMessageRoomIsBlocked(MessageRoom messageRoom) {
+    if (messageRoom.getIsBlocked()) {
+      throw new CannotSendMessageException(ErrorCode.UNABLE_TO_SEND_MESSAGE);
     }
   }
 

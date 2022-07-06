@@ -127,4 +127,16 @@ class MessageRoomServiceTest {
     verify(messageRoomRepository).findMessageRoomsAndLastMessagesByUserId(anyLong(), any());
   }
 
+  @Test
+  @DisplayName("쪽지방 차단하기: 성공")
+  void blockMessageRoomSuccessTest() {
+    doReturn(Optional.of(user1)).when(testUserRepository).findById(anyLong());
+    doReturn(Optional.of(messageRoom)).when(messageRoomRepository).findById(anyLong());
+    when(messageRoom.getInitialReceiver()).thenReturn(user1);
+    when(messageRoom.getInitialSender()).thenReturn(user2);
+
+    messageRoomService.blockMessageRoom(user1.getId(), messageRoom.getId());
+
+    verify(messageRoom).changeIsBlocked(any());
+  }
 }
