@@ -8,9 +8,12 @@ import com.prgrms.coretime.message.domain.MessageRepository;
 import com.prgrms.coretime.message.domain.MessageRoom;
 import com.prgrms.coretime.message.domain.MessageRoomRepository;
 import com.prgrms.coretime.message.dto.request.MessageSendRequest;
+import com.prgrms.coretime.message.dto.response.MessageResponse;
 import com.prgrms.coretime.user.domain.TestUser;
 import com.prgrms.coretime.user.domain.TestUserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +42,23 @@ public class MessageService {
         .content(request.getMessage())
         .build();
     messageRepository.save(message);
+  }
+
+  /**
+   * 쪽지 다건 조회
+   */
+  @Transactional(readOnly = true)
+  public Page<MessageResponse> getAllMessages(Long userId, Long messageRoomId, Pageable pageable) {
+    TestUser currentUser = testUserRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+    MessageRoom messageRoom = messageRoomRepository.findById(messageRoomId)
+        .orElseThrow(() -> new NotFoundException(ErrorCode.MESSAGE_ROOM_NOT_FOUND));
+
+    Page<Message> messages = messageRoomRepository.findMessagesByMessageRoomId(
+        messageRoomId, pageable);
+    TestUser interlocutor = currentUser.getId() == messageRoom.getInitialSender().getId()
+        ? messageRoom.getInitialReceiver() : messageRoom.getInitialSender();
+    return messages.map(message -> new MessageResponse(message, interlocutor));
   }
 
   /**
