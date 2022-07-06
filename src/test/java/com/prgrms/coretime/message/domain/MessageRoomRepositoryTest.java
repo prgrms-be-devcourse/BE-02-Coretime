@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 
+import com.prgrms.coretime.TestConfig;
 import com.prgrms.coretime.message.dto.MessageRoomsWithLastMessages;
 import com.prgrms.coretime.post.domain.Board;
 import com.prgrms.coretime.post.domain.BoardType;
@@ -21,11 +22,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+@Import(TestConfig.class)
 @DataJpaTest
 class MessageRoomRepositoryTest {
 
@@ -107,11 +110,11 @@ class MessageRoomRepositoryTest {
 
   @BeforeEach
   void setUp() {
+    schoolRepository.save(school);
+
     userRepository.save(user1);
     userRepository.save(user2);
     userRepository.save(user3);
-
-    schoolRepository.save(school);
 
     boardRepository.save(board);
 
