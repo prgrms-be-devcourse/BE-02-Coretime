@@ -203,6 +203,8 @@ class PostServiceTest {
             .build());
       }
     }
+    em.flush();
+    em.clear();
 
     //When
     Page<PostSimpleResponse> posts = postService.getPostsThatUserCommentedAt(user2.getId(),
@@ -232,7 +234,7 @@ class PostServiceTest {
 
   @Test
   @DisplayName("게시글 생성 및 상세 조회 테스트")
-  public void testCreateAndGetPost(@Autowired S3Mock s3Mock, @Autowired AmazonS3Client amazonS3Client) {
+  public void testCreateAndGetPost(@Autowired AmazonS3Client amazonS3Client) {
     //Given
     List<MultipartFile> photos = List.of(
         new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
@@ -291,6 +293,8 @@ class PostServiceTest {
         .user(user1)
         .build()
     );
+    em.flush();
+    em.clear();
 
     //When
     PostUpdateRequest request = new PostUpdateRequest("변경된 제목", "변경된 내용");
@@ -314,6 +318,8 @@ class PostServiceTest {
         .user(user1)
         .build()
     );
+    em.flush();
+    em.clear();
 
     //When
     postService.likePost(user1.getId(), post.getId());
@@ -337,6 +343,8 @@ class PostServiceTest {
         .user(user1)
         .build()
     );
+    em.flush();
+    em.clear();
 
     //When
     postService.likePost(user1.getId(), post.getId());
@@ -367,6 +375,8 @@ class PostServiceTest {
         .user(user1)
         .build()
     );
+    em.flush();
+    em.clear();
 
     //When
     postService.likePost(user1.getId(), post.getId());
@@ -392,6 +402,8 @@ class PostServiceTest {
         .user(user1)
         .build()
     );
+    em.flush();
+    em.clear();
 
     //When
     postService.likePost(user1.getId(), post.getId());
