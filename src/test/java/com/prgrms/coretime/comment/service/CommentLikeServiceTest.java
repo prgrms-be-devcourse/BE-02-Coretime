@@ -1,7 +1,14 @@
 package com.prgrms.coretime.comment.service;
 
+import static java.util.Optional.of;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+
 import com.prgrms.coretime.comment.domain.Comment;
 import com.prgrms.coretime.comment.domain.CommentLike;
+import com.prgrms.coretime.comment.domain.CommentLikeId;
 import com.prgrms.coretime.comment.domain.repository.CommentLikeRepository;
 import com.prgrms.coretime.comment.domain.repository.CommentRepository;
 import com.prgrms.coretime.post.domain.Board;
@@ -83,17 +90,30 @@ class CommentLikeServiceTest {
 
     Long userId = 1L;
     Long commentId = 1L;
+    CommentLikeId commentLikeId = new CommentLikeId(userId, commentId);
 
     @Test
     @DisplayName("사용자가 이미 좋아요를 눌렀을 때")
     public void testAlreadyLike() {
+      given(commentLikeRepository.existsById(new CommentLikeId(userId, commentId)))
+          .willReturn(true);
 
+      assertThatThrownBy(() -> commentLikeService.createLike(userId, commentId))
+          .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     @DisplayName("정상적으로 좋아요를 생성할 때")
     public void testCorrectRequest() {
+      given(commentLikeRepository.existsById(new CommentLikeId(userId, commentId)))
+          .willReturn(false);
 
+      given(userRepository.findById(userId)).willReturn(of(user));
+      given(commentRepository.findById(commentId)).willReturn(of(comment));
+
+      commentLikeService.createLike(userId, commentId);
+
+      verify(commentLikeRepository).save(any());
     }
   }
 
@@ -107,13 +127,22 @@ class CommentLikeServiceTest {
     @Test
     @DisplayName("사용자가 이미 좋아요를 누르지 않았을때")
     public void testNotPushLike() {
+      given(commentLikeRepository.existsById(new CommentLikeId(userId, commentId)))
+          .willReturn(false);
 
+      assertThatThrownBy(() -> commentLikeService.deleteLike(userId, commentId))
+          .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     @DisplayName("정상적으로 좋아요를 지웠을 때")
     public void testCorrectRequest() {
+      given(commentLikeRepository.existsById(new CommentLikeId(userId, commentId)))
+          .willReturn(true);
 
+      commentLikeService.deleteLike(userId, commentId);
+
+      verify(commentLikeRepository).deleteById(any());
     }
 
   }
