@@ -275,13 +275,11 @@ class TimetableServiceTest {
     @Test
     @DisplayName("친구의 기본 시간표를 가져올 수 있는 경우 테스트")
     void testGetDefaultTimetableOfFriend() {
-      when(friendRepository.existsFriendRelationship(userId, friendId)).thenReturn(true);
       when(timetableRepository.getDefaultTimetable(userId, 2022, FIRST)).thenReturn(Optional.of(timetable));
       when(enrollmentRepository.getEnrollmentsWithLectureByTimetableId(timetable.getId(), ALL)).thenReturn(new ArrayList<Enrollment>());
 
       timetableService.getDefaultTimetableOfFriend(userId, friendId, 2022, FIRST);
 
-      verify(friendRepository).existsFriendRelationship(userId, friendId);
       verify(timetableRepository).getDefaultTimetable(userId, 2022, FIRST);
       verify(enrollmentRepository).getEnrollmentsWithLectureByTimetableId(timetable.getId(), ALL);
     }
@@ -383,7 +381,7 @@ class TimetableServiceTest {
       verify(enrollmentRepository).deleteByTimetableId(notDefaultTable.getId());
       verify(lectureDetailRepository).deleteLectureDetailsByLectureIds(any());
       verify(lectureRepository).deleteLectureByLectureIds(any());
-      verify(timetableRepository).deleteByTimetableId(notDefaultTable.getId());
+      verify(timetableRepository).delete(notDefaultTable);
       verify(timetableRepository, never()).getRecentlyAddedTimetable(userId, notDefaultTable.getYear(), notDefaultTable.getSemester());
     }
 
@@ -398,7 +396,7 @@ class TimetableServiceTest {
       verify(enrollmentRepository).deleteByTimetableId(timetable.getId());
       verify(lectureDetailRepository).deleteLectureDetailsByLectureIds(any());
       verify(lectureRepository).deleteLectureByLectureIds(any());
-      verify(timetableRepository).deleteByTimetableId(timetable.getId());
+      verify(timetableRepository).delete(timetable);
       verify(timetableRepository).getRecentlyAddedTimetable(userId, timetable.getYear(), timetable.getSemester());
     }
   }

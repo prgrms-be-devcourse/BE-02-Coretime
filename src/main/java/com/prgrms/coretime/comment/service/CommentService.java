@@ -57,13 +57,15 @@ public class CommentService {
     return CommentCreateResponse.of(currentUser, post, comment);
   }
 
+  @Transactional(readOnly = true)
   public Page<CommentsOnPostResponse> searchCommentsByPost(Long postId, Pageable pageable) {
+    checkPostExist(postId);
     return commentRepository.findByPost(postId, pageable);
   }
 
   public void deleteComment(Long userId, Long commentId) {
     Comment comment = getComment(commentId);
-    checkValidUser(userId, commentId);
+    checkValidUser(userId, comment.getUser().getId());
     comment.updateDelete();
   }
 
@@ -84,6 +86,12 @@ public class CommentService {
 
   private void checkValidUser(Long currentUserId, Long targetUserId) {
     Assert.isFalse(currentUserId == targetUserId, ErrorCode.BAD_REQUEST.getMessage());
+  }
+
+  private void checkPostExist(Long postId) {
+    if (postRepository.existsById(postId)) {
+      throw new NotFoundException(ErrorCode.POST_NOT_FOUND);
+    }
   }
 
 }
