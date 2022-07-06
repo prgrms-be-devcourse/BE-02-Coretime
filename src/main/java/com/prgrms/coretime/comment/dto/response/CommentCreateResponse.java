@@ -43,10 +43,13 @@ public class CommentCreateResponse {
   }
 
   public static CommentCreateResponse of(User user, Post post, Comment comment) {
+    Comment parent = comment.getParent();
+    Long parentId = parent == null ? null : parent.getId();
+
     return CommentCreateResponse.builder()
         .userId(user.getId())
         .postId(post.getId())
-        .parentId(comment.getParent().getId()) // nullable
+        .parentId(parentId) // nullable
         .commentId(comment.getId())
         .seq(comment.getAnonymousSeq()) // nullable
         .content(comment.getContent())
