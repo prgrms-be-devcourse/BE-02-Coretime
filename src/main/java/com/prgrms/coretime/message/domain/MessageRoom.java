@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -31,15 +32,15 @@ public class MessageRoom extends BaseEntity {
   @Column(name = "message_room_id")
   private Long id;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "initial_sender_id", referencedColumnName = "user_id")
   private TestUser initialSender;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "initial_receiver_id", referencedColumnName = "user_id")
   private TestUser initialReceiver;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_from", referencedColumnName = "post_id")
   private Post createdFrom;
 
