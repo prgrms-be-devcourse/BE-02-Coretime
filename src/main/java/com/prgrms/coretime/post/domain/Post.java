@@ -5,10 +5,9 @@ import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.message.domain.MessageRoom;
 import com.prgrms.coretime.post.dto.request.PostUpdateRequest;
 import com.prgrms.coretime.user.domain.User;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -72,10 +71,45 @@ public class Post extends BaseEntity {
       Board board,
       User user
   ) {
-    this.title = title;
-    this.content = content;
+    setTitle(title);
+    setContent(content);
     this.isAnonymous = isAnonymous;
+    setBoard(board);
+    setUser(user);
+  }
+
+  private void setTitle(String title) {
+    if (Objects.isNull(title)) {
+      throw new IllegalArgumentException("Post의 title은 null일 수 없습니다.");
+    }else if (title.isBlank()) {
+      throw new IllegalArgumentException("Post의 title은 빈 문자열일 수 없습니다.");
+    }else if (title.length() > 50) {
+      throw new IllegalArgumentException("Post의 title은 50글자를 넘을 수 없습니다.");
+    }
+    this.title = title;
+  }
+
+  private void setContent(String content) {
+    if (Objects.isNull(content)) {
+      this.content = "";
+      return;
+    }else if (content.length() > 65535) {
+      throw new IllegalArgumentException("Post의 content은 65535글자를 넘을 수 없습니다.");
+    }
+    this.content = content;
+  }
+
+  private void setBoard(Board board) {
+    if (Objects.isNull(board)) {
+      throw new IllegalArgumentException("Post의 Board는 null일 수 없습니다.");
+    }
     this.board = board;
+  }
+
+  private void setUser(User user) {
+    if (Objects.isNull(user)) {
+      throw new IllegalArgumentException("Post의 User는 null일 수 없습니다.");
+    }
     this.user = user;
   }
 
@@ -97,8 +131,8 @@ public class Post extends BaseEntity {
   }
 
   public void updatePost(PostUpdateRequest request) {
-    this.title = request.getTitle();
-    this.content = request.getContent();
+    setTitle(request.getTitle());
+    setContent(request.getContent());
   }
 
   public Integer getAnonymousSeqAndAdd() {

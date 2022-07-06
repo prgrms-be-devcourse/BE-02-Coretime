@@ -135,15 +135,15 @@ class PostControllerTest {
   @DisplayName("게시글 생성 api 테스트")
   public void testCreatePost() throws Exception {
     //Given
-    List<MultipartFile> photos = List.of(
+    List<MockMultipartFile> photos = List.of(
         new MockMultipartFile("test1", "test1.PNG", MediaType.IMAGE_PNG_VALUE, "test1".getBytes()),
         new MockMultipartFile("test2", "test2.PNG", MediaType.IMAGE_PNG_VALUE, "test2".getBytes())
     );
 
     //When //Then
     mockMvc.perform(multipart("/api/v1/boards/{boardId}/posts", board.getId())
-            .file("photos", photos.get(0).getBytes())
-            .file("photos", photos.get(1).getBytes())
+//            .file("photos", photos.get(0).getBytes())
+//            .file("photos", photos.get(1).getBytes())
             .param("title", "제목")
             .param("content", "내용")
             .param("isAnonymous", "true")
