@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -50,6 +52,10 @@ public class MessageRoom extends BaseEntity {
   @Column(name = "is_blocked", nullable = false)
   private Boolean isBlocked;
 
+  @Column(name = "visible_to", nullable = false)
+  @Enumerated(EnumType.STRING)
+  private VisibilityState visibilityTo;
+
   @OneToMany(mappedBy = "messageRoom")
   private List<Message> messages = new ArrayList<>();
 
@@ -65,6 +71,7 @@ public class MessageRoom extends BaseEntity {
     this.createdFrom = createdFrom;
     this.isAnonymous = isAnonymous;
     this.isBlocked = false;
+    this.visibilityTo = VisibilityState.BOTH;
   }
 
 }
