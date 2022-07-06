@@ -1,14 +1,11 @@
 package com.prgrms.coretime.common.error;
 
-
 import com.prgrms.coretime.common.error.exception.AuthErrorException;
 import com.prgrms.coretime.common.error.exception.DuplicateRequestException;
 import com.prgrms.coretime.common.error.exception.AlreadyExistsException;
 import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.ErrorResponse;
 import com.prgrms.coretime.common.error.exception.CannotSendMessageException;
-import com.prgrms.coretime.common.error.exception.DuplicateFriendRequestException;
-import com.prgrms.coretime.common.error.exception.FriendAlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.InvalidRequestException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
 import com.prgrms.coretime.common.error.exception.PermissionDeniedException;
@@ -142,6 +139,7 @@ public class GlobalExceptionHandler {
     ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
+
   @ExceptionHandler(PermissionDeniedException.class)
   public ResponseEntity<ErrorResponse> handlePermissionDeniedException(
       PermissionDeniedException e) {

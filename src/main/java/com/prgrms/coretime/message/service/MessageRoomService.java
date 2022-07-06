@@ -16,7 +16,7 @@ import com.prgrms.coretime.message.dto.response.MessageRoomIdResponse;
 import com.prgrms.coretime.message.dto.response.MessageRoomListResponse;
 import com.prgrms.coretime.message.dto.response.MessageRoomResponse;
 import com.prgrms.coretime.post.domain.Post;
-import com.prgrms.coretime.post.domain.PostRepository;
+import com.prgrms.coretime.post.domain.repository.PostRepository;
 import com.prgrms.coretime.user.domain.TestUser;
 import com.prgrms.coretime.user.domain.TestUserRepository;
 import java.util.Optional;

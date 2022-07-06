@@ -71,7 +71,7 @@ public enum ErrorCode {
    **/
   COMMENT_NOT_FOUND(400, "COM001", "해당 Comment를 찾을 수 없습니다."),
   COMMENT_LIKE_ALREADY_EXISTS(400, "COM002", "해당 댓글에 이미 좋아요가 존재합니다."),
-  COMMENT_LIKE_NOT_FOUND(400, "COM003", "해당 댓글에 좋아요가 존재하지 않습니다.");
+  COMMENT_LIKE_NOT_FOUND(400, "COM003", "해당 댓글에 좋아요가 존재하지 않습니다."),
   
   /**
    * Message Domain
