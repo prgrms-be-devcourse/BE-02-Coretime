@@ -1,5 +1,6 @@
 package com.prgrms.coretime.comment.dto.request;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +16,7 @@ public class CommentCreateRequest {
   @NotNull(message = "댓글 익명 여부는 필수 입니다.")
   private Boolean isCommentAnonymous;
 
-  @NotNull(message = "댓글 내용은 필수 입니다.")
+  @NotBlank(message = "댓글 내용은 필수 입니다.")
   private String content;
 
   @Builder

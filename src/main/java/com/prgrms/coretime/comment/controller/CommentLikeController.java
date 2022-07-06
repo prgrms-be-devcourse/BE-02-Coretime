@@ -37,8 +37,7 @@ public class CommentLikeController {
       @AuthenticationPrincipal JwtPrincipal principal, @PathVariable Long commentId)
       throws URISyntaxException {
     commentLikeService.deleteLike(principal.userId, commentId);
-    URI location = new URI("/api/v1/comments");
-    return ResponseEntity.created(location).body(new ApiResponse<>("댓글 삭제 생성"));
+    return ResponseEntity.ok(new ApiResponse<>("댓글 삭제 생성"));
   }
 
 }

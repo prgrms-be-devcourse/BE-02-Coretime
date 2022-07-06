@@ -37,11 +37,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 
 @DataJpaTest
-@Rollback(false) // query 확인하기 위해서 추후 지우겠습니당.
 @ActiveProfiles("test")
 @Import(TestConfig.class)
 @TestInstance(Lifecycle.PER_CLASS)
