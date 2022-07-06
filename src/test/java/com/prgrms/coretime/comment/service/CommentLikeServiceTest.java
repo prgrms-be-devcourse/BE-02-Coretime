@@ -14,7 +14,6 @@ import com.prgrms.coretime.comment.domain.repository.CommentRepository;
 import com.prgrms.coretime.post.domain.Board;
 import com.prgrms.coretime.post.domain.BoardType;
 import com.prgrms.coretime.post.domain.Post;
-import com.prgrms.coretime.post.domain.repository.PostRepository;
 import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
@@ -32,10 +31,7 @@ class CommentLikeServiceTest {
 
   @Mock
   private UserRepository userRepository;
-
-  @Mock
-  private PostRepository postRepository;
-
+  
   @Mock
   private CommentRepository commentRepository;
 
