@@ -1,5 +1,6 @@
 package com.prgrms.coretime.message.domain;
 
+import com.prgrms.coretime.message.dto.MessageRoomsWithLastMessages;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,4 +45,28 @@ public interface MessageRoomRepository extends JpaRepository<MessageRoom, Long> 
       countQuery = "select count(m) from Message m where m.id=:id")
   Page<Message> findMessagesByMessageRoomId(@Param("id") Long messageRoomId, Pageable pageable);
 
+    @Query(
+      value =
+          "select mr.message_room_id as messageRoomId, mr.is_anonymous as isAnonymous, mr.initial_receiver_id as initialReceiverId, mr.initial_sender_id as initialSenderId, m1.created_at as createdAt, m1.content as content "
+              + "from message_room as mr "
+              + "inner join message as m1 on mr.message_room_id=m1.message_room_id "
+              + "inner join (select max(created_at) as max_created_at, message_room_id "
+              + "from message "
+              + "group by message_room_id) as m2 on m1.created_at=m2.max_created_at "
+              + "where (initial_receiver_id=:id or initial_sender_id=:id) "
+              + "and (visible_to='BOTH' "
+              + "or (visible_to='ONLY_INITIAL_RECEIVER' and initial_receiver_id=:id) "
+              + "or (visible_to='ONLY_INITIAL_SENDER' and initial_sender_id =:id))",
+      nativeQuery = true,
+      countQuery = "select count(*) "
+          + "from message_room as mr "
+          + "inner join message as m1 on mr.message_room_id=m1.message_room_id "
+          + "inner join (select max(created_at) as max_created_at, message_room_id "
+          + "from message "
+          + "group by message_room_id) as m2 on m1.created_at=m2.max_created_at "
+          + "where (initial_receiver_id=:id or initial_sender_id=:id) "
+          + "and (visible_to='BOTH' "
+          + "or (visible_to='ONLY_INITIAL_RECEIVER' and initial_receiver_id=:id) "
+          + "or (visible_to='ONLY_INITIAL_SENDER' and initial_sender_id =:id))")
+  Page<MessageRoomsWithLastMessages> findMessageRoomsAndLastMessagesByUserId(@Param("id") Long userId, Pageable pageable);
 }

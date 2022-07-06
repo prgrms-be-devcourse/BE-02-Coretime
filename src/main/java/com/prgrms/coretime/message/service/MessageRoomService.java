@@ -3,13 +3,17 @@ package com.prgrms.coretime.message.service;
 import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.error.exception.InvalidRequestException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
+import com.prgrms.coretime.common.error.exception.PermissionDeniedException;
 import com.prgrms.coretime.message.domain.Message;
 import com.prgrms.coretime.message.domain.MessageRepository;
 import com.prgrms.coretime.message.domain.MessageRoom;
 import com.prgrms.coretime.message.domain.MessageRoomRepository;
+import com.prgrms.coretime.message.domain.VisibilityState;
+import com.prgrms.coretime.message.dto.MessageRoomsWithLastMessages;
 import com.prgrms.coretime.message.dto.request.MessageRoomCreateRequest;
 import com.prgrms.coretime.message.dto.request.MessageRoomGetRequest;
 import com.prgrms.coretime.message.dto.response.MessageRoomIdResponse;
+import com.prgrms.coretime.message.dto.response.MessageRoomListResponse;
 import com.prgrms.coretime.message.dto.response.MessageRoomResponse;
 import com.prgrms.coretime.post.domain.Post;
 import com.prgrms.coretime.post.domain.PostRepository;
@@ -101,6 +105,35 @@ public class MessageRoomService {
         .messageRoom(messageRoom)
         .interlocutor(interlocutor)
         .build();
+  }
+
+  /**
+   * 쪽지방 리스트 조회
+   */
+  @Transactional(readOnly = true)
+  public Page<MessageRoomListResponse> getMessageRooms(Long userId, Pageable pageable) {
+    TestUser currentUser = testUserRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+
+    Page<MessageRoomsWithLastMessages> messageRooms = messageRoomRepository.findMessageRoomsAndLastMessagesByUserId(
+        currentUser.getId(), pageable);
+
+    Page<MessageRoomListResponse> responses = messageRooms.map(messageRoom -> {
+      Long interlocutorId = userId == messageRoom.getInitialReceiverId().longValue() ?
+          messageRoom.getInitialSenderId().longValue()
+          : messageRoom.getInitialReceiverId().longValue();
+      TestUser interlocutor = testUserRepository.findById(interlocutorId)
+          .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+      return MessageRoomListResponse.builder()
+          .messageRoomId(messageRoom.getMessageRoomId().longValue())
+          .isAnonymous(messageRoom.getIsAnonymous())
+          .interlocutorNickname(interlocutor.getNickname())
+          .lastMessageSentTime(messageRoom.getCreatedAt().toLocalDateTime())
+          .lastMessageContent(messageRoom.getContent())
+          .build();
+    });
+
+    return responses;
   }
 
 }

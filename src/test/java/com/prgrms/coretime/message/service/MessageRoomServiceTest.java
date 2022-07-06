@@ -12,6 +12,7 @@ import com.prgrms.coretime.message.domain.MessageRepository;
 import com.prgrms.coretime.message.domain.MessageRoom;
 import com.prgrms.coretime.message.domain.MessageRoomRepository;
 import com.prgrms.coretime.message.domain.VisibilityState;
+import com.prgrms.coretime.message.dto.MessageRoomsWithLastMessages;
 import com.prgrms.coretime.message.dto.request.MessageRoomCreateRequest;
 import com.prgrms.coretime.message.dto.request.MessageRoomGetRequest;
 import com.prgrms.coretime.post.domain.Board;
@@ -27,6 +28,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @ExtendWith(MockitoExtension.class)
 class MessageRoomServiceTest {
@@ -107,6 +111,20 @@ class MessageRoomServiceTest {
 
     verify(messageRoomRepository).findById(anyLong());
     verify(messageRoomRepository).findMessagesByMessageRoomId(any(), any());
+  }
+
+  @Test
+  @DisplayName("쪽지방 리스트 조회하기: 성공")
+  void getMessageRoomsSuccessTest() {
+    doReturn(Optional.of(user1)).when(testUserRepository).findById(anyLong());
+    Page<MessageRoomsWithLastMessages> messageRooms = Page.empty();
+    doReturn(messageRooms).when(messageRoomRepository)
+        .findMessageRoomsAndLastMessagesByUserId(any(), any());
+
+    Pageable pageable = PageRequest.of(0, 20, Sort.by("createdAt").descending());
+    messageRoomService.getMessageRooms(1L, pageable);
+
+    verify(messageRoomRepository).findMessageRoomsAndLastMessagesByUserId(anyLong(), any());
   }
 
 }

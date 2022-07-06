@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 
+import com.prgrms.coretime.message.dto.MessageRoomsWithLastMessages;
 import com.prgrms.coretime.post.domain.Board;
 import com.prgrms.coretime.post.domain.BoardRepository;
 import com.prgrms.coretime.post.domain.BoardType;
@@ -19,6 +20,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @DataJpaTest
 class MessageRoomRepositoryTest {
@@ -151,4 +156,68 @@ class MessageRoomRepositoryTest {
     assertThat(result2, is(false));
   }
 
+  @Test
+  @DisplayName("MessageRoomId로 해당하는 Message를 다건 조회(pagination)")
+  void findMessagesByMessageRoomIdTest() {
+    MessageRoom savedMessageRoom = messageRoomRepository.save(messageRoom);
+    int messageSize = 50;
+    Message[] messages = new Message[messageSize];
+    for (int i = 0; i < messageSize; i++) {
+      messages[i] = messageRepository.save(Message.builder()
+          .messageRoom(messageRoom)
+          .writer(user1)
+          .content(new StringBuilder().append("content ").append(i).toString())
+          .build()
+      );
+    }
+    Pageable pageable = PageRequest.of(2, 20, Sort.by("createdAt").descending());
+
+    Page<Message> messagePage = messageRoomRepository.findMessagesByMessageRoomId(
+        savedMessageRoom.getId(), pageable);
+
+    assertThat(messagePage.getNumberOfElements(), is(10));
+    assertThat(messagePage.getTotalPages(), is(3));
+    assertThat(messagePage.getContent().get(0), samePropertyValuesAs(messages[9]));
+  }
+
+  @Test
+  @DisplayName("userId로 해당하는 MessageRoom과 각 MessageRoom의 마지막 쪽지 다건 조회(pagination)")
+  void findMessageRoomsAndLastMessagesByUserIdTest() {
+    MessageRoom messageRoom2 = MessageRoom.builder()
+        .initialSender(user1)
+        .initialReceiver(user3)
+        .createdFrom(postCreatedAnonymousWriter)
+        .isAnonymous(false)
+        .build();
+    MessageRoom savedMessageRoom1 = messageRoomRepository.save(messageRoom);
+    MessageRoom savedMessageRoom2 = messageRoomRepository.save(messageRoom2);
+
+    int messageSize = 20;
+    Message[] messages1 = new Message[messageSize];
+    for (int i = 0; i < messageSize; i++) {
+      messages1[i] = messageRepository.save(Message.builder()
+          .messageRoom(savedMessageRoom1)
+          .writer(user1)
+          .content(new StringBuilder().append("content ").append(i).toString())
+          .build()
+      );
+    }
+    Message[] messages2 = new Message[messageSize];
+    for (int i = 0; i < messageSize; i++) {
+      messages2[i] = messageRepository.save(Message.builder()
+          .messageRoom(savedMessageRoom2)
+          .writer(user3)
+          .content(new StringBuilder().append("content ").append(i).toString())
+          .build()
+      );
+    }
+
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("updated_at").descending());
+
+    Page<MessageRoomsWithLastMessages> messagePage = messageRoomRepository.findMessageRoomsAndLastMessagesByUserId(
+        user1.getId(), pageable);
+
+    assertThat(messagePage.getNumberOfElements(), is(2));
+    assertThat(messagePage.getContent().get(0).getMessageRoomId().intValue(), is(savedMessageRoom2.getId().intValue()));
+  }
 }

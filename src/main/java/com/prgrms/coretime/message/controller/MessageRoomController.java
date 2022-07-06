@@ -4,6 +4,7 @@ import com.prgrms.coretime.common.ApiResponse;
 import com.prgrms.coretime.message.dto.request.MessageRoomCreateRequest;
 import com.prgrms.coretime.message.dto.request.MessageRoomGetRequest;
 import com.prgrms.coretime.message.dto.response.MessageRoomIdResponse;
+import com.prgrms.coretime.message.dto.response.MessageRoomListResponse;
 import com.prgrms.coretime.message.dto.response.MessageRoomResponse;
 import com.prgrms.coretime.message.service.MessageRoomService;
 import io.swagger.annotations.ApiOperation;
@@ -12,6 +13,10 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -74,6 +79,15 @@ public class MessageRoomController {
     MessageRoomGetRequest request = new MessageRoomGetRequest(messageRoomId);
     MessageRoomResponse response = messageRoomService.getMessageRoom(userId, request);
     return ResponseEntity.ok().body(new ApiResponse<>("쪽지방 조회가 완료되었습니다.", response));
+  }
+
+  @ApiOperation(value = "쪽지방 리스트 조회하기", notes = "쪽지방 리스트를 조회하는 요청입니다.")
+  @GetMapping
+  public ResponseEntity<ApiResponse> getMessageRooms(@RequestParam final Long userId,
+      @PageableDefault(size = 20, sort = "updated_at", direction = Sort.Direction.DESC) final Pageable pageable) {
+
+    Page<MessageRoomListResponse> response = messageRoomService.getMessageRooms(userId, pageable);
+    return ResponseEntity.ok().body(new ApiResponse<>("쪽지방 리스트 조회가 완료되었습니다.", response));
   }
 
 }
