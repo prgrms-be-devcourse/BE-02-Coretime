@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,11 +36,12 @@ public class CommentController {
   public ResponseEntity<ApiResponse<CommentCreateResponse>> createComment(
       @AuthenticationPrincipal JwtPrincipal principal,
       @PathVariable Long postId,
+      @Validated
       @RequestBody CommentCreateRequest commentCreateRequest) throws URISyntaxException {
 
     CommentCreateResponse response = commentService.createComment(principal.userId,
         commentCreateRequest);
-    URI location = new URI("/api/v1/posts/{postId}" + commentCreateRequest.getPostId());
+    URI location = new URI("/api/v1/posts/" + commentCreateRequest.getPostId());
     return ResponseEntity.created(location).body(new ApiResponse("댓글 생성 성공", response));
   }
 
