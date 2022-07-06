@@ -2,7 +2,7 @@ package com.prgrms.coretime.message.domain;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
 import com.prgrms.coretime.post.domain.Post;
-import com.prgrms.coretime.user.domain.TestUser;
+import com.prgrms.coretime.user.domain.User;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
@@ -36,11 +36,11 @@ public class MessageRoom extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "initial_sender_id", referencedColumnName = "user_id")
-  private TestUser initialSender;
+  private User initialSender;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "initial_receiver_id", referencedColumnName = "user_id")
-  private TestUser initialReceiver;
+  private User initialReceiver;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_from", referencedColumnName = "post_id")
@@ -60,7 +60,7 @@ public class MessageRoom extends BaseEntity {
   private List<Message> messages = new ArrayList<>();
 
   @Builder
-  public MessageRoom(TestUser initialSender, TestUser initialReceiver, Post createdFrom, Boolean isAnonymous) {
+  public MessageRoom(User initialSender, User initialReceiver, Post createdFrom, Boolean isAnonymous) {
     Assert.notNull(initialSender, "initialSender는 null이 아니어야 합니다.");
     Assert.notNull(initialReceiver, "initialReceiver는 null이 아니어야 합니다.");
     Assert.notNull(createdFrom, "createdFrom은 null이 아니어야 합니다.");

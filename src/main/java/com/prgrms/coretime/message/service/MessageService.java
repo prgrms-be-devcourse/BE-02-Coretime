@@ -11,8 +11,8 @@ import com.prgrms.coretime.message.domain.MessageRoomRepository;
 import com.prgrms.coretime.message.domain.VisibilityState;
 import com.prgrms.coretime.message.dto.request.MessageSendRequest;
 import com.prgrms.coretime.message.dto.response.MessageResponse;
-import com.prgrms.coretime.user.domain.TestUser;
-import com.prgrms.coretime.user.domain.TestUserRepository;
+import com.prgrms.coretime.user.domain.User;
+import com.prgrms.coretime.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,14 +25,14 @@ public class MessageService {
 
   private final MessageRepository messageRepository;
   private final MessageRoomRepository messageRoomRepository;
-  private final TestUserRepository testUserRepository;
+  private final UserRepository userRepository;
 
   /**
    * 쪽지 전송
    */
   @Transactional
   public void sendMessage(Long userId, Long messageRoomId, MessageSendRequest request) {
-    TestUser currentUser = testUserRepository.findById(userId)
+    User currentUser = userRepository.findById(userId)
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
     MessageRoom messageRoom = messageRoomRepository.findById(messageRoomId)
         .orElseThrow(() -> new NotFoundException(ErrorCode.MESSAGE_ROOM_NOT_FOUND));
@@ -52,7 +52,7 @@ public class MessageService {
    */
   @Transactional(readOnly = true)
   public Page<MessageResponse> getAllMessages(Long userId, Long messageRoomId, Pageable pageable) {
-    TestUser currentUser = testUserRepository.findById(userId)
+    User currentUser = userRepository.findById(userId)
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
     MessageRoom messageRoom = messageRoomRepository.findById(messageRoomId)
         .orElseThrow(() -> new NotFoundException(ErrorCode.MESSAGE_ROOM_NOT_FOUND));
@@ -60,7 +60,7 @@ public class MessageService {
 
     Page<Message> messages = messageRoomRepository.findMessagesByMessageRoomId(
         messageRoomId, pageable);
-    TestUser interlocutor = currentUser.getId() == messageRoom.getInitialSender().getId()
+    User interlocutor = currentUser.getId() == messageRoom.getInitialSender().getId()
         ? messageRoom.getInitialReceiver() : messageRoom.getInitialSender();
     return messages.map(message -> new MessageResponse(message, interlocutor));
   }
@@ -68,7 +68,7 @@ public class MessageService {
   /**
    * 쪽지 전송 권한 확인
    */
-  private void checkUserAuthority(TestUser user, MessageRoom messageRoom) {
+  private void checkUserAuthority(User user, MessageRoom messageRoom) {
     if (!(messageRoom.getInitialSender().getId() == user.getId()) &&
         !(messageRoom.getInitialReceiver().getId() == user.getId())) {
       throw new PermissionDeniedException(ErrorCode.NO_PERMISSION_TO_SEND_MESSAGE);

@@ -1,9 +1,7 @@
 package com.prgrms.coretime.message.domain;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
-import com.prgrms.coretime.user.domain.TestUser;
 import com.prgrms.coretime.user.domain.User;
-import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -36,13 +34,13 @@ public class Message extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "writer_id", referencedColumnName = "user_id")
-  private TestUser writer;
+  private User writer;
 
   @Column(name = "content", nullable = false, length = 300)
   private String content;
 
   @Builder
-  public Message(MessageRoom messageRoom, TestUser writer, String content) {
+  public Message(MessageRoom messageRoom, User writer, String content) {
     Assert.notNull(messageRoom, "messageRoom은 null이 아니여야 합니다.");
     Assert.notNull(writer, "writer는 null이 아니여야 합니다.");
     validateContent(content);

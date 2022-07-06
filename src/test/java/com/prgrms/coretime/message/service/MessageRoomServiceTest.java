@@ -17,9 +17,9 @@ import com.prgrms.coretime.message.dto.request.MessageRoomCreateRequest;
 import com.prgrms.coretime.message.dto.request.MessageRoomGetRequest;
 import com.prgrms.coretime.post.domain.Board;
 import com.prgrms.coretime.post.domain.Post;
-import com.prgrms.coretime.post.domain.PostRepository;
-import com.prgrms.coretime.user.domain.TestUser;
-import com.prgrms.coretime.user.domain.TestUserRepository;
+import com.prgrms.coretime.post.domain.repository.PostRepository;
+import com.prgrms.coretime.user.domain.User;
+import com.prgrms.coretime.user.domain.repository.UserRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,13 +45,13 @@ class MessageRoomServiceTest {
   private MessageRepository messageRepository;
 
   @Mock
-  private TestUserRepository testUserRepository;
+  private UserRepository userRepository;
 
   @Mock
   private PostRepository postRepository;
 
-  private TestUser user1 = mock(TestUser.class);
-  private TestUser user2 = mock(TestUser.class);
+  private User user1 = mock(User.class);
+  private User user2 = mock(User.class);
 
   private Post post = mock(Post.class);
 
@@ -69,7 +69,7 @@ class MessageRoomServiceTest {
     MessageRoomCreateRequest request = new MessageRoomCreateRequest(100L, 1L, true,
         "first message");
 
-    doReturn(Optional.of(user1), Optional.of(user2)).when(testUserRepository).findById(anyLong());
+    doReturn(Optional.of(user1), Optional.of(user2)).when(userRepository).findById(anyLong());
     doReturn(Optional.of(post)).when(postRepository).findById(anyLong());
     doReturn(messageRoom).when(messageRoomRepository).save(any());
     doReturn(message).when(messageRepository).save(any());
@@ -82,7 +82,7 @@ class MessageRoomServiceTest {
   @Test
   @DisplayName("쪽지방 id 조회하기: 성공")
   void getMessageRoomIdSuccessTest() {
-    doReturn(Optional.of(user1)).doReturn(Optional.of(user2)).when(testUserRepository)
+    doReturn(Optional.of(user1)).doReturn(Optional.of(user2)).when(userRepository)
         .findById(anyLong());
     doReturn(Optional.of(post)).when(postRepository).findById(anyLong());
 
@@ -96,7 +96,7 @@ class MessageRoomServiceTest {
   @DisplayName("쪽지방 조회하기: 성공")
   void getMessageRoomSuccessTest() {
     MessageRoomGetRequest request = new MessageRoomGetRequest(1L);
-    doReturn(Optional.of(user1)).when(testUserRepository).findById(anyLong());
+    doReturn(Optional.of(user1)).when(userRepository).findById(anyLong());
     doReturn(Optional.of(messageRoom)).when(messageRoomRepository).findById(anyLong());
     when(messageRoom.getVisibilityTo()).thenReturn(VisibilityState.BOTH);
     when(user1.getId()).thenReturn(1L);
@@ -116,7 +116,7 @@ class MessageRoomServiceTest {
   @Test
   @DisplayName("쪽지방 리스트 조회하기: 성공")
   void getMessageRoomsSuccessTest() {
-    doReturn(Optional.of(user1)).when(testUserRepository).findById(anyLong());
+    doReturn(Optional.of(user1)).when(userRepository).findById(anyLong());
     Page<MessageRoomsWithLastMessages> messageRooms = Page.empty();
     doReturn(messageRooms).when(messageRoomRepository)
         .findMessageRoomsAndLastMessagesByUserId(any(), any());
@@ -130,7 +130,7 @@ class MessageRoomServiceTest {
   @Test
   @DisplayName("쪽지방 차단하기: 성공")
   void blockMessageRoomSuccessTest() {
-    doReturn(Optional.of(user1)).when(testUserRepository).findById(anyLong());
+    doReturn(Optional.of(user1)).when(userRepository).findById(anyLong());
     doReturn(Optional.of(messageRoom)).when(messageRoomRepository).findById(anyLong());
     when(messageRoom.getInitialReceiver()).thenReturn(user1);
     when(messageRoom.getInitialSender()).thenReturn(user2);
@@ -143,7 +143,7 @@ class MessageRoomServiceTest {
   @Test
   @DisplayName("쪽지방 삭제하기: 성공")
   void deleteMessageRoomSuccessTest() {
-    doReturn(Optional.of(user1)).when(testUserRepository).findById(anyLong());
+    doReturn(Optional.of(user1)).when(userRepository).findById(anyLong());
     doReturn(Optional.of(messageRoom)).when(messageRoomRepository).findById(anyLong());
     when(messageRoom.getInitialReceiver()).thenReturn(user1);
     when(messageRoom.getInitialSender()).thenReturn(user2);

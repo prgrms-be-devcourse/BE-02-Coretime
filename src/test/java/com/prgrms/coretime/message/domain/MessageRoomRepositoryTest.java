@@ -6,14 +6,15 @@ import static org.hamcrest.Matchers.samePropertyValuesAs;
 
 import com.prgrms.coretime.message.dto.MessageRoomsWithLastMessages;
 import com.prgrms.coretime.post.domain.Board;
-import com.prgrms.coretime.post.domain.BoardRepository;
 import com.prgrms.coretime.post.domain.BoardType;
 import com.prgrms.coretime.post.domain.Post;
-import com.prgrms.coretime.post.domain.PostRepository;
+import com.prgrms.coretime.post.domain.repository.BoardRepository;
+import com.prgrms.coretime.post.domain.repository.PostRepository;
 import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.school.domain.respository.SchoolRepository;
-import com.prgrms.coretime.user.domain.TestUser;
-import com.prgrms.coretime.user.domain.TestUserRepository;
+import com.prgrms.coretime.user.domain.LocalUser;
+import com.prgrms.coretime.user.domain.User;
+import com.prgrms.coretime.user.domain.repository.UserRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,7 +33,7 @@ class MessageRoomRepositoryTest {
   private MessageRoomRepository messageRoomRepository;
 
   @Autowired
-  private TestUserRepository testUserRepository;
+  private UserRepository userRepository;
 
   @Autowired
   private SchoolRepository schoolRepository;
@@ -46,11 +47,34 @@ class MessageRoomRepositoryTest {
   @Autowired
   private MessageRepository messageRepository;
 
-  private TestUser user1 = new TestUser("1111");
-  private TestUser user2 = new TestUser("2222");
-  private TestUser user3 = new TestUser("3333");
+  private School school = new School("schoolName", "school1@example.com");
 
-  private School school = new School("school1", "school1@example.com");
+  private User user1 = LocalUser.builder()
+      .nickname("userOne")
+      .profileImage("profileImage1")
+      .email("example1@example.co.kr")
+      .name("userOne")
+      .school(school)
+      .password("pw123$%^")
+      .build();
+
+  private User user2 = LocalUser.builder()
+      .nickname("userTwo")
+      .profileImage("profileImage2")
+      .email("example2@example.co.kr")
+      .name("userTwo")
+      .school(school)
+      .password("pw123$%^")
+      .build();
+
+  private User user3 = LocalUser.builder()
+      .nickname("userThree")
+      .profileImage("profileImage3")
+      .email("example3@example.co.kr")
+      .name("userThree")
+      .school(school)
+      .password("pw123$%^")
+      .build();
 
   private Board board = Board.builder()
       .name("testBoard")
@@ -83,9 +107,9 @@ class MessageRoomRepositoryTest {
 
   @BeforeEach
   void setUp() {
-    testUserRepository.save(user1);
-    testUserRepository.save(user2);
-    testUserRepository.save(user3);
+    userRepository.save(user1);
+    userRepository.save(user2);
+    userRepository.save(user3);
 
     schoolRepository.save(school);
 

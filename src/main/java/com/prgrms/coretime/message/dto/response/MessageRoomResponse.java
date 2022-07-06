@@ -2,7 +2,7 @@ package com.prgrms.coretime.message.dto.response;
 
 import com.prgrms.coretime.message.domain.Message;
 import com.prgrms.coretime.message.domain.MessageRoom;
-import com.prgrms.coretime.user.domain.TestUser;
+import com.prgrms.coretime.user.domain.User;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
@@ -17,7 +17,7 @@ public class MessageRoomResponse {
   private final Page<MessageResponse> messages;
 
   @Builder
-  public MessageRoomResponse(MessageRoom messageRoom, Page<Message> messages, TestUser interlocutor) {
+  public MessageRoomResponse(MessageRoom messageRoom, Page<Message> messages, User interlocutor) {
     this.boardName = messageRoom.getCreatedFrom().getBoard().getName();
     this.postTitle = messageRoom.getCreatedFrom().getTitle();
     this.isBlocked = messageRoom.getIsBlocked();

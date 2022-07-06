@@ -12,8 +12,8 @@ import com.prgrms.coretime.message.domain.MessageRoom;
 import com.prgrms.coretime.message.domain.MessageRoomRepository;
 import com.prgrms.coretime.message.domain.VisibilityState;
 import com.prgrms.coretime.message.dto.request.MessageSendRequest;
-import com.prgrms.coretime.user.domain.TestUser;
-import com.prgrms.coretime.user.domain.TestUserRepository;
+import com.prgrms.coretime.user.domain.User;
+import com.prgrms.coretime.user.domain.repository.UserRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,10 +39,10 @@ class MessageServiceTest {
   private MessageRoomRepository messageRoomRepository;
 
   @Mock
-  private TestUserRepository testUserRepository;
+  private UserRepository userRepository;
 
-  private TestUser user1 = mock(TestUser.class);
-  private TestUser user2 = mock(TestUser.class);
+  private User user1 = mock(User.class);
+  private User user2 = mock(User.class);
 
   private MessageRoom messageRoom = mock(MessageRoom.class);
 
@@ -52,7 +52,7 @@ class MessageServiceTest {
   @DisplayName("쪽지 전송(생성): 성공")
   void sendMessageSuccessTest() {
     MessageSendRequest request = new MessageSendRequest("This is the message.");
-    doReturn(Optional.of(user1)).when(testUserRepository).findById(any());
+    doReturn(Optional.of(user1)).when(userRepository).findById(any());
     doReturn(Optional.of(messageRoom)).when(messageRoomRepository).findById(any());
     when(messageRoom.getInitialReceiver()).thenReturn(user1);
     when(messageRoom.getInitialSender()).thenReturn(user2);
@@ -65,7 +65,7 @@ class MessageServiceTest {
   @Test
   @DisplayName("쪽지 다건 조회: 성공")
   void getAllMessagesTest() {
-    doReturn(Optional.of(user1)).when(testUserRepository).findById(any());
+    doReturn(Optional.of(user1)).when(userRepository).findById(any());
     doReturn(Optional.of(messageRoom)).when(messageRoomRepository).findById(any());
     when(messageRoom.getVisibilityTo()).thenReturn(VisibilityState.BOTH);
     when(messageRoom.getInitialReceiver()).thenReturn(user1);
