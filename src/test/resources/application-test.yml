@@ -23,6 +23,8 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+  main:
+    allow-bean-definition-overriding: true
 jwt:
   header: accessToken
   issuer: victory

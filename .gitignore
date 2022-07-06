@@ -6,6 +6,7 @@ build/
 
 application-dev.yml
 application-test.yml
+application-aws.yml
 data.sql
 import.sql
 

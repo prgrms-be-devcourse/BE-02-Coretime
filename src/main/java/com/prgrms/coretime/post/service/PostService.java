@@ -1,19 +1,29 @@
 package com.prgrms.coretime.post.service;
 
-import com.prgrms.coretime.comment.domain.Comment;
+import com.prgrms.coretime.comment.domain.repository.CommentRepositoryCustom;
+import com.prgrms.coretime.comment.dto.response.CommentOneResponse;
+import com.prgrms.coretime.comment.dto.response.CommentsOnPostResponse;
+import com.prgrms.coretime.common.ErrorCode;
+import com.prgrms.coretime.common.error.exception.AlreadyExistsException;
+import com.prgrms.coretime.common.error.exception.NotFoundException;
+import com.prgrms.coretime.common.util.AmazonS3Uploader;
 import com.prgrms.coretime.post.domain.Board;
-import com.prgrms.coretime.post.domain.BoardRepository;
+import com.prgrms.coretime.post.domain.Photo;
 import com.prgrms.coretime.post.domain.Post;
 import com.prgrms.coretime.post.domain.PostLike;
-import com.prgrms.coretime.post.domain.PostLikeRepository;
-import com.prgrms.coretime.post.domain.PostRepository;
-import com.prgrms.coretime.post.domain.TempUserRepository;
+import com.prgrms.coretime.post.domain.repository.BoardRepository;
+import com.prgrms.coretime.post.domain.repository.PhotoRepository;
+import com.prgrms.coretime.post.domain.repository.PostLikeRepository;
+import com.prgrms.coretime.post.domain.repository.PostRepository;
 import com.prgrms.coretime.post.dto.request.PostCreateRequest;
 import com.prgrms.coretime.post.dto.request.PostUpdateRequest;
 import com.prgrms.coretime.post.dto.response.PostIdResponse;
 import com.prgrms.coretime.post.dto.response.PostResponse;
 import com.prgrms.coretime.post.dto.response.PostSimpleResponse;
 import com.prgrms.coretime.user.domain.User;
+import com.prgrms.coretime.user.domain.repository.UserRepository;
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,29 +32,37 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
-
 @Service
 public class PostService {
 
   private final PostRepository postRepository;
   private final BoardRepository boardRepository;
   private final PostLikeRepository postLikeRepository;
-  private final TempUserRepository userRepository;
+  private final UserRepository userRepository;
+  private final PhotoRepository photoRepository;
+  private final CommentRepositoryCustom commentRepository;
+  private final AmazonS3Uploader amazonS3Uploader;
   private final Integer HOT_COUNT = 10;
   private final Integer BEST_COUNT = 100;
 
   public PostService(PostRepository postRepository, BoardRepository boardRepository,
       PostLikeRepository postLikeRepository,
-      TempUserRepository userRepository) {
+      UserRepository userRepository,
+      PhotoRepository photoRepository,
+      CommentRepositoryCustom commentRepository,
+      AmazonS3Uploader amazonS3Uploader) {
     this.postRepository = postRepository;
     this.boardRepository = boardRepository;
     this.postLikeRepository = postLikeRepository;
     this.userRepository = userRepository;
+    this.photoRepository = photoRepository;
+    this.commentRepository = commentRepository;
+    this.amazonS3Uploader = amazonS3Uploader;
   }
 
   @Transactional(readOnly = true)
   public Page<PostSimpleResponse> getPostsByBoard(Long boardId, Pageable pageable) {
+    findBoard(boardId);
     Page<Post> posts = postRepository.findPostsByBoardId(boardId, pageable);
     return posts.map(PostSimpleResponse::new);
   }
@@ -63,35 +81,48 @@ public class PostService {
 
   @Transactional(readOnly = true)
   public Page<PostSimpleResponse> getPostsByUser(Long userId, Pageable pageable) {
+    findUser(userId);
     Page<Post> posts = postRepository.findPostsByUserId(userId, pageable);
     return posts.map(PostSimpleResponse::new);
   }
 
-    @Transactional(readOnly = true)
-    public Page<PostSimpleResponse> getPostsThatUserCommentedAt(Long userId, Pageable pageable) {
-        Page<Post> posts = postRepository.findPostsThatUserCommentedAt(userId, pageable);
-        return posts.map(PostSimpleResponse::new);
-    }
+  @Transactional(readOnly = true)
+  public Page<PostSimpleResponse> getPostsThatUserCommentedAt(Long userId, Pageable pageable) {
+    List<Long> postIds = postRepository.findPostIdsThatUserCommentedAt(userId);
+    Page<Post> posts = postRepository.findPostsThatUserCommentedAt(postIds, pageable);
+    return posts.map(PostSimpleResponse::new);
+  }
 
   @Transactional(readOnly = true)
   public PostResponse getPost(Long postId) {
     Post post = findPost(postId);
-    PageRequest pageRequest = PageRequest.of(0, 20, Sort.by("created_at"));
-    Page<Comment> comments = postRepository.findCommentsByPost(postId, pageRequest);
-    return new PostResponse(post, comments);
+    PageRequest pageRequest = PageRequest.of(0, 20, Sort.by("createdAt"));
+    Page<CommentsOnPostResponse> comments = commentRepository.findByPost(postId, pageRequest);
+    Optional<CommentOneResponse> bestComment = commentRepository.findBestCommentByPost(postId);
+    return bestComment.map(
+            commentOneResponse -> new PostResponse(post, comments, commentOneResponse))
+        .orElseGet(() -> new PostResponse(post, comments));
   }
 
   @Transactional
   public PostIdResponse createPost(Long boardId, Long userId, PostCreateRequest request) {
     Board board = findBoard(boardId);
     User user = findUser(userId);
-    Post post = Post.builder()
+    Post post = postRepository.save(Post.builder()
         .board(board)
         .user(user)
         .title(request.getTitle())
         .content(request.getContent())
         .isAnonymous(request.getIsAnonymous())
-        .build();
+        .build());
+    request.getPhotos().forEach(photo -> {
+      try {
+        String path = amazonS3Uploader.upload(photo, "photos/" + post.getId());
+        photoRepository.save(new Photo(path, post));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    });
     return new PostIdResponse(postRepository.save(post).getId());
   }
 
@@ -123,19 +154,18 @@ public class PostService {
   public void likePost(Long userId, Long postId) {
     Optional<PostLike> postLike = postLikeRepository.findByUserIdAndPostId(userId, postId);
     if (postLike.isPresent()) {
-      throw new IllegalArgumentException("해당 좋아요가 이미 존재합니다.");
+      throw new AlreadyExistsException(ErrorCode.POST_LIKE_ALREADY_EXISTS);
     }
     Post post = findPost(postId);
     User user = findUser(userId);
     postLikeRepository.save(new PostLike(post, user));
-    post.likePost();
   }
 
   @Transactional
   public void unlikePost(Long userId, Long postId) {
     Optional<PostLike> postLike = postLikeRepository.findByUserIdAndPostId(userId, postId);
     if (postLike.isEmpty()) {
-      throw new IllegalArgumentException("해당 좋아요가 존재하지 않습니다.");
+      throw new NotFoundException(ErrorCode.POST_LIKE_NOT_FOUND);
     }
     Post post = findPost(postId);
     User user = findUser(userId);
@@ -145,25 +175,19 @@ public class PostService {
 
   private Board findBoard(Long boardId) {
     return boardRepository.findById(boardId).orElseThrow(
-        () -> new IllegalArgumentException("해당 ID의 게시판이 존재하지 않습니다.")
+        () -> new NotFoundException(ErrorCode.BOARD_NOT_FOUND)
     );
   }
 
   private Post findPost(Long postId) {
     return postRepository.findPostById(postId).orElseThrow(
-        () -> new IllegalArgumentException("해당 ID의 게시글이 존재하지 않습니다.")
+        () -> new NotFoundException(ErrorCode.POST_NOT_FOUND)
     );
   }
 
   private User findUser(Long userId) {
     return userRepository.findById(userId).orElseThrow(
-        () -> new IllegalArgumentException("해당 ID의 유저가 존재하지 않습니다.")
-    );
-  }
-
-  private PostLike findPostLike(Long postLikeId) {
-    return postLikeRepository.findById(postLikeId).orElseThrow(
-        () -> new IllegalArgumentException("해당 좋아요가 존재하지 않습니다.")
+        () -> new NotFoundException(ErrorCode.USER_NOT_FOUND)
     );
   }
 }

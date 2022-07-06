@@ -17,11 +17,23 @@ spring:
         show_sql: true
         format_sql: true
         default_batch_fetch_size: 1000
+  profiles:
+    include:
+      - "aws"
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+logging:
+  level:
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: error
+
 jwt:
   header: accessToken
+  refresh-header: refreshToken
   issuer: victory
   client-secret: EENY5W0eegTf1naQB2eDeyCLl5kRS2b8xa5c4qLdS0hmVjtbvo8tOyhPMcAmtPuQ
   expiry-seconds: 1800
+  refresh-expiry-seconds: 604800

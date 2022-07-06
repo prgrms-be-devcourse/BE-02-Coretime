@@ -7,10 +7,10 @@ public class LoginResponse {
 
   private final String accessToken;
 
-  private final Boolean isLocal;
+  private final String refreshToken;
 
-  public LoginResponse(String accessToken, Boolean isLocal) {
+  public LoginResponse(String accessToken, String refreshToken) {
     this.accessToken = accessToken;
-    this.isLocal = isLocal;
+    this.refreshToken = refreshToken;
   }
 }

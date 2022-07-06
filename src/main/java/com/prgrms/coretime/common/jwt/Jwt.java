@@ -4,8 +4,9 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.Claim;
-import com.auth0.jwt.interfaces.DecodedJWT;
+import com.prgrms.coretime.common.jwt.claim.AccessClaim;
+import com.prgrms.coretime.common.jwt.claim.Claims;
+import com.prgrms.coretime.common.jwt.claim.RefreshClaim;
 import java.util.Date;
 import lombok.Getter;
 
@@ -46,64 +47,17 @@ public final class Jwt {
     if(expirySeconds > 0) {
       builder.withExpiresAt(new Date(now.getTime() + expirySeconds * 1_000L));
     }
-    builder.withClaim("userId", claims.userId);
-    builder.withClaim("nickname", claims.nickname);
-    builder.withClaim("email", claims.email);
-    builder.withClaim("schoolId", claims.schoolId);
-    builder.withArrayClaim("roles", claims.roles);
+    claims.applyToBuilder(builder);
     return  builder.sign(algorithm);
   }
 
-  public Claims verify(String token) throws JWTVerificationException {
-    return new Claims(jwtVerifier.verify(token));
+  /*TODO: Refactoring*/
+  public AccessClaim verifyAccessToken(String token) throws JWTVerificationException {
+    return new AccessClaim(jwtVerifier.verify(token));
   }
 
-  static public class Claims {
-
-    Long userId;
-    Long schoolId;
-    String nickname;
-    String email;
-    String[] roles;
-    Date iat; // 발행 시각
-    Date exp; // 만료 시각
-
-    private Claims() {/*no-ops*/}
-
-    Claims(DecodedJWT decodedJWT) {
-      Claim userId = decodedJWT.getClaim("userId");
-      if (!userId.isNull()) {
-        this.userId = userId.asLong();
-      }
-      Claim schoolId = decodedJWT.getClaim("schoolId");
-      if (!schoolId.isNull()) {
-        this.schoolId = schoolId.asLong();
-      }
-      Claim nickname = decodedJWT.getClaim("nickname");
-      if (!nickname.isNull()) {
-        this.nickname = nickname.asString();
-      }
-      Claim email = decodedJWT.getClaim("email");
-      if (!email.isNull()) {
-        this.email = email.asString();
-      }
-      Claim roles = decodedJWT.getClaim("roles");
-      if (!roles.isNull()) {
-        this.roles = roles.asArray(String.class);
-      }
-      this.iat = decodedJWT.getIssuedAt();
-      this.exp = decodedJWT.getExpiresAt();
-    }
-
-    public static Claims from(Long userId, Long schoolId, String nickname, String email, String[] roles) {
-      Claims claims = new Claims();
-      claims.userId = userId;
-      claims.schoolId = schoolId;
-      claims.nickname = nickname;
-      claims.email = email;
-      claims.roles = roles;
-      return claims;
-    }
+  public RefreshClaim verifyRefreshToken(String token) throws JWTVerificationException {
+    return new RefreshClaim(jwtVerifier.verify(token));
   }
 
 }

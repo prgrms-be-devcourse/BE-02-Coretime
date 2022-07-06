@@ -3,12 +3,12 @@ package com.prgrms.coretime.common.config;
 import com.prgrms.coretime.common.jwt.Jwt;
 import com.prgrms.coretime.common.jwt.JwtAuthenticationFilter;
 import com.prgrms.coretime.common.jwt.JwtAuthenticationProvider;
+import com.prgrms.coretime.common.util.JwtService;
+import com.prgrms.coretime.common.util.RedisService;
 import com.prgrms.coretime.user.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,8 +33,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     return new Jwt(
         jwtConfig.getIssuer(),
         jwtConfig.getClientSecret(),
-        jwtConfig.getExpirySeconds()
-    );
+        jwtConfig.getExpirySeconds());
   }
 
   @Bean
@@ -43,8 +42,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
-  public JwtAuthenticationProvider jwtAuthenticationProvider(UserService userService, Jwt jwt) {
-    return new JwtAuthenticationProvider(jwt, userService);
+  public JwtAuthenticationProvider jwtAuthenticationProvider(JwtService jwtService, UserService userService) {
+    return new JwtAuthenticationProvider(jwtService, userService);
   }
 
   @Bean
@@ -73,8 +72,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         .authorizeRequests()
         .antMatchers("/swagger*/**").permitAll()
-        .antMatchers("/api/v1/**").permitAll()
+        .antMatchers("/api/v1/users/local/register", "/api/v1/users/local/login").permitAll()
+        .antMatchers("/api/v1/users/oauth/register", "/api/v1/users/oauth/login").permitAll()
+        .antMatchers("/api/v1/**").hasAuthority("USER")
         .and()
         .addFilterAfter(jwtAuthenticationFilter(), SecurityContextPersistenceFilter.class);
   }
+
+  /*TODO: AccessDeniedHandler*/
 }

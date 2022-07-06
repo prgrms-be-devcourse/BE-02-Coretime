@@ -1,14 +1,18 @@
 package com.prgrms.coretime.common.jwt;
 
+import com.prgrms.coretime.common.ErrorCode;
+import com.prgrms.coretime.common.error.exception.AuthErrorException;
+import com.prgrms.coretime.common.jwt.claim.AccessClaim;
+import com.prgrms.coretime.common.jwt.claim.RefreshClaim;
+import com.prgrms.coretime.common.util.JwtService;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.service.UserService;
-import java.util.Arrays;
+import java.time.Duration;
 import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,12 +21,13 @@ import org.springframework.util.Assert;
 
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
-  private final Jwt jwt;
+  private final JwtService jwtService;
 
   private final UserService userService;
 
-  public JwtAuthenticationProvider(Jwt jwt, UserService userService) {
-    this.jwt = jwt;
+  public JwtAuthenticationProvider(
+      JwtService jwtService, UserService userService) {
+    this.jwtService = jwtService;
     this.userService = userService;
   }
 
@@ -43,21 +48,15 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
       User user = userService.login(principal, credentials);
       // TODO : 확장성 고려할 것
       List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("USER"));
-      String token = getToken(user.getId(), user.getSchool().getId(), user.getNickname(), user.getEmail(), authorities);
-      JwtAuthenticationToken authenticated = new JwtAuthenticationToken(new JwtPrincipal(token, user.getNickname(), user.getEmail(), user.getId(), user.getSchool().getId()), null, authorities);
-      authenticated.setDetails(user);
+      String accessToken = jwtService.createAccessToken(user.getId(), user.getSchool().getId(), user.getNickname(), user.getEmail(), authorities);
+      String refreshToken = jwtService.createRefreshToken(user.getEmail());
+      JwtAuthenticationToken authenticated = new JwtAuthenticationToken(new JwtPrincipal(accessToken, user.getNickname(), user.getEmail(), user.getId(), user.getSchool().getId()), null, authorities);
+      authenticated.setDetails(refreshToken);
       return authenticated;
     } catch (IllegalArgumentException e) {
       throw new BadCredentialsException(e.getMessage());
     } catch (DataAccessException e) {
       throw new AuthenticationServiceException(e.getMessage(), e);
     }
-  }
-
-  private String getToken(Long userId, Long schoolId, String nickname, String email, List<GrantedAuthority> authorities) {
-    String[] roles = authorities.stream()
-        .map(GrantedAuthority::getAuthority)
-        .toArray(String[]::new);
-    return jwt.sign(Jwt.Claims.from(userId, schoolId, nickname, email, roles));
   }
 }

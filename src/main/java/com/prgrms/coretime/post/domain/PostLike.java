@@ -1,12 +1,18 @@
 package com.prgrms.coretime.post.domain;
 
 import com.prgrms.coretime.user.domain.User;
+import java.util.Objects;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
+import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JoinColumnOrFormula;
-
-import javax.persistence.*;
 
 @Entity
 @Table(name = "post_like")
@@ -18,7 +24,7 @@ public class PostLike {
   private PostLikeId postLikeId;
 
   @MapsId("postId")
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumnOrFormula(column =
   @JoinColumn(name = "post_id",
       referencedColumnName = "post_id")
@@ -26,7 +32,7 @@ public class PostLike {
   private Post post;
 
   @MapsId("userId")
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumnOrFormula(column =
   @JoinColumn(name = "user_id",
       referencedColumnName = "user_id")
@@ -34,7 +40,23 @@ public class PostLike {
   private User user;
 
   public PostLike(Post post, User user) {
+    setPost(post);
+    setUser(user);
+    this.postLikeId = new PostLikeId(post.getId(), user.getId());
+  }
+
+  private void setPost(Post post) {
+    if (Objects.isNull(post)) {
+      throw new IllegalArgumentException("PostLike의 post는 null일 수 없습니다.");
+    }
     this.post = post;
+    post.likePost();
+  }
+
+  private void setUser(User user) {
+    if (Objects.isNull(user)) {
+      throw new IllegalArgumentException("PostLike의 user는 null일 수 없습니다.");
+    }
     this.user = user;
   }
 }

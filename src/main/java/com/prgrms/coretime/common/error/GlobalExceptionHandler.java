@@ -1,5 +1,9 @@
 package com.prgrms.coretime.common.error;
 
+
+import com.prgrms.coretime.common.error.exception.AuthErrorException;
+import com.prgrms.coretime.common.error.exception.DuplicateRequestException;
+import com.prgrms.coretime.common.error.exception.AlreadyExistsException;
 import com.prgrms.coretime.common.ErrorCode;
 import com.prgrms.coretime.common.ErrorResponse;
 import com.prgrms.coretime.common.error.exception.CannotSendMessageException;
@@ -14,6 +18,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -92,6 +97,13 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
 
+  @ExceptionHandler(MissingServletRequestParameterException.class)
+  public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+    log.warn(e.getMessage(), e);
+    ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.MISSING_REQUEST_PARAMETER);
+    return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+  }
+
   /**
    * TODO - 400: Custom Index
    */
@@ -102,15 +114,16 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
 
-  @ExceptionHandler(FriendAlreadyExistsException.class)
-  public ResponseEntity<ErrorResponse> handleFriendExistsException(FriendAlreadyExistsException e) {
+  @ExceptionHandler(AlreadyExistsException.class)
+  public ResponseEntity<ErrorResponse> handleFriendExistsException(AlreadyExistsException e) {
     log.warn(e.getMessage(), e);
     ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
 
-  @ExceptionHandler(DuplicateFriendRequestException.class)
-  public ResponseEntity<ErrorResponse> handleDuplicateFriendRequestException(DuplicateFriendRequestException e) {
+  @ExceptionHandler(DuplicateRequestException.class)
+  public ResponseEntity<ErrorResponse> handleDuplicateFriendRequestException(
+      DuplicateRequestException e) {
     log.warn(e.getMessage(), e);
     ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
@@ -123,6 +136,12 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
   }
 
+  @ExceptionHandler(AuthErrorException.class)
+  public ResponseEntity<ErrorResponse> handleAuthErrorException(AuthErrorException e) {
+    log.warn(e.getMessage(), e);
+    ErrorResponse errorResponse = ErrorResponse.of(e.getErrorCode());
+    return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+  }
   @ExceptionHandler(PermissionDeniedException.class)
   public ResponseEntity<ErrorResponse> handlePermissionDeniedException(
       PermissionDeniedException e) {
