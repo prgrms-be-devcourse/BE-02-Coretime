@@ -18,47 +18,46 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
 
   @Override
   public Optional<Timetable> getTimetableBySameName(Long userId, String name, Integer year, Semester semester) {
+    BooleanBuilder sameTableCondition = getSameTableCondition(userId, name, year, semester);
+
     return Optional.ofNullable(
         queryFactory
             .selectFrom(timetable)
-            .where(
-                getSameTableCondition(userId, name, year, semester)
-            )
+            .where(sameTableCondition)
             .fetchOne()
     );
   }
 
   @Override
   public Optional<Timetable> getDefaultTimetable(Long userId, Integer year, Semester semester) {
+    BooleanBuilder defaultTimetableCondition = getDefaultTimetableCondition(userId, year, semester);
+
     return Optional.ofNullable(queryFactory
         .selectFrom(timetable)
-        .where(
-            getDefaultTimetableCondition(userId, year, semester)
-        )
+        .where(defaultTimetableCondition)
         .fetchOne()
     );
   }
 
   @Override
   public Optional<Timetable> getTimetableByUserIdAndTimetableId(Long userId, Long timetableId) {
+    BooleanBuilder timetableCondition = getTimetableCondition(userId, timetableId);
+
     return Optional.ofNullable(queryFactory
         .selectFrom(timetable)
-        .where(
-            getTimetableCondition(userId, timetableId)
-        )
+        .where(timetableCondition)
         .fetchOne());
   }
 
   @Override
   public Optional<Timetable> getRecentlyAddedTimetable(Long userId, Integer year,
       Semester semester) {
+    BooleanBuilder idYearSemesterCondition = getIdYearSemesterCondition(userId, year, semester);
 
     return Optional.ofNullable(
         queryFactory
             .selectFrom(timetable)
-            .where(
-                getIdYearSemesterCondition(userId, year, semester)
-            )
+            .where(idYearSemesterCondition)
             .orderBy(timetable.createdAt.desc())
             .limit(1)
             .fetchOne()
@@ -67,33 +66,33 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
 
   @Override
   public List<Timetable> getDefaultTimetables(Long userId) {
+    BooleanBuilder defaultTimetablesCondition = getDefaultTimetablesCondition(userId);
+
     return queryFactory
         .selectFrom(timetable)
-        .where(
-            getDefaultTimetablesCondition(userId)
-        )
+        .where(defaultTimetablesCondition)
         .fetch();
   }
 
   @Override
   public List<Timetable> getTimetables(Long userId, Integer year, Semester semester) {
+    BooleanBuilder idYearSemesterCondition = getIdYearSemesterCondition(userId, year, semester);
+
     return queryFactory
         .selectFrom(timetable)
-        .where(
-            getIdYearSemesterCondition(userId, year, semester)
-        )
+        .where(idYearSemesterCondition)
         .orderBy(timetable.name.asc())
         .fetch();
   }
 
   @Override
   public boolean isFirstTable(Long userId, Integer year, Semester semester) {
+    BooleanBuilder countOfTableCondition = getCountOfTableCondition(userId, year, semester);
+
     long countOfTimetable = queryFactory
         .select(timetable.count())
         .from(timetable)
-        .where(
-            getCountOfTableCondition(userId, year, semester)
-        )
+        .where(countOfTableCondition)
         .fetchOne();
 
     return countOfTimetable == 0 ? true : false;
@@ -103,7 +102,7 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
   public void deleteByTimetableId(Long timetableId) {
     queryFactory
         .delete(timetable)
-        .where(timetable.id.eq(timetableId))
+        .where(timetableIdEq(timetableId))
         .execute();
   }
 
@@ -111,10 +110,10 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
     BooleanBuilder sameNameTableCondition = new BooleanBuilder();
 
     sameNameTableCondition
-        .and(userIdEq(userId))
-        .and(yearEq(year))
-        .and(semesterEq(semester))
-        .and(nameEq(name));
+        .and(timetableUserIdEq(userId))
+        .and(timetableYearEq(year))
+        .and(timetableSemesterEq(semester))
+        .and(timetableNameEq(name));
 
     return sameNameTableCondition;
   }
@@ -123,9 +122,9 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
     BooleanBuilder defaultTableCondition = new BooleanBuilder();
 
     defaultTableCondition
-        .and(userIdEq(userId))
-        .and(yearEq(year))
-        .and(semesterEq(semester))
+        .and(timetableUserIdEq(userId))
+        .and(timetableYearEq(year))
+        .and(timetableSemesterEq(semester))
         .and(timetable.isDefault.eq(true));
 
     return defaultTableCondition;
@@ -135,7 +134,7 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
     BooleanBuilder timetableCondition = new BooleanBuilder();
 
     timetableCondition
-        .and(userIdEq(userId))
+        .and(timetableUserIdEq(userId))
         .and(timetableIdEq(timetableId));
 
     return timetableCondition;
@@ -145,7 +144,7 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
     BooleanBuilder defaultTimetablesCondition = new BooleanBuilder();
 
     defaultTimetablesCondition
-        .and(userIdEq(userId))
+        .and(timetableUserIdEq(userId))
         .and(timetable.isDefault.eq(true));
 
     return defaultTimetablesCondition;
@@ -155,9 +154,9 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
     BooleanBuilder idYearSemesterCondition = new BooleanBuilder();
 
     idYearSemesterCondition
-        .and(userIdEq(userId))
-        .and(yearEq(year))
-        .and(semesterEq(semester));
+        .and(timetableUserIdEq(userId))
+        .and(timetableYearEq(year))
+        .and(timetableSemesterEq(semester));
 
     return idYearSemesterCondition;
   }
@@ -166,14 +165,14 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
     BooleanBuilder countOfTableCondition = new BooleanBuilder();
 
     countOfTableCondition
-        .and(userIdEq(userId))
-        .and(yearEq(year))
-        .and(semesterEq(semester));
+        .and(timetableUserIdEq(userId))
+        .and(timetableYearEq(year))
+        .and(timetableSemesterEq(semester));
 
     return countOfTableCondition;
   }
 
-  private BooleanExpression userIdEq(Long userId) {
+  private BooleanExpression timetableUserIdEq(Long userId) {
     return userId == null ? null : timetable.user.id.eq(userId);
   }
 
@@ -181,15 +180,15 @@ public class TimetableRepositoryImpl implements TimetableCustomRepository {
     return timetableId == null ? null : timetable.id.eq(timetableId);
   }
 
-  private BooleanExpression yearEq(Integer year) {
+  private BooleanExpression timetableYearEq(Integer year) {
     return year == null ? null : timetable.year.eq(year);
   }
 
-  private BooleanExpression semesterEq(Semester semester) {
+  private BooleanExpression timetableSemesterEq(Semester semester) {
     return semester == null ? null : timetable.semester.eq(semester);
   }
 
-  private BooleanExpression nameEq(String name) {
+  private BooleanExpression timetableNameEq(String name) {
     return hasText(name) ? timetable.name.eq(name) : null;
   }
 }
