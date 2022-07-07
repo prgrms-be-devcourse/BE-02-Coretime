@@ -4,8 +4,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 
-import com.prgrms.coretime.user.domain.TestUser;
-import com.prgrms.coretime.user.domain.TestUserRepository;
+import com.prgrms.coretime.TestConfig;
+import com.prgrms.coretime.school.domain.School;
+import com.prgrms.coretime.school.domain.respository.SchoolRepository;
+import com.prgrms.coretime.user.domain.LocalUser;
+import com.prgrms.coretime.user.domain.User;
+import com.prgrms.coretime.user.domain.repository.UserRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,10 +17,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+@Import(TestConfig.class)
 @DataJpaTest
 class FriendRepositoryTest {
 
@@ -24,21 +30,53 @@ class FriendRepositoryTest {
   private FriendRepository friendRepository;
 
   @Autowired
-  private TestUserRepository testUserRepository;
+  private UserRepository userRepository;
 
-  TestUser user1 = new TestUser("1111");
-  TestUser user2 = new TestUser("2222");
+  @Autowired
+  private SchoolRepository schoolRepository;
+
+  private School school = new School("schoolName", "school1@example.com");
+
+  private User user1 = LocalUser.builder()
+      .nickname("userOne")
+      .profileImage("profileImage1")
+      .email("example1@example.co.kr")
+      .name("userOne")
+      .school(school)
+      .password("pw123$%^")
+      .build();
+
+  private User user2 = LocalUser.builder()
+      .nickname("userTwo")
+      .profileImage("profileImage2")
+      .email("example2@example.co.kr")
+      .name("userTwo")
+      .school(school)
+      .password("pw123$%^")
+      .build();
+
+  private User user3 = LocalUser.builder()
+      .nickname("userThree")
+      .profileImage("profileImage3")
+      .email("example3@example.co.kr")
+      .name("userThree")
+      .school(school)
+      .password("pw123$%^")
+      .build();
 
   @BeforeEach
   void setUp() {
-    testUserRepository.save(user1);
-    testUserRepository.save(user2);
+    schoolRepository.save(school);
+
+    userRepository.save(user1);
+    userRepository.save(user2);
+    userRepository.save(user3);
   }
 
   @AfterEach
   void tearDown() {
     friendRepository.deleteAllInBatch();
-    testUserRepository.deleteAllInBatch();
+    userRepository.deleteAllInBatch();
   }
 
   @Test
@@ -70,8 +108,7 @@ class FriendRepositoryTest {
   @Test
   @DisplayName("친구 요청 조회")
   void findByFolloweeUserTest() {
-    TestUser user3 = new TestUser("3333");
-    testUserRepository.save(user3);
+    userRepository.save(user3);
 
     friendRepository.save(new Friend(user1, user2));
     friendRepository.save(new Friend(user2, user1));
@@ -86,8 +123,7 @@ class FriendRepositoryTest {
   @Test
   @DisplayName("친구 목록 조회")
   void findAllByFolloweeUser_IdWithPagingTest() {
-    TestUser user3 = new TestUser("3333");
-    testUserRepository.save(user3);
+    userRepository.save(user3);
 
     friendRepository.save(new Friend(user1, user2));
     friendRepository.save(new Friend(user2, user1));
@@ -106,8 +142,7 @@ class FriendRepositoryTest {
   @Test
   @DisplayName("친구 관계 여부 확인")
   void existsFriendRelationshipTest() {
-    TestUser user3 = new TestUser("3333");
-    testUserRepository.save(user3);
+    userRepository.save(user3);
     
     friendRepository.save(new Friend(user1, user2));
     friendRepository.save(new Friend(user2, user1));

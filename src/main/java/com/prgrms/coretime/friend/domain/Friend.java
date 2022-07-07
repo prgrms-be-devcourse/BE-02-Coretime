@@ -1,7 +1,7 @@
 package com.prgrms.coretime.friend.domain;
 
 import com.prgrms.coretime.common.entity.BaseEntity;
-import com.prgrms.coretime.user.domain.TestUser;
+import com.prgrms.coretime.user.domain.User;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -29,7 +29,7 @@ public class Friend extends BaseEntity {
   @JoinColumn(name = "follower_id",
       referencedColumnName = "user_id")
   )
-  private TestUser followerUser;
+  private User followerUser;
 
   @MapsId("followeeId")
   @ManyToOne(fetch = FetchType.LAZY)
@@ -37,9 +37,9 @@ public class Friend extends BaseEntity {
   @JoinColumn(name = "followee_id",
       referencedColumnName = "user_id")
   )
-  private TestUser followeeUser;
+  private User followeeUser;
 
-  public Friend(TestUser followerUser, TestUser followeeUser) {
+  public Friend(User followerUser, User followeeUser) {
     this.friendId = new FriendId(followerUser.getId(), followeeUser.getId());
     this.followerUser = followerUser;
     this.followeeUser = followeeUser;

@@ -15,8 +15,8 @@ import com.prgrms.coretime.friend.dto.request.FriendRequestAcceptRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRefuseRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestRevokeRequest;
 import com.prgrms.coretime.friend.dto.request.FriendRequestSendRequest;
-import com.prgrms.coretime.user.domain.TestUser;
-import com.prgrms.coretime.user.domain.TestUserRepository;
+import com.prgrms.coretime.user.domain.User;
+import com.prgrms.coretime.user.domain.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -38,10 +38,10 @@ class FriendServiceTest {
   private FriendRepository friendRepository;
 
   @Mock
-  private TestUserRepository testUserRepository;
+  private UserRepository testUserRepository;
 
-  private TestUser user1 = mock(TestUser.class);
-  private TestUser user2 = mock(TestUser.class);
+  private User user1 = mock(User.class);
+  private User user2 = mock(User.class);
 
   private Friend friend1 = mock(Friend.class);
   private Friend friend2 = mock(Friend.class);
