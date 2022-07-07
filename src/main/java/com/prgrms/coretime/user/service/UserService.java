@@ -1,14 +1,11 @@
 
 package com.prgrms.coretime.user.service;
 
-import com.prgrms.coretime.comment.domain.repository.CommentRepository;
 import com.prgrms.coretime.common.error.exception.AlreadyExistsException;
 import com.prgrms.coretime.common.error.exception.AuthErrorException;
 import com.prgrms.coretime.common.error.exception.NotFoundException;
-import com.prgrms.coretime.post.domain.repository.PostRepository;
 import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.school.domain.respository.SchoolRepository;
-import com.prgrms.coretime.timetable.domain.repository.timetable.TimetableRepository;
 import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
@@ -105,13 +102,15 @@ public class UserService {
   }
 
   @Transactional
-  public void changePassword(LocalUser user, UserPasswordChangeRequest request) {
+  public void changePassword(Long userId, UserPasswordChangeRequest request) {
+    LocalUser user = (LocalUser) findById(userId);
     user.checkPassword(passwordEncoder, request.getPassword());
     user.changePassword(passwordEncoder, request.getNewPassword());
   }
 
   @Transactional
-  public void quit(User user) {
+  public void quit(Long userId) {
+    User user = findById(userId);
     user.changeQuitFlag(true);
   }
 
