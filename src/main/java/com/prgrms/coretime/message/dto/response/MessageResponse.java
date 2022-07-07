@@ -1,7 +1,6 @@
 package com.prgrms.coretime.message.dto.response;
 
 import com.prgrms.coretime.message.domain.Message;
-import com.prgrms.coretime.user.domain.TestUser;
 import com.prgrms.coretime.user.domain.User;
 import java.time.LocalDateTime;
 import lombok.Getter;
