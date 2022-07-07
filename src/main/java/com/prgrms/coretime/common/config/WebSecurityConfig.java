@@ -4,7 +4,6 @@ import com.prgrms.coretime.common.jwt.Jwt;
 import com.prgrms.coretime.common.jwt.JwtAuthenticationFilter;
 import com.prgrms.coretime.common.jwt.JwtAuthenticationProvider;
 import com.prgrms.coretime.common.util.JwtService;
-import com.prgrms.coretime.common.util.RedisService;
 import com.prgrms.coretime.user.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,8 +52,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   public JwtAuthenticationFilter jwtAuthenticationFilter() {
-    Jwt jwt = getApplicationContext().getBean(Jwt.class);
-    return new JwtAuthenticationFilter(jwtConfig.getHeader(), jwt);
+    JwtService jwtService = this.getApplicationContext().getBean(JwtService.class);
+    return new JwtAuthenticationFilter(jwtConfig.getHeader(), jwtService);
   }
 
   @Override
@@ -74,6 +73,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/swagger*/**").permitAll()
         .antMatchers("/api/v1/users/local/register", "/api/v1/users/local/login").permitAll()
         .antMatchers("/api/v1/users/oauth/register", "/api/v1/users/oauth/login").permitAll()
+        .antMatchers("/api/v1/users/logout").permitAll()
+        .antMatchers("/api/v1/users/reissue").permitAll()
         .antMatchers("/api/v1/**").hasAuthority("USER")
         .and()
         .addFilterAfter(jwtAuthenticationFilter(), SecurityContextPersistenceFilter.class);

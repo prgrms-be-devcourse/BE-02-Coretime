@@ -32,8 +32,9 @@ logging:
 
 jwt:
   header: accessToken
-  refresh-header: refreshToken
   issuer: victory
   client-secret: EENY5W0eegTf1naQB2eDeyCLl5kRS2b8xa5c4qLdS0hmVjtbvo8tOyhPMcAmtPuQ
   expiry-seconds: 1800
   refresh-expiry-seconds: 604800
+  blacklist:
+    access-token: BlackList_AccessToken_

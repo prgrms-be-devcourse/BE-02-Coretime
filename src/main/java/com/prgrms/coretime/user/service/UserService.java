@@ -11,6 +11,8 @@ import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
 import com.prgrms.coretime.user.dto.request.UserPasswordChangeRequest;
 import com.prgrms.coretime.user.dto.request.UserRegisterRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,8 @@ import static com.prgrms.coretime.common.ErrorCode.*;
 
 @Service
 public class UserService {
+
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private final PasswordEncoder passwordEncoder;
 
@@ -41,7 +45,7 @@ public class UserService {
     Assert.hasText(principal, "principal이 누락되었습니다.");
     Assert.hasText(credentials, "credentials이 누락되었습니다.");
 
-    LocalUser user = (LocalUser) userRepository.findByEmail(principal).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+    LocalUser user = (LocalUser) userRepository.findByEmailAndIsQuit(principal, false).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
     user.checkPassword(passwordEncoder, credentials);
     return user;
   }
@@ -49,7 +53,7 @@ public class UserService {
   @Transactional(readOnly = true)
   public User findByEmail(String email) {
     Assert.hasText(email, "email이 누락되었습니다.");
-    return userRepository.findByEmail(email)
+    return userRepository.findByEmailAndIsQuit(email, false)
         .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
   }
 
@@ -63,20 +67,20 @@ public class UserService {
   @Transactional(readOnly = true)
   public User findByNickname(String nickname) {
     Assert.hasText(nickname, "nickname이 누락되었습니다.");
-    return userRepository.findByNickname(nickname)
+    return userRepository.findByNicknameAndIsQuit(nickname, false)
         .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
   }
 
   @Transactional(readOnly = true)
   public boolean checkNicknameUnique(String nickname) {
-    return userRepository.existsByNickname(nickname);
+    return userRepository.existsByNicknameAndIsQuit(nickname, false);
   }
 
   @Transactional
   public User register(UserRegisterRequest request) {
     School school = schoolRepository.findById(request.getSchoolId()).orElseThrow(() -> new NotFoundException(SCHOOL_NOT_FOUND));
-    if(userRepository.existsByEmail(request.getEmail())) throw new AlreadyExistsException(USER_ALREADY_EXISTS);
-    if(userRepository.existsByNickname(request.getNickname())) throw new AlreadyExistsException(USER_ALREADY_EXISTS);
+    if(userRepository.existsByEmailAndIsQuit(request.getEmail(), false)) throw new AlreadyExistsException(USER_ALREADY_EXISTS);
+    if(userRepository.existsByNicknameAndIsQuit(request.getNickname(), false)) throw new AlreadyExistsException(USER_ALREADY_EXISTS);
 
     authenticateUserEmail(request.getEmail(), school);
     User newUser = LocalUser.builder()
@@ -98,14 +102,15 @@ public class UserService {
   }
 
   @Transactional
-  public void changePassword(LocalUser user, UserPasswordChangeRequest request) {
+  public void changePassword(Long userId, UserPasswordChangeRequest request) {
+    LocalUser user = (LocalUser) findById(userId);
     user.checkPassword(passwordEncoder, request.getPassword());
     user.changePassword(passwordEncoder, request.getNewPassword());
   }
 
   @Transactional
-  public void quit(User user) {
+  public void quit(Long userId) {
+    User user = findById(userId);
     user.changeQuitFlag(true);
   }
-
 }

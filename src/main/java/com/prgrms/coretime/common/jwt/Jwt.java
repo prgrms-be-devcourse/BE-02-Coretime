@@ -51,7 +51,6 @@ public final class Jwt {
     return  builder.sign(algorithm);
   }
 
-  /*TODO: Refactoring*/
   public AccessClaim verifyAccessToken(String token) throws JWTVerificationException {
     return new AccessClaim(jwtVerifier.verify(token));
   }

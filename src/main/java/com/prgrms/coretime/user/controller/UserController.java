@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.*;
 import com.prgrms.coretime.common.ApiResponse;
 import com.prgrms.coretime.common.jwt.JwtAuthenticationToken;
 import com.prgrms.coretime.common.jwt.JwtPrincipal;
+import com.prgrms.coretime.common.jwt.claim.AccessClaim;
 import com.prgrms.coretime.common.util.JwtService;
 import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
@@ -64,19 +65,12 @@ public class UserController {
     return null;
   }
 
-  @GetMapping("/principal")
-  public ResponseEntity<ApiResponse<JwtPrincipal>> getPrincipalInfo(@AuthenticationPrincipal JwtPrincipal principal) {
-    /*
-    * principal.email
-    * principal.schoolId
-    * principal.userId
-    * principal.nickname
-    * principal.token
-    * */
-    return ResponseEntity.ok(new ApiResponse<>("현재 로그인한 사용자입니다.", principal));
+  @GetMapping("/logout")
+  public ResponseEntity<ApiResponse<Object>> logout(@RequestParam("accessToken") String accessToken) {
+    jwtService.logout(accessToken);
+    return ResponseEntity.ok(new ApiResponse<>("로그아웃이 완료되었습니다."));
   }
 
-  /* TODO: 블랙아웃 처리 */
   @GetMapping("/reissue")
   public ResponseEntity<ApiResponse<LoginResponse>> reIssueAccessToken(@RequestParam("email") String email, @RequestParam("refreshToken") String refreshToken) {
     User user = userService.findByEmail(email);
@@ -99,17 +93,16 @@ public class UserController {
     return ResponseEntity.ok(new ApiResponse<>("중복검사가 완료되었습니다.", response));
   }
 
+  /*TOOD: entity 밖으로 나와도 되는지 고민*/
   @PatchMapping("/password/change")
   public ResponseEntity<ApiResponse<Object>> changePassword(@AuthenticationPrincipal JwtPrincipal principal, @RequestBody @Valid UserPasswordChangeRequest request) {
-    LocalUser user = (LocalUser) userService.findByEmail(principal.email);
-    userService.changePassword(user, request);
+    userService.changePassword(principal.userId, request);
     return ResponseEntity.ok(new ApiResponse<>("비밀번호 변경이 완료되었습니다."));
   }
 
   @PatchMapping("/quit")
   public ResponseEntity<ApiResponse<Object>> quit(@AuthenticationPrincipal JwtPrincipal principal) {
-    User user = userService.findByEmail(principal.email);
-    userService.quit(user);
+    userService.quit(principal.userId);
     return ResponseEntity.ok(new ApiResponse<>("회원 탈퇴가 완료되었습니다."));
   }
 }
