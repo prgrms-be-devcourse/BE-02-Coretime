@@ -27,7 +27,6 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -501,21 +500,6 @@ class CommentRepositoryTest {
         PageRequest.of(0, 20));
     List<CommentsOnPostResponse> content = commentsResponse.getContent();
     assertThat(content.get(0).getName()).isEqualTo("익명(글쓴이)");
-  }
-
-  @Test
-  @Disabled // 해결해야돼...ㅠㅠ
-  @DisplayName("6. 유저가 회원탈퇴하면 이름은 '(알 수 없음)'이다")
-  public void testIfUserNull() {
-    userRepository.deleteById(localUser.getId());
-
-    em.flush();
-    em.clear();
-
-    Page<CommentsOnPostResponse> commentsResponse = commentRepository.findByPost(anonyPost.getId(),
-        PageRequest.of(0, 20));
-    List<CommentsOnPostResponse> content = commentsResponse.getContent();
-    assertThat(content.get(0).getName()).isEqualTo("(알 수 없음)");
   }
 
   @Test

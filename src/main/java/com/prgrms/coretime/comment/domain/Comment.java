@@ -65,7 +65,6 @@ public class Comment extends BaseEntity {
   @Column(name = "is_deleted", nullable = false)
   private Boolean isDelete;
 
-  //TODO: 생성자 처리 어떻게 할 건지, RequestDto 말고 여기서 Dto 받아서 생성할 건지 고민
   @Builder
   public Comment(User user, Post post, Comment parent, Boolean isAnonymous, Integer anonymousSeq,
       String content) {

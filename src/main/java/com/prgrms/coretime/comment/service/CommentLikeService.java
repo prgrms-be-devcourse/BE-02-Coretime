@@ -13,10 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * TODO : 비동기 처리 고려
- */
-
 @Service
 @Transactional
 @RequiredArgsConstructor

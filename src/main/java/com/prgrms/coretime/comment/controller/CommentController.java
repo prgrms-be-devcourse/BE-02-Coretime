@@ -29,9 +29,6 @@ public class CommentController {
 
   private final CommentService commentService;
 
-  /**
-   * TODO : 추후 현재 로그인 중인 User 포함해서 API 수정
-   */
   @PostMapping
   public ResponseEntity<ApiResponse<CommentCreateResponse>> createComment(
       @AuthenticationPrincipal JwtPrincipal principal,
