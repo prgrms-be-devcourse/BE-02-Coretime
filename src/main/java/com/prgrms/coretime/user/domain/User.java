@@ -47,13 +47,13 @@ public class User extends BaseEntity {
   @JoinColumn(name = "school_id", nullable = false)
   private School school;
 
-  @Column(name = "email", unique = true, nullable = false, length = MAX_EMAIL_LENGTH)
+  @Column(name = "email", nullable = false, length = MAX_EMAIL_LENGTH)
   private String email;
 
   @Column(name = "profile_image", length = 300)
   private String profileImage;
 
-  @Column(name = "nickname", unique = true, nullable = false, length = MAX_NICKNAME_LENGTH)
+  @Column(name = "nickname", nullable = false, length = MAX_NICKNAME_LENGTH)
   private String nickname;
 
   @Column(name = "name", nullable = false, length = MAX_NAME_LENGTH)

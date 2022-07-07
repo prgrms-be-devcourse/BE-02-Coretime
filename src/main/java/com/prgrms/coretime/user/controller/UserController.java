@@ -99,6 +99,7 @@ public class UserController {
     return ResponseEntity.ok(new ApiResponse<>("중복검사가 완료되었습니다.", response));
   }
 
+  /*TOOD: entity 밖으로 나와도 되는지 고민*/
   @PatchMapping("/password/change")
   public ResponseEntity<ApiResponse<Object>> changePassword(@AuthenticationPrincipal JwtPrincipal principal, @RequestBody @Valid UserPasswordChangeRequest request) {
     LocalUser user = (LocalUser) userService.findByEmail(principal.email);

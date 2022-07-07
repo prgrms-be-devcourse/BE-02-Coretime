@@ -7,14 +7,14 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-  @Query("select u from User u join fetch u.school s where u.email = :email and u.isQuit = false")
-  Optional<User> findByEmail(String email);
+  @Query("select u from User u join fetch u.school s where u.email = :email and u.isQuit = :isQuit")
+  Optional<User> findByEmailAndIsQuit(String email, Boolean isQuit);
 
-  @Query("select u from User u join fetch u.school s where u.nickname = :nickname and u.isQuit = false")
-  Optional<User> findByNickname(String nickname);
+  @Query("select u from User u join fetch u.school s where u.nickname = :nickname and u.isQuit = :isQuit")
+  Optional<User> findByNicknameAndIsQuit(String nickname, Boolean isQuit);
 
   /*TODO : isQuit = false인 것으로 체크해야 함.*/
-  boolean existsByEmail(String email);
+  boolean existsByEmailAndIsQuit(String email, Boolean isQuit);
 
-  boolean existsByNickname(String nickname);
+  boolean existsByNicknameAndIsQuit(String nickname, Boolean isQuit);
 }
