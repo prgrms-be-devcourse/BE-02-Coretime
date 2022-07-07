@@ -1,13 +1,8 @@
 package com.prgrms.coretime.common.jwt;
 
-import com.prgrms.coretime.common.ErrorCode;
-import com.prgrms.coretime.common.error.exception.AuthErrorException;
-import com.prgrms.coretime.common.jwt.claim.AccessClaim;
-import com.prgrms.coretime.common.jwt.claim.RefreshClaim;
 import com.prgrms.coretime.common.util.JwtService;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.service.UserService;
-import java.time.Duration;
 import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.AuthenticationProvider;
