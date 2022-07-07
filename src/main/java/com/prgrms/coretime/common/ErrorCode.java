@@ -71,7 +71,18 @@ public enum ErrorCode {
    **/
   COMMENT_NOT_FOUND(400, "COM001", "해당 Comment를 찾을 수 없습니다."),
   COMMENT_LIKE_ALREADY_EXISTS(400, "COM002", "해당 댓글에 이미 좋아요가 존재합니다."),
-  COMMENT_LIKE_NOT_FOUND(400, "COM003", "해당 댓글에 좋아요가 존재하지 않습니다.");
+  COMMENT_LIKE_NOT_FOUND(400, "COM003", "해당 댓글에 좋아요가 존재하지 않습니다."),
+  
+  /**
+   * Message Domain
+   */
+  MESSAGE_ROOM_NOT_FOUND(404, "M001", "해당 쪽지방 리소스를 찾을 수 없습니다."),
+  NO_PERMISSION_TO_SEND_MESSAGE(404, "M002", "해당 쪽지방에 쪽지를 보낼 수 없습니다."),
+  INVALID_MESSAGE_TARGET(400, "M003", "올바르지 않은 쪽지 상대입니다."),
+  UNABLE_TO_SEND_MESSAGE(409, "M004", "쪽지를 보낼 수 없는 상대입니다."),
+  NO_PERMISSION_TO_MODIFY_MESSAGE_ROOM(404, "M005", "해당 쪽지방을 수정할 수 없습니다."),
+  NO_PERMISSION_TO_READ_DATA(409, "M006", "삭제된 쪽지방입니다.");
+
   private final int status;
   private final String code;
   private final String message;
