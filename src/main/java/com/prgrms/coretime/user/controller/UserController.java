@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.*;
 import com.prgrms.coretime.common.ApiResponse;
 import com.prgrms.coretime.common.jwt.JwtAuthenticationToken;
 import com.prgrms.coretime.common.jwt.JwtPrincipal;
+import com.prgrms.coretime.common.jwt.claim.AccessClaim;
 import com.prgrms.coretime.common.util.JwtService;
 import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
@@ -62,6 +63,12 @@ public class UserController {
   @PostMapping("/oauth/login")
   public ResponseEntity<ApiResponse<LoginResponse>> oauthLogin(@RequestBody UserLocalLoginRequest request) {
     return null;
+  }
+
+  @GetMapping("/logout")
+  public ResponseEntity<ApiResponse<Object>> logout(@RequestParam("accessToken") String accessToken) {
+    jwtService.logout(accessToken);
+    return ResponseEntity.ok(new ApiResponse<>("로그아웃이 완료되었습니다."));
   }
 
   /* TODO: 블랙아웃 처리 */

@@ -2,6 +2,7 @@ package com.prgrms.coretime.common.config;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -22,4 +23,7 @@ public class JwtConfig {
   private int expirySeconds;
 
   private int refreshExpirySeconds;
+
+  @Value("${jwt.blacklist.access-token}")
+  private String blackListPrefix;
 }

@@ -6,7 +6,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.prgrms.coretime.common.jwt.claim.AccessClaim;
 import com.prgrms.coretime.common.jwt.claim.Claims;
-import com.prgrms.coretime.common.jwt.claim.RefreshClaim;
 import java.util.Date;
 import lombok.Getter;
 
@@ -51,13 +50,8 @@ public final class Jwt {
     return  builder.sign(algorithm);
   }
 
-  /*TODO: Refactoring*/
-  public AccessClaim verifyAccessToken(String token) throws JWTVerificationException {
+  public AccessClaim decodeAccessToken(String token) throws JWTVerificationException {
     return new AccessClaim(jwtVerifier.verify(token));
-  }
-
-  public RefreshClaim verifyRefreshToken(String token) throws JWTVerificationException {
-    return new RefreshClaim(jwtVerifier.verify(token));
   }
 
 }

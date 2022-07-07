@@ -113,5 +113,4 @@ public class UserService {
     User user = findById(userId);
     user.changeQuitFlag(true);
   }
-
 }
