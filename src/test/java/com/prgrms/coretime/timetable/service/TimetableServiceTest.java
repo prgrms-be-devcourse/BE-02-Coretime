@@ -92,7 +92,7 @@ class TimetableServiceTest {
       try {
         timetableService.createTimetable(userId, timetableCreateRequest);
       }catch (Exception e) {
-        verify(timetableValidator, never()).validateSameNamWhenCreate(any(), any(), any(), any());
+        verify(timetableValidator, never()).validateSameNameWhenCreate(any(), any(), any(), any());
         verify(timetableRepository, never()).save(any());
       }
     }
@@ -101,7 +101,7 @@ class TimetableServiceTest {
     @DisplayName("시간표 이름이 중복되는 경우 테스트")
     void testDuplicateTimetableName() {
       when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-      doThrow(new DuplicateRequestException(DUPLICATE_TIMETABLE_NAME)).when(timetableValidator).validateSameNamWhenCreate(userId, timetableCreateRequest.getName(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester());
+      doThrow(new DuplicateRequestException(DUPLICATE_TIMETABLE_NAME)).when(timetableValidator).validateSameNameWhenCreate(userId, timetableCreateRequest.getName(), timetableCreateRequest.getYear(), timetableCreateRequest.getSemester());
 
       try {
         timetableService.createTimetable(userId, timetableCreateRequest);
@@ -313,7 +313,7 @@ class TimetableServiceTest {
       try {
         timetableService.updateTimetable(userId, timetableId, timetableUpdateRequest);
       }catch (NotFoundException e) {
-        verify(timetableValidator, never()).validateSameNamWhenUpdate(any(), any(), any(), any(), any());
+        verify(timetableValidator, never()).validateSameNameWhenUpdate(any(), any(), any(), any(), any());
         verify(timetableRepository, never()).getDefaultTimetable(any(), any(), any());
       }
     }
@@ -322,7 +322,7 @@ class TimetableServiceTest {
     @DisplayName("동일한 이름의 테이블이 존재하는 경우")
     void testDuplicateTimetableName() {
       when(timetableRepository.getTimetableByUserIdAndTimetableId(userId, timetableId)).thenReturn(Optional.of(timetable));
-      doThrow(new DuplicateRequestException(DUPLICATE_TIMETABLE_NAME)).when(timetableValidator).validateSameNamWhenUpdate(any(), any(), any(), any(), any());
+      doThrow(new DuplicateRequestException(DUPLICATE_TIMETABLE_NAME)).when(timetableValidator).validateSameNameWhenUpdate(any(), any(), any(), any(), any());
 
       try {
         timetableService.updateTimetable(userId, timetableId, timetableUpdateRequest);

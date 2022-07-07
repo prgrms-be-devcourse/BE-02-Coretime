@@ -20,14 +20,14 @@ public class TimetableValidator {
   private final FriendRepository friendRepository;
 
   @Transactional(readOnly = true)
-  public void validateSameNamWhenCreate(Long userId, String timetableName, Integer year, Semester semester) {
+  public void validateSameNameWhenCreate(Long userId, String timetableName, Integer year, Semester semester) {
     if(timetableRepository.getTimetableBySameName(userId, timetableName, year, semester).isPresent()) {
       throw new DuplicateRequestException(DUPLICATE_TIMETABLE_NAME);
     }
   }
 
   @Transactional(readOnly = true)
-  public void validateSameNamWhenUpdate(Long userId, String timetableName, Integer year, Semester semester, Timetable timetable) {
+  public void validateSameNameWhenUpdate(Long userId, String timetableName, Integer year, Semester semester, Timetable timetable) {
     Timetable sameNameTable = timetableRepository.getTimetableBySameName(userId, timetableName, year, semester).orElse(timetable);
     if(timetable != sameNameTable) {
       throw new DuplicateRequestException(DUPLICATE_TIMETABLE_NAME);
