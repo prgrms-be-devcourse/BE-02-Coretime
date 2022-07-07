@@ -32,7 +32,6 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
         .where(
             comment.post.id.eq(postId)
                 .and(comment.parent.isNull())
-                .and(comment.children.size().goe(0))
         )
         .orderBy(comment.createdAt.asc())
         .offset(pageable.getOffset())
@@ -93,7 +92,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
             comment.likes.size().goe(10),
             comment.isDelete.isFalse()
         )
-        .orderBy(comment.likes.size().desc())
+        .orderBy(comment.likes.size().desc(), comment.createdAt.asc())
         .fetchFirst();
 
     if (bestComment == null) {

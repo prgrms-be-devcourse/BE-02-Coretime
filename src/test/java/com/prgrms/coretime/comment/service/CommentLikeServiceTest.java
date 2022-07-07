@@ -31,7 +31,7 @@ class CommentLikeServiceTest {
 
   @Mock
   private UserRepository userRepository;
-  
+
   @Mock
   private CommentRepository commentRepository;
 
@@ -140,8 +140,5 @@ class CommentLikeServiceTest {
 
       verify(commentLikeRepository).deleteById(any());
     }
-
   }
-
-
 }
