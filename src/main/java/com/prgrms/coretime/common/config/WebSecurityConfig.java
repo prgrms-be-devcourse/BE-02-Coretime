@@ -74,6 +74,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/api/v1/users/local/register", "/api/v1/users/local/login").permitAll()
         .antMatchers("/api/v1/users/oauth/register", "/api/v1/users/oauth/login").permitAll()
         .antMatchers("/api/v1/users/logout").permitAll()
+        .antMatchers("/api/v1/users/reissue").permitAll()
         .antMatchers("/api/v1/**").hasAuthority("USER")
         .and()
         .addFilterAfter(jwtAuthenticationFilter(), SecurityContextPersistenceFilter.class);

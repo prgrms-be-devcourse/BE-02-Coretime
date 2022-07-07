@@ -71,7 +71,6 @@ public class UserController {
     return ResponseEntity.ok(new ApiResponse<>("로그아웃이 완료되었습니다."));
   }
 
-  /* TODO: 블랙아웃 처리 */
   @GetMapping("/reissue")
   public ResponseEntity<ApiResponse<LoginResponse>> reIssueAccessToken(@RequestParam("email") String email, @RequestParam("refreshToken") String refreshToken) {
     User user = userService.findByEmail(email);

@@ -3,6 +3,7 @@ package com.prgrms.coretime.common.util;
 import static com.prgrms.coretime.common.ErrorCode.*;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.prgrms.coretime.common.config.JwtConfig;
 import com.prgrms.coretime.common.error.exception.AuthErrorException;
 import com.prgrms.coretime.common.jwt.Jwt;
@@ -45,6 +46,11 @@ public class JwtService {
   }
 
   public void checkRefreshToken(String email, String refreshToken) {
+    try{
+      jwt.verifyRefreshToken(refreshToken);
+    } catch (TokenExpiredException e) {
+      throw new AuthErrorException(TOKEN_EXPIRED);
+    }
     String redisToken = redisService.getValues(email);
     if(!redisToken.equals(refreshToken)) {
       throw new AuthErrorException(INVALID_TOKEN_REQUEST);
@@ -52,15 +58,15 @@ public class JwtService {
   }
 
   public void logout(String token) {
-    AccessClaim claim = jwt.decodeAccessToken(token);
+    AccessClaim claim = jwt.verifyAccessToken(token);
     long expiredAccessTokenTime = claim.getExp().getTime() - new Date().getTime();
     redisService.setValues(jwtConfig.getBlackListPrefix() + token, claim.getEmail(), Duration.ofMillis(expiredAccessTokenTime));
     redisService.deleteValues(claim.getEmail());
   }
 
-  public AccessClaim verifyAccessToken(String token) throws JWTVerificationException {
+  public AccessClaim verifyAccessToken(String token) {
     String expiredAt = redisService.getValues(jwtConfig.getBlackListPrefix() + token);
     if (expiredAt != null) throw new AuthErrorException(TOKEN_EXPIRED);
-    return jwt.decodeAccessToken(token);
+    return jwt.verifyAccessToken(token);
   }
 }
