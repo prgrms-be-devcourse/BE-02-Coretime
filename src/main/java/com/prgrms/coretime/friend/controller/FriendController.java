@@ -80,7 +80,7 @@ public class FriendController {
   @ApiOperation(value = "친구 요청 받은 목록 조회하기", notes = "친구 요청 받은 목록을 조회하는 요청입니다.")
   @GetMapping("/requests")
   public ResponseEntity<ApiResponse> getAllFriendRequests(@AuthenticationPrincipal JwtPrincipal principal,
-      @RequestParam(required = false) @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) final Pageable pageable) {
+      @PageableDefault(size = 20, sort = "created_at", direction = Sort.Direction.DESC) final Pageable pageable) {
     Page<FriendRequestInfoResponse> allFriendRequests = friendService.getAllFriendRequests(principal.userId,
         pageable);
     return ResponseEntity.ok()
@@ -90,7 +90,7 @@ public class FriendController {
   @ApiOperation(value = "친구 목록 조회하기", notes = "친구 목록을 조회하는 요청입니다.")
   @GetMapping
   public ResponseEntity<ApiResponse> getAllFriends(@AuthenticationPrincipal JwtPrincipal principal,
-      @RequestParam(required = false) @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) final Pageable pageable) {
+      @PageableDefault(size = 20, sort = "created_at", direction = Sort.Direction.DESC) final Pageable pageable) {
 
     Page<FriendInfoResponse> allFriends = friendService.getAllFriends(principal.userId, pageable);
     return ResponseEntity.ok().body(new ApiResponse<>("친구 목록 조회가 완료되었습니다.", allFriends));
