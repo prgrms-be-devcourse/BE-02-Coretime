@@ -50,7 +50,7 @@ public class MessageRoomService {
     User receiver = userRepository.findById(request.getReceiverId())
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
     Post post = postRepository.findById(request.getCreatedFrom())
-        .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND));// TODO: post(상혁님)부분과 통일시키기
+        .orElseThrow(() -> new NotFoundException(ErrorCode.POST_NOT_FOUND));
 
     MessageRoom messageRoom = MessageRoom.builder()
         .initialSender(currentUser)
@@ -80,7 +80,7 @@ public class MessageRoomService {
     userRepository.findById(receiverId)
         .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
     postRepository.findById(createdFrom)
-        .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND));// TODO: post(상혁님)부분과 통일시키기
+        .orElseThrow(() -> new NotFoundException(ErrorCode.POST_NOT_FOUND));
 
     return messageRoomRepository.findIdByInfo(createdFrom, isAnonymous, userId, receiverId);
   }
