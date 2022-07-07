@@ -3,7 +3,10 @@ package com.prgrms.coretime.comment.domain;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
+import com.prgrms.coretime.post.domain.Board;
+import com.prgrms.coretime.post.domain.BoardType;
 import com.prgrms.coretime.post.domain.Post;
+import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.user.domain.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -17,11 +20,22 @@ class CommentTest {
 
   private User user = new User("example@email.com", "example");
 
+  School school = new School("university", "university@university.ac.kr");
+
+  private Board board = Board.builder()
+      .category(BoardType.BASIC)
+      .name("게시판")
+      .school(school)
+      .build();
+
   private Post post = Post.builder()
+      .user(user)
+      .board(board)
       .title("title")
       .content("게시글 내용입니다.")
       .isAnonymous(true)
       .build();
+
 
   private String correctContent = "이것은 공백도 아니며, 300바이트를 넘지 않아요!";
 
