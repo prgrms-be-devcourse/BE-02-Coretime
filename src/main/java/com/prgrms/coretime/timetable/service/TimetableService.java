@@ -49,7 +49,7 @@ public class TimetableService {
     Integer year = timetableCreateRequest.getYear();
     Semester semester = timetableCreateRequest.getSemester();
 
-    timetableValidator.validateSameNamWhenCreate(userId, timetableName, year, semester);
+    timetableValidator.validateSameNameWhenCreate(userId, timetableName, year, semester);
 
     boolean isFirstTable = timetableRepository.isFirstTable(userId, year, semester);
 
@@ -129,7 +129,7 @@ public class TimetableService {
     Integer year = timetable.getYear();
     Semester semester = timetable.getSemester();
 
-    timetableValidator.validateSameNamWhenUpdate(userId, updatedTimetableName, year, semester, timetable);
+    timetableValidator.validateSameNameWhenUpdate(userId, updatedTimetableName, year, semester, timetable);
 
     timetable.updateName(updatedTimetableName);
 
