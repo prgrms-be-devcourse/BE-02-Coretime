@@ -33,7 +33,7 @@ public class CommentsOnPostResponse extends CommentResponse {
   public static CommentsOnPostResponse of(Comment comment) {
     User user = comment.getUser();
     Comment parent = comment.getParent();
-    String name = getString(comment, user);
+    String name = getName(comment, user);
 
     String content = comment.getIsDelete() || user == null ? "삭제된 댓글입니다." : comment.getContent();
 
@@ -47,17 +47,21 @@ public class CommentsOnPostResponse extends CommentResponse {
     );
   }
 
-  private static String getString(Comment comment, User user) {
+  private static String getName(Comment comment, User user) {
     Post post = comment.getPost();
 
-    if (user == null)
+    if (user == null) {
       return "(알 수 없음)";
+    }
 
-    if (user != null && !comment.getIsAnonymous())
+    if (user != null && !comment.getIsAnonymous()) {
       return user.getNickname();
+    }
 
-    if (comment.getPost().getIsAnonymous() && user.getId() == post.getUser().getId())
+    if (comment.getAnonymous() && comment.getPost().getIsAnonymous()
+        && user.getId() == post.getUser().getId()) {
       return "익명(글쓴이)";
+    }
 
     return "익명" + comment.getAnonymousSeq();
   }
