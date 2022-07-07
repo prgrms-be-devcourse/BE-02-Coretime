@@ -142,8 +142,8 @@ class PostControllerTest {
 
     //When //Then
     mockMvc.perform(multipart("/api/v1/boards/{boardId}/posts", board.getId())
-//            .file("photos", photos.get(0).getBytes())
-//            .file("photos", photos.get(1).getBytes())
+            .file("photos", photos.get(0).getBytes())
+            .file("photos", photos.get(1).getBytes())
             .param("title", "제목")
             .param("content", "내용")
             .param("isAnonymous", "true")
