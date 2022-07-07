@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @Import(TestConfig.class)
 @DataJpaTest
@@ -113,8 +114,8 @@ class FriendRepositoryTest {
     friendRepository.save(new Friend(user1, user2));
     friendRepository.save(new Friend(user2, user1));
     friendRepository.save(new Friend(user3, user1));
-    Pageable pageable = PageRequest.of(0, 20);
 
+    Pageable pageable = PageRequest.of(0, 20, Sort.by("created_at").descending());
     Page<Friend> friendPage = friendRepository.findByFolloweeUser_Id(user1.getId(), pageable);
 
     assertThat(friendPage.getNumberOfElements(), is(1));
@@ -130,7 +131,8 @@ class FriendRepositoryTest {
     friendRepository.save(new Friend(user1, user3));
     friendRepository.save(new Friend(user3, user1));
     friendRepository.save(new Friend(user2, user3));
-    Pageable pageable = PageRequest.of(0, 20);
+
+    Pageable pageable = PageRequest.of(0, 20, Sort.by("created_at").ascending());
 
     Page<Friend> friendPage1 = friendRepository.findAllFriendWithPaging(user1.getId(), pageable);
     Page<Friend> friendPage2 = friendRepository.findAllFriendWithPaging(user2.getId(), pageable);
