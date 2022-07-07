@@ -10,7 +10,12 @@ import com.prgrms.coretime.friend.dto.request.FriendRequestSendRequest;
 import com.prgrms.coretime.friend.dto.response.FriendInfoResponse;
 import com.prgrms.coretime.friend.dto.response.FriendRequestInfoResponse;
 import com.prgrms.coretime.friend.service.FriendService;
+import com.prgrms.coretime.timetable.domain.Semester;
+import com.prgrms.coretime.timetable.dto.response.FriendDefaultTimetableInfo;
+import com.prgrms.coretime.timetable.dto.response.LectureInfo;
+import com.prgrms.coretime.timetable.service.TimetableService;
 import io.swagger.annotations.ApiOperation;
+import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class FriendController {
 
   private final FriendService friendService;
+  private final TimetableService timetableService;
 
   @ApiOperation(value = "친구 요청 보내기", notes = "친구 요청을 보내는 요청입니다.")
   @PostMapping("/requests")
@@ -98,4 +105,26 @@ public class FriendController {
     return ResponseEntity.ok().body(new ApiResponse<>("친구 삭제가 완료되었습니다."));
   }
 
+  @ApiOperation(value = "친구 시간표 목록 조회하기", notes = "친구의 기본 시간표 목록을 조회하는 요청입니다.")
+  @GetMapping("/{friendId}")
+  public ResponseEntity<ApiResponse> getFriendTimetableInfos(
+      @AuthenticationPrincipal JwtPrincipal principal,
+      @PathVariable("friendId") final Long friendId) {
+
+    List<FriendDefaultTimetableInfo> response = timetableService.getFriendDefaultTimetableInfos(
+        principal.userId, friendId);
+    return ResponseEntity.ok().body(new ApiResponse<>("친구의 기본 시간표 목록 조회가 완료되었습니다.", response));
+  }
+
+  @ApiOperation(value = "친구 시간표 단건 조회하기", notes = "친구의 시간표를 조회하는 요청입니다.")
+  @GetMapping("/{friendId}/timetables")
+  public ResponseEntity<ApiResponse> getFriendTimetable(
+      @AuthenticationPrincipal JwtPrincipal principal,
+      @PathVariable("friendId") final Long friendId,
+      @RequestParam final Integer year, @RequestParam final String semester) {
+
+    List<LectureInfo> response = timetableService.getDefaultTimetableOfFriend(
+        principal.userId, friendId, year, Semester.valueOf(semester));
+    return ResponseEntity.ok().body(new ApiResponse<>("친구의 시간표 조회가 완료되었습니다.", response));
+  }
 }
