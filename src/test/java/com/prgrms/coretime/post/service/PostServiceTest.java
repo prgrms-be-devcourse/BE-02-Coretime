@@ -25,7 +25,6 @@ import com.prgrms.coretime.school.domain.respository.SchoolRepository;
 import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
-import io.findify.s3mock.S3Mock;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
@@ -41,12 +40,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Transactional
 @SpringBootTest
 @Import(S3MockConfig.class)
+@ActiveProfiles("test")
 class PostServiceTest {
 
   @Autowired

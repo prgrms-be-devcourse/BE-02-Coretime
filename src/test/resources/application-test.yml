@@ -30,3 +30,5 @@ jwt:
   issuer: victory
   client-secret: EENY5W0eegTf1naQB2eDeyCLl5kRS2b8xa5c4qLdS0hmVjtbvo8tOyhPMcAmtPuQ
   expiry-seconds: 1800
+  blacklist:
+    access-token: BlackList_AccessToken_

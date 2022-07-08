@@ -12,6 +12,7 @@ import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.school.domain.respository.SchoolRepository;
 import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -61,6 +62,12 @@ class CommentLikeControllerTest extends AcceptanceTest {
         .password("1q2w3e")
         .build();
     accessToken = getAccessToken(user);
+  }
+
+  @AfterAll
+  void teardown() {
+    userRepository.deleteAllInBatch();
+    schoolRepository.deleteAll();
   }
 
   @Nested

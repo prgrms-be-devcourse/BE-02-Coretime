@@ -19,6 +19,7 @@ import com.prgrms.coretime.school.domain.School;
 import com.prgrms.coretime.school.domain.respository.SchoolRepository;
 import com.prgrms.coretime.user.domain.LocalUser;
 import com.prgrms.coretime.user.domain.User;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -73,6 +74,11 @@ class CommentControllerTest extends AcceptanceTest {
     accessToken = getAccessToken(user);
   }
 
+  @AfterAll
+  void teardown() {
+    userRepository.deleteAllInBatch();
+    schoolRepository.deleteAll();
+  }
 
   @Nested
   @DisplayName("댓글 생성 API 실행시")
