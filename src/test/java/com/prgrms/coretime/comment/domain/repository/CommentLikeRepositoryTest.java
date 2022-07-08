@@ -19,6 +19,7 @@ import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -151,6 +152,17 @@ class CommentLikeRepositoryTest {
     setComment();
     setCommentLike();
   }
+
+  @AfterAll
+  void teardown() {
+    commentLikeRepository.deleteAll();
+    commentRepository.deleteAll();
+    postRepository.deleteAll();
+    boardRepository.deleteAll();
+    userRepository.deleteAll();
+    schoolRepository.deleteAll();
+  }
+
 
   @Test
   @DisplayName("좋아요가 존재하는 지 검증")

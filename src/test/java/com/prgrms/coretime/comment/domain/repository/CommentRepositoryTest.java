@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -160,6 +161,15 @@ class CommentRepositoryTest {
     setBoard();
     setPost();
     setComment();
+  }
+
+  @AfterAll
+  void teardown() {
+    commentRepository.deleteAll();
+    postRepository.deleteAll();
+    boardRepository.deleteAll();
+    userRepository.deleteAll();
+    schoolRepository.deleteAll();
   }
 
   @Test
