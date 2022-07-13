@@ -29,7 +29,7 @@ public class BoardController {
   @GetMapping("/{boardId}/posts")
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showPostsByBoard(
       @PathVariable(name = "boardId") Long boardId,
-      @RequestParam(required = false) @PageableDefault(
+      @PageableDefault(
           sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable
@@ -46,7 +46,7 @@ public class BoardController {
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> searchPostsAtBoard(
       @PathVariable(name = "boardId") Long boardId,
       @RequestParam String keyword,
-      @RequestParam(required = false) @PageableDefault(
+      @PageableDefault(
           sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable

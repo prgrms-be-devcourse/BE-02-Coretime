@@ -36,7 +36,7 @@ public class PostController {
 
   @GetMapping("/hot")
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showHotPosts(
-      @RequestParam(required = false) @PageableDefault(
+      @PageableDefault(
           sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable
@@ -51,7 +51,7 @@ public class PostController {
 
   @GetMapping("/best")
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showBestPosts(
-      @RequestParam(required = false) @PageableDefault(
+      @PageableDefault(
           sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable
@@ -66,7 +66,7 @@ public class PostController {
 
   @GetMapping("/my")
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showMyPosts(
-      @RequestParam(required = false) @PageableDefault(
+      @PageableDefault(
           sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable,
@@ -82,7 +82,7 @@ public class PostController {
 
   @GetMapping("/mycomment")
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> showMyCommentedPosts(
-      @RequestParam(required = false) @PageableDefault(
+      @PageableDefault(
           sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable,
@@ -136,7 +136,7 @@ public class PostController {
   @GetMapping()
   public ResponseEntity<ApiResponse<Page<PostSimpleResponse>>> searchPosts(
       @RequestParam String keyword,
-      @RequestParam(required = false) @PageableDefault(
+      @PageableDefault(
           sort = {"createdAt"},
           direction = Sort.Direction.DESC
       ) Pageable pageable

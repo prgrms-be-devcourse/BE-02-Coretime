@@ -4,9 +4,11 @@ import com.fasterxml.classmate.TypeResolver;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Pageable;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.schema.AlternateTypeRules;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.ApiKey;
 import springfox.documentation.service.AuthorizationScope;
@@ -23,13 +25,12 @@ public class SwaggerConfig {
   @Bean
   public Docket apiV1() {
     return new Docket(DocumentationType.SWAGGER_2)
-//        .alternateTypeRules(AlternateTypeRules.newRule(typeResolver.resolve(Pageable.class),
-//            typeResolver.resolve(MyPageable.class)))
+        .alternateTypeRules(AlternateTypeRules.newRule(typeResolver.resolve(Pageable.class), typeResolver.resolve(MyPageable.class)))
+        .apiInfo(apiInfo())
         .select()
         .apis(RequestHandlerSelectors.any())
         .paths(PathSelectors.ant("/api/v1/**"))
         .build()
-        .apiInfo(apiInfo())
         .securitySchemes(List.of(apiKey()))
         .securityContexts(List.of(securityContext()));
   }
