@@ -23,9 +23,11 @@ import com.prgrms.coretime.post.dto.response.PostSimpleResponse;
 import com.prgrms.coretime.user.domain.User;
 import com.prgrms.coretime.user.domain.repository.UserRepository;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -89,6 +91,9 @@ public class PostService {
   @Transactional(readOnly = true)
   public Page<PostSimpleResponse> getPostsThatUserCommentedAt(Long userId, Pageable pageable) {
     List<Long> postIds = postRepository.findPostIdsThatUserCommentedAt(userId);
+    if (postIds.isEmpty()) {
+      return new PageImpl<>(new ArrayList<>());
+    }
     Page<Post> posts = postRepository.findPostsThatUserCommentedAt(postIds, pageable);
     return posts.map(PostSimpleResponse::new);
   }

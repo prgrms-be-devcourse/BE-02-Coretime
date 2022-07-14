@@ -34,8 +34,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   List<Long> findPostIdsThatUserCommentedAt(@Param("userId") Long userId);
 
   @Query(
-      value = "select p from Post p join fetch p.board join fetch p.user where p.id in :postIds",
-      countQuery = "select count(p) from Post p where p.id in :postIds"
+      value = "select p from Post p join fetch p.board join fetch p.user where p.id IN (:postIds)",
+      countQuery = "select count(p) from Post p where p.id IN (:postIds)"
   )
   Page<Post> findPostsThatUserCommentedAt(@Param("postIds") List<Long> postIds, Pageable pageable);
 
