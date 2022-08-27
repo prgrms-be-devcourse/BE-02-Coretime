@@ -18,7 +18,7 @@
 - `Java 17`
 - `Gradle 7.4.2`
 - `Spring Boot 2.6.8`
-- `MySQL`
+- `H2`
 - `JPA`
 - `JUnit5 / Mockito`
 - `Swagger`
